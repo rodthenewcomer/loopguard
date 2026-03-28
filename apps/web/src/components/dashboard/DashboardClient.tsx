@@ -83,32 +83,46 @@ function Skeleton() {
   );
 }
 
-/* ── Not authed state ────────────────────────────── */
-function NotAuthed() {
+/* ── Not authed banner (shown above demo data) ───── */
+function NotAuthedBanner() {
   return (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center mb-6">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" />
-        </svg>
+    <div className="mb-6 rounded-2xl border border-[#2563EB]/30 bg-[#2563EB]/5 p-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="flex-1">
+          <div className="text-sm font-bold text-white mb-1">
+            This is sample data — your real dashboard is one sign-up away.
+          </div>
+          <p className="text-xs text-[#6B7280] leading-relaxed">
+            Install the VS Code extension, create a free account, and your actual loop counts,
+            time wasted, and tokens saved will appear here automatically.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Link
+            href="/signup"
+            className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold rounded-xl transition-colors text-xs whitespace-nowrap"
+          >
+            Create free account
+          </Link>
+          <Link
+            href="/login"
+            className="px-4 py-2 border border-[#374151] hover:border-[#4B5563] text-[#9CA3AF] hover:text-white font-medium rounded-xl transition-colors text-xs whitespace-nowrap"
+          >
+            Sign in
+          </Link>
+        </div>
       </div>
-      <h2 className="text-2xl font-bold text-white mb-3">Connect your extension</h2>
-      <p className="text-[#6B7280] text-sm max-w-sm leading-relaxed mb-8">
-        Install the VS Code extension and sign in to start syncing your session metrics here.
-        Loop counts, time wasted, and tokens saved — all in one place.
-      </p>
-      <div className="flex items-center gap-3">
-        <a
-          href="https://marketplace.visualstudio.com/items?itemName=loopguard-dev.loopguard"
-          className="px-5 py-2.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold rounded-xl transition-colors text-sm"
-        >
-          Install Extension
-        </a>
-        <Link
-          href="/docs"
-          className="px-5 py-2.5 border border-[#374151] hover:border-[#4B5563] text-[#9CA3AF] hover:text-white font-medium rounded-xl transition-colors text-sm"
-        >
-          View docs
+      <div className="mt-3 pt-3 border-t border-[#2563EB]/15 flex flex-wrap gap-4 text-xs text-[#4B5563]">
+        <span className="flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+          Free forever — no credit card
+        </span>
+        <span className="flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+          Your code never leaves your machine
+        </span>
+        <Link href="/setup" className="flex items-center gap-1.5 text-[#2563EB] hover:text-[#3B82F6] transition-colors">
+          Install the extension →
         </Link>
       </div>
     </div>
@@ -141,12 +155,12 @@ function DashboardBody({
               ? `API unavailable (${error}) — showing sample data. Install the extension to sync live metrics.`
               : 'This is sample data. Install the VS Code extension and sign in to see your real metrics.'}
           </p>
-          <a
-            href="https://marketplace.visualstudio.com/items?itemName=loopguard-dev.loopguard"
+          <Link
+            href="/setup"
             className="flex-shrink-0 text-xs px-3 py-1.5 bg-[#F59E0B]/15 hover:bg-[#F59E0B]/25 text-[#F59E0B] border border-[#F59E0B]/30 rounded-lg transition-colors font-medium whitespace-nowrap"
           >
             Install Extension →
-          </a>
+          </Link>
         </div>
       )}
 
@@ -212,12 +226,12 @@ function DashboardBody({
               ))}
             </ul>
           </div>
-          <a
-            href="/#pricing"
+          <Link
+            href="/upgrade"
             className="block text-center py-2.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold rounded-xl transition-all duration-200 text-sm glow-primary"
           >
             Upgrade to Pro — $9/mo
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -352,13 +366,13 @@ function TopBar({ isLive }: { isLive: boolean }) {
               <span className="text-xs text-[#F59E0B] font-medium">Demo</span>
             </div>
           )}
-          <a
-            href="/#pricing"
+          <Link
+            href="/upgrade"
             className="flex items-center gap-1.5 px-3 py-1 bg-[#1F2937] rounded-full hover:bg-[#374151] transition-colors"
           >
             <span className="text-xs text-[#6B7280] font-medium">Free plan</span>
             <span className="text-[10px] text-[#2563EB] font-bold">→ Upgrade</span>
-          </a>
+          </Link>
         </div>
       </div>
     </header>
@@ -385,7 +399,12 @@ export default function DashboardClient() {
       <div className="min-h-screen bg-[#0B1220]">
         <TopBar isLive={false} />
         <main className="max-w-7xl mx-auto px-6 py-8">
-          <NotAuthed />
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+            <p className="text-[#6B7280] text-sm mt-1">Sample data — sign up to see your real metrics</p>
+          </div>
+          <NotAuthedBanner />
+          <DashboardBody data={DEMO_DATA} isDemo={false} />
         </main>
       </div>
     );
