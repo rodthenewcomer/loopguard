@@ -1,7 +1,7 @@
 {
   "name": "loopguard",
-  "displayName": "LoopGuard — Stop AI Loops",
-  "description": "Detects when you're stuck in AI coding loops. Shows time wasted. Fixes your workflow.",
+  "displayName": "LoopGuard — AI Loop Detector & Context Optimizer",
+  "description": "Detects AI coding loops before they waste your time. Cuts token spend by 93% with a Rust-powered context engine that sends only what matters. Free for VS Code and Cursor.",
   "version": "0.1.0",
   "publisher": "loopguard-dev",
   "icon": "icon.png",
