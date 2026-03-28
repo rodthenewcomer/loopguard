@@ -6,7 +6,7 @@
   "crons": [
     {
       "path": "/api/cron/cleanup-auth-codes",
-      "schedule": "0 * * * *"
+      "schedule": "0 3 * * *"
     },
     {
       "path": "/api/cron/cleanup-old-data",
