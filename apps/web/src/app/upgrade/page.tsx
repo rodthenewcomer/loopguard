@@ -6,16 +6,6 @@ export const metadata: Metadata = {
   description: 'LoopGuard Pro — Rust context engine, MCP server, shell hooks, and 12-month history. $9/month, cancel anytime.',
 };
 
-const FREE_FEATURES = [
-  'Loop detection — unlimited sessions',
-  'Edit-pattern loop detection',
-  'Alert with exact minutes wasted',
-  'TypeScript context engine (~80% token reduction)',
-  'Status bar + VS Code session dashboard',
-  'Web dashboard — 30-day history',
-  'Works on Windows, macOS, Linux',
-];
-
 const PRO_FEATURES = [
   {
     title: 'Rust context engine',
