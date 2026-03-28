@@ -354,6 +354,30 @@ fn extract_line_range(content: &str, range_str: &str) -> String {
     }
 }
 
+fn handle_diff(cache: &mut SessionCache, path: &str, file_ref: &str) -> String {
+    let short = protocol::shorten_path(path);
+    let old_content = cache.get(path).map(|e| e.content.clone());
+
+    let new_content = match std::fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(e) => return format!("ERROR: {e}"),
+    };
+
+    let original_tokens = count_tokens(&new_content);
+
+    let diff_output = if let Some(old) = &old_content {
+        compressor::diff_content(old, &new_content)
+    } else {
+        format!("[first read]\n{new_content}")
+    };
+
+    cache.store(path, new_content);
+
+    let sent = count_tokens(&diff_output);
+    let savings = protocol::format_savings(original_tokens, sent);
+    format!("{file_ref}={short} [diff]\n{diff_output}\n{savings}")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -406,28 +430,4 @@ mod tests {
             assert!(tok <= 2, "Symbol {sym} should be 1-2 tokens, got {tok}");
         }
     }
-}
-
-fn handle_diff(cache: &mut SessionCache, path: &str, file_ref: &str) -> String {
-    let short = protocol::shorten_path(path);
-    let old_content = cache.get(path).map(|e| e.content.clone());
-
-    let new_content = match std::fs::read_to_string(path) {
-        Ok(c) => c,
-        Err(e) => return format!("ERROR: {e}"),
-    };
-
-    let original_tokens = count_tokens(&new_content);
-
-    let diff_output = if let Some(old) = &old_content {
-        compressor::diff_content(old, &new_content)
-    } else {
-        format!("[first read]\n{new_content}")
-    };
-
-    cache.store(path, new_content);
-
-    let sent = count_tokens(&diff_output);
-    let savings = protocol::format_savings(original_tokens, sent);
-    format!("{file_ref}={short} [diff]\n{diff_output}\n{savings}")
 }

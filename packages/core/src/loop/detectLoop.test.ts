@@ -31,8 +31,8 @@ describe('LoopDetector', () => {
     expect(event?.fileUri).toBe('file:///test.ts');
     expect(event?.status).toBe('active');
     expect(event?.occurrences).toBe(3);
-    expect(event?.firstSeen).toBeLessThanOrEqualTo(Date.now());
-    expect(event?.lastSeen).toBeLessThanOrEqualTo(Date.now());
+    expect(event?.firstSeen).toBeLessThanOrEqual(Date.now());
+    expect(event?.lastSeen).toBeLessThanOrEqual(Date.now());
   });
 
   it('suppresses duplicate emissions after first loop fires', () => {
@@ -57,7 +57,7 @@ describe('LoopDetector', () => {
     detector.record(r); // suppressed but should update
     const after = detector.getActiveLoops()[0];
     expect(after?.occurrences).toBeGreaterThan(beforeOccurrences);
-    expect(after?.lastSeen).toBeGreaterThanOrEqualTo(before!.lastSeen);
+    expect(after?.lastSeen).toBeGreaterThanOrEqual(before!.lastSeen);
   });
 
   it('re-detects after resolve() clears the hash', () => {
