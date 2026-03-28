@@ -121,9 +121,9 @@ export default function SignupClient() {
 
         <p className="text-center text-xs text-[#4B5563]">
           By signing up, you agree to our{' '}
-          <a href="#" className="text-[#6B7280] underline underline-offset-2 hover:text-[#9CA3AF] transition-colors">Terms</a>
+          <Link href="/terms" className="text-[#6B7280] underline underline-offset-2 hover:text-[#9CA3AF] transition-colors">Terms</Link>
           {' '}and{' '}
-          <a href="#" className="text-[#6B7280] underline underline-offset-2 hover:text-[#9CA3AF] transition-colors">Privacy Policy</a>
+          <Link href="/privacy" className="text-[#6B7280] underline underline-offset-2 hover:text-[#9CA3AF] transition-colors">Privacy Policy</Link>
         </p>
       </form>
 

@@ -764,12 +764,12 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <a
-                href="/setup"
+              <Link
+                href="/upgrade"
                 className="block text-center py-3 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold rounded-xl transition-all duration-200 text-sm glow-primary shadow-lg shadow-blue-900/40"
               >
-                Start Pro — $9/month
-              </a>
+                See Pro features →
+              </Link>
             </div>
           </ScrollReveal>
         </div>
