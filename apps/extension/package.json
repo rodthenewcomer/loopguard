@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/loopguard/loopguard"
+    "url": "https://github.com/rodthenewcomer/loopguard"
   },
   "engines": {
     "vscode": "^1.90.0"
