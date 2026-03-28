@@ -1,0 +1,13 @@
+**
+!dist/**
+!bin/**
+!package.json
+!README.md
+!LICENSE
+!icon.png
+node_modules
+src
+tsconfig.json
+esbuild.js
+scripts
+.gitignore

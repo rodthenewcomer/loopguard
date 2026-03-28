@@ -1,0 +1,83 @@
+[package]
+name = "loopguard-ctx"
+version = "0.1.0"
+edition = "2021"
+description = "LoopGuard Context Engine — token compression, shell hooks, MCP server, loop-aware context selection."
+license = "MIT"
+repository = "https://github.com/loopguard/loopguard"
+homepage = "https://loopguard.dev"
+readme = "README.md"
+keywords = ["mcp", "llm", "tokens", "compression", "ai"]
+categories = ["command-line-utilities", "development-tools"]
+exclude = ["examples/", "tests/"]
+
+[lib]
+name = "loopguard_ctx"
+path = "src/lib.rs"
+
+[[bin]]
+name = "loopguard-ctx"
+path = "src/main.rs"
+
+[features]
+default = ["tree-sitter"]
+tree-sitter = [
+  "dep:tree-sitter",
+  "dep:tree-sitter-rust",
+  "dep:tree-sitter-typescript",
+  "dep:tree-sitter-javascript",
+  "dep:tree-sitter-python",
+  "dep:tree-sitter-go",
+  "dep:tree-sitter-java",
+  "dep:tree-sitter-c",
+  "dep:tree-sitter-cpp",
+  "dep:tree-sitter-ruby",
+  "dep:tree-sitter-c-sharp",
+  "dep:tree-sitter-kotlin-ng",
+  "dep:tree-sitter-swift",
+  "dep:tree-sitter-php",
+]
+
+[dependencies]
+rmcp = { version = "1", features = ["server", "transport-io"] }
+tiktoken-rs = "0.6"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+md-5 = "0.10"
+anyhow = "1"
+regex = "1"
+walkdir = "2"
+ignore = "0.4"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+dirs = "5"
+chrono = { version = "0.4", features = ["serde"] }
+toml = "0.8"
+similar = "2"
+flate2 = "1"
+tree-sitter = { version = "0.26", optional = true }
+tree-sitter-rust = { version = "0.24", optional = true }
+tree-sitter-typescript = { version = "0.23", optional = true }
+tree-sitter-javascript = { version = "0.25", optional = true }
+tree-sitter-python = { version = "0.25", optional = true }
+tree-sitter-go = { version = "0.25", optional = true }
+tree-sitter-java = { version = "0.23", optional = true }
+tree-sitter-c = { version = "0.24", optional = true }
+tree-sitter-cpp = { version = "0.23", optional = true }
+tree-sitter-ruby = { version = "0.23", optional = true }
+tree-sitter-c-sharp = { version = "0.23", optional = true }
+# tree-sitter-kotlin (fwcd) caps tree-sitter at <0.23; kotlin-ng matches tree-sitter 0.26.
+tree-sitter-kotlin-ng = { version = "1.1", optional = true }
+tree-sitter-swift = { version = "0.7", optional = true }
+tree-sitter-php = { version = "0.24", optional = true }
+ureq = "3.3.0"
+tar = "0.4.45"
+zip = "8.4.0"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

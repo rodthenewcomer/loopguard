@@ -1,0 +1,216 @@
+name: Release — Build & Package All Platforms
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # triggers on v0.1.0, v1.0.0, etc.
+  workflow_dispatch:  # allow manual trigger
+
+permissions:
+  contents: write  # needed to create GitHub release
+
+jobs:
+  # ── Build Rust binary for each platform ──────────────────────────
+  build-binary:
+    name: Build binary (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-14          # M1 runner — native arm64
+            vscode-platform: darwin-arm64
+            binary: loopguard-ctx
+
+          - target: x86_64-apple-darwin
+            os: macos-13          # Intel runner
+            vscode-platform: darwin-x64
+            binary: loopguard-ctx
+
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            vscode-platform: win32-x64
+            binary: loopguard-ctx.exe
+
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-22.04
+            vscode-platform: linux-x64
+            binary: loopguard-ctx
+
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-22.04
+            vscode-platform: linux-arm64
+            binary: loopguard-ctx
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install musl tools (Linux)
+        if: contains(matrix.target, 'linux')
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y musl-tools
+          # For arm64 cross-compilation
+          if [[ "${{ matrix.target }}" == aarch64* ]]; then
+            sudo apt-get install -y gcc-aarch64-linux-gnu
+          fi
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/context-engine/rust
+
+      - name: Build Rust binary
+        working-directory: packages/context-engine/rust
+        run: cargo build --release --target ${{ matrix.target }}
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER: aarch64-linux-gnu-gcc
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.vscode-platform }}
+          path: packages/context-engine/rust/target/${{ matrix.target }}/release/${{ matrix.binary }}
+          retention-days: 1
+
+  # ── Package VS Code extension for each platform ───────────────────
+  package-extension:
+    name: Package VSIX (${{ matrix.vscode-platform }})
+    needs: build-binary
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - vscode-platform: darwin-arm64
+            binary: loopguard-ctx
+          - vscode-platform: darwin-x64
+            binary: loopguard-ctx
+          - vscode-platform: win32-x64
+            binary: loopguard-ctx.exe
+          - vscode-platform: linux-x64
+            binary: loopguard-ctx
+          - vscode-platform: linux-arm64
+            binary: loopguard-ctx
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build TypeScript packages
+        run: npm run build
+
+      - name: Download binary artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-${{ matrix.vscode-platform }}
+          path: /tmp/binary/
+
+      - name: Place binary in extension bin/ directory
+        run: |
+          PLATFORM=$(echo "${{ matrix.vscode-platform }}" | cut -d'-' -f1)
+          ARCH=$(echo "${{ matrix.vscode-platform }}" | cut -d'-' -f2)
+          DEST="apps/extension/bin/${{ matrix.vscode-platform }}"
+          mkdir -p "$DEST"
+          cp "/tmp/binary/${{ matrix.binary }}" "$DEST/"
+          chmod +x "$DEST/${{ matrix.binary }}" || true
+          echo "✓ Binary placed at $DEST/${{ matrix.binary }}"
+          ls -lh "$DEST/"
+
+      - name: Package VSIX
+        working-directory: apps/extension
+        run: |
+          npx vsce package --no-dependencies --target ${{ matrix.vscode-platform }} \
+            --out loopguard-${{ matrix.vscode-platform }}.vsix
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix-${{ matrix.vscode-platform }}
+          path: apps/extension/loopguard-${{ matrix.vscode-platform }}.vsix
+          retention-days: 7
+
+  # ── Create GitHub Release with all VSIXs ─────────────────────────
+  release:
+    name: Create GitHub Release
+    needs: package-extension
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all VSIX artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: vsix-*
+          path: /tmp/vsix/
+          merge-multiple: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: /tmp/vsix/*.vsix
+          generate_release_notes: true
+          body: |
+            ## LoopGuard ${{ github.ref_name }}
+
+            ### Installation
+
+            Install from the VS Code Marketplace (platform binary included automatically):
+            ```
+            ext install loopguard-dev.loopguard
+            ```
+
+            Or manually install the VSIX for your platform from the assets below.
+
+            ### Platform binaries
+            Each VSIX includes a bundled `loopguard-ctx` binary — no manual installation required.
+
+            | VSIX | Platform |
+            |------|---------|
+            | `loopguard-darwin-arm64.vsix` | macOS Apple Silicon (M1/M2/M3) |
+            | `loopguard-darwin-x64.vsix` | macOS Intel |
+            | `loopguard-win32-x64.vsix` | Windows x64 |
+            | `loopguard-linux-x64.vsix` | Linux x64 |
+            | `loopguard-linux-arm64.vsix` | Linux ARM64 |
+
+  # ── Publish to VS Code Marketplace ───────────────────────────────
+  publish:
+    name: Publish to Marketplace
+    needs: package-extension
+    runs-on: ubuntu-22.04
+    # Only publish on real version tags (not pre-release like v0.1.0-beta)
+    if: "!contains(github.ref_name, '-')"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Download all VSIX artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: vsix-*
+          path: /tmp/vsix/
+          merge-multiple: true
+
+      - name: Publish all platform VSIXs to Marketplace
+        run: |
+          for vsix in /tmp/vsix/*.vsix; do
+            echo "Publishing: $vsix"
+            npx @vscode/vsce publish --packagePath "$vsix" \
+              --pat "${{ secrets.VSCE_TOKEN }}"
+          done

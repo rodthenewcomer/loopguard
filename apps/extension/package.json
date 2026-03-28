@@ -1,0 +1,137 @@
+{
+  "name": "loopguard",
+  "displayName": "LoopGuard — Stop AI Loops",
+  "description": "Detects when you're stuck in AI coding loops. Shows time wasted. Fixes your workflow.",
+  "version": "0.1.0",
+  "publisher": "loopguard-dev",
+  "icon": "icon.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopguard/loopguard"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": ["Other", "Debuggers", "Machine Learning"],
+  "keywords": ["AI", "productivity", "loop detection", "cursor", "copilot", "context", "tokens"],
+  "activationEvents": ["onStartupFinished", "onUri"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "loopguard.showDashboard",
+        "title": "LoopGuard: Show Dashboard",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "loopguard.resetSession",
+        "title": "LoopGuard: Reset Session"
+      },
+      {
+        "command": "loopguard.toggleDetection",
+        "title": "LoopGuard: Toggle Detection"
+      },
+      {
+        "command": "loopguard.copyContext",
+        "title": "LoopGuard: Copy Optimized Context",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "loopguard.setupMCP",
+        "title": "LoopGuard: Configure MCP Server",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "loopguard.setupShellHooks",
+        "title": "LoopGuard: Install Shell Hooks",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "loopguard.signIn",
+        "title": "LoopGuard: Sign In",
+        "icon": "$(account)"
+      },
+      {
+        "command": "loopguard.signOut",
+        "title": "LoopGuard: Sign Out"
+      }
+    ],
+    "configuration": {
+      "title": "LoopGuard",
+      "properties": {
+        "loopguard.sensitivity": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "default": "medium",
+          "description": "How quickly LoopGuard flags a loop. Low = 5 occurrences, Medium = 3, High = 2."
+        },
+        "loopguard.enableContextEngine": {
+          "type": "boolean",
+          "default": true,
+          "description": "Filter context before AI calls to reduce token waste. Pro feature."
+        },
+        "loopguard.enableNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show alert popups when a loop is detected."
+        },
+        "loopguard.loopThreshold": {
+          "type": "number",
+          "default": 3,
+          "minimum": 2,
+          "maximum": 10,
+          "description": "Custom loop detection threshold (overrides sensitivity preset)."
+        }
+      }
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "loopguard.showDashboard",
+          "group": "navigation",
+          "when": "loopguard.active"
+        },
+        {
+          "command": "loopguard.copyContext",
+          "group": "navigation",
+          "when": "loopguard.active"
+        }
+      ],
+      "commandPalette": [
+        { "command": "loopguard.showDashboard" },
+        { "command": "loopguard.resetSession" },
+        { "command": "loopguard.toggleDetection" },
+        { "command": "loopguard.copyContext" },
+        { "command": "loopguard.setupMCP" },
+        { "command": "loopguard.setupShellHooks" },
+        { "command": "loopguard.signIn" },
+        { "command": "loopguard.signOut" }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "package": "npm run build && vsce package --no-dependencies",
+    "package:darwin-arm64": "npm run build && node scripts/bundle-binary.js darwin arm64 && vsce package --no-dependencies --target darwin-arm64",
+    "package:darwin-x64": "npm run build && node scripts/bundle-binary.js darwin x64 && vsce package --no-dependencies --target darwin-x64",
+    "package:win32-x64": "npm run build && node scripts/bundle-binary.js win32 x64 && vsce package --no-dependencies --target win32-x64",
+    "package:linux-x64": "npm run build && node scripts/bundle-binary.js linux x64 && vsce package --no-dependencies --target linux-x64",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@loopguard/core": "*",
+    "@loopguard/types": "*",
+    "@loopguard/utils": "*"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-electron": "^2.4.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.23.0",
+    "typescript": "*"
+  }
+}

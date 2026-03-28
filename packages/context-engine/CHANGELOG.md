@@ -1,0 +1,482 @@
+# Changelog
+
+All notable changes to loopguard-ctx are documented here.
+
+## [2.6.0] — 2026-03-27
+
+### Added
+
+- **Adaptive per-language entropy thresholds** — Entropy compression now uses language-specific BPE entropy thresholds (e.g. Rust 0.85, Python 1.2, JSON 0.6) with Kolmogorov complexity adjustment. Header files (`.h`, `.hpp`) and config files get the most aggressive compression
+- **Task-conditioned compression** — New `task_relevance` module computes relevance scores for project files using BFS through the dependency graph + keyword matching. Files are ranked and assigned optimal read modes (full/signatures/map/reference)
+- **`ctx_overview` MCP tool** — Multi-resolution project overview that shows files grouped by task relevance. Provides a compact project map at session start, recommending which files to read at which detail level
+- **Heuristic attention prediction model** — Position-based U-curve (alpha/beta/gamma) combined with structural importance scoring (definitions > errors > control flow > imports > comments > braces). Predicts which lines receive the most transformer attention
+- **Cross-file semantic dedup via TF-IDF** — Codebook system identifies patterns appearing in 3+ files and creates short `§N` references. TF-IDF cosine similarity detects semantically duplicate files in `ctx_dedup`
+- **Information Bottleneck filter** — Approximates the IB method using line-level relevance scoring + positional U-weighting to select the most informative subset within a token budget
+- **Feedback loop** — Tracks compression outcomes (thresholds used, tokens saved, turns taken, task completion) in `~/.loopguard-ctx/feedback.json`. After 5+ sessions per language, adaptively learns optimal entropy/jaccard thresholds
+- **Output token budget in CEP** — System prompt now guides LLMs on response length by task complexity: Mechanical (max 50 tokens), Standard (max 200), Architectural (full reasoning)
+- **Prefix-cache aligned system prompt** — Static instructions placed before variable session state for optimal KV-cache reuse by API providers
+
+### Changed
+
+- **Entropy compression** — `entropy_compress_adaptive()` now accepts path for per-language threshold selection. Existing `entropy_compress()` preserved for backward compatibility
+- **`ctx_dedup` analysis** — Now includes TF-IDF cosine similarity analysis for semantic duplicate detection alongside existing block-based dedup
+- **LITM module** — New `content_attention_efficiency()` function combines positional U-curve with structural importance analysis for content-aware attention prediction
+
+---
+
+## [2.5.3] — 2026-03-27
+
+### Added
+
+- **VS Code / GitHub Copilot MCP support** — `loopguard-ctx init --agent copilot` now creates `.vscode/mcp.json` with loopguard-ctx as MCP server instead of incorrectly installing a Claude Code hook. Copilot agents gain access to `ctx_read`, `ctx_shell`, `ctx_search`, `ctx_tree` as direct tools
+- **`loopguard-ctx setup` detects VS Code** — Auto-setup now detects VS Code installations on macOS, Linux, and Windows and configures `mcp.json` in the VS Code user directory
+- **`loopguard-ctx doctor` checks VS Code MCP** — Diagnostics now include VS Code / Copilot MCP configuration status
+
+### Changed
+
+- **Landing page particle animation** — Reduced mouse attraction force for subtler, smoother cursor interaction
+
+---
+
+## [2.5.2] — 2026-03-27
+
+### Fixed
+
+- **MCP instructions: Write/StrReplace confusion** — Restructured MCP system prompt to clearly separate "REPLACE" tools (Read → ctx_read, Shell → ctx_shell, Grep → ctx_search) from "KEEP" tools (Write, StrReplace, Delete, Glob). Agents no longer think they must ctx_read before creating files with Write (#20)
+- **`loopguard-ctx doctor` on Windows** — Fixed OS Error 193 ("not a valid Win32 application") when doctor tried to run `loopguard-ctx --version` via the npm `.cmd` shim. Now prefers `.exe` binaries from `where.exe` output and falls back to alternative candidates
+- **`stats.json missing` false alarm** — `loopguard-ctx doctor` no longer shows a red error for missing `stats.json` on fresh installs. Now shows yellow "not yet created (will appear after first use)" and counts as passed
+- **`loopguard-ctx gain` missing MCP hint** — When MCP/CEP shows 0% savings (shell hook only, no MCP server configured), gain now displays a clear hint to run `loopguard-ctx setup` for full token savings
+
+### Added
+
+- **GitHub Discussions** — Enabled Discussions tab for questions and community support (#19)
+
+---
+
+## [2.5.1] — 2026-03-27
+
+### Fixed
+
+- **`ctx_read` cache bypass** — Added `start_line` parameter and `lines:N-M` mode to MCP schema. When an LLM requests specific lines from a cached file, loopguard-ctx now returns actual content instead of the compact `cached Nt NL` stub. Fixes issue where LLMs fell back to native Read tools after wasting 3-5 minutes (#17)
+- **`pi install` registry resolution** — Fixed `loopguard-ctx init --agent pi` to use `npm:pi-loopguard-ctx` prefix so Pi resolves the package from npm registry instead of treating it as a local path
+- **Improved MCP instructions** — System prompt now explicitly guides LLMs to use `fresh=true`, `start_line`, or `lines:N-M` mode when they encounter a cache stub, preventing fallback to native tools
+- **pi-loopguard-ctx v1.0.2** — Added 40+ file extensions to code detection (`.vue`, `.svelte`, `.astro`, `.html`, `.css`, `.scss`, `.lua`, `.zig`, `.dart`, `.scala`, `.sql`, `.graphql`, `.proto`, `.tf`, `.sh`, and more). Partial reads with `offset`/`limit` now route through loopguard-ctx `lines:N-M` mode instead of bypassing compression (#18)
+
+---
+
+## [2.5.0] — 2026-03-27
+
+### Added
+
+- **`loopguard-ctx setup`** — One-command setup that installs shell aliases, auto-detects installed AI editors (Cursor, Claude Code, Windsurf, Codex CLI, Gemini CLI, Zed), creates MCP config files, installs agent instructions, and runs diagnostics. Replaces the multi-step manual installation process
+- **`loopguard-ctx doctor` improvements** — Enhanced diagnostic output with better detection of editor configurations and more actionable error messages
+
+### Changed
+
+- **Website documentation restructured** — Getting Started page now follows a clean chronological flow: Quick Install → Step 1: Install → Step 2: Setup → Step 3: Editor Setup → Step 4: Verify. Docs sidebar reorganized into logical groups for better navigation
+- **Installation Prompt Generator redesigned** — Integrated into documentation style with consistent headings, labels, and layout. Now generates prompts referencing `loopguard-ctx setup` for simplified installation
+
+---
+
+## [2.4.1] — 2026-03-27
+
+### Added
+
+- **Persistent Project Graph** — New `ctx_graph` with 5 actions (`build`, `related`, `symbol`, `impact`, `status`). Incrementally scans project files, persists index to `~/.loopguard-ctx/graphs/`, and enables symbol-level reads at up to 93% token savings over full file reads
+- **`install.sh`** — Universal installer with `--download` mode (no Rust required), SHA256 checksum verification, and one-liner support: `curl -fsSL .../install.sh | bash -s -- --download`
+- **`loopguard-ctx-bin` npm package** — Pre-built binary distribution via npm for users without Rust: `npm install -g loopguard-ctx-bin`
+- **`lgctx` launcher** — Multi-agent launcher script supporting Claude Code, Cursor, Gemini CLI, Codex, Windsurf, and Cline. Auto-detects agent, builds project graph, and configures loopguard-ctx in one command
+- **Graph-based intent** — `ctx_intent` now uses the persistent project graph for more precise file selection when a graph index is available
+
+### Fixed
+
+- **Self-update Linux target mismatch** — `updater.rs` now matches the `gnu` targets produced by CI instead of expecting `musl`. Release CI also builds `musl` targets for maximum portability
+
+---
+
+## [2.4.0] — 2026-03-27
+
+### Fixed
+
+- **`excluded_commands` now enforced** — Commands listed in `~/.loopguard-ctx/config.toml` under `excluded_commands` now actually bypass compression and return raw output. Previously the config option was parsed but never checked ([#10](https://github.com/yvgude/loopguard-ctx/issues/10))
+- **Windows Git Bash shell flag** — `shell_and_flag()` now correctly assigns `-c` for POSIX-style shells (bash/sh/zsh/fish) on Windows, instead of `/C` (cmd.exe only). Fixes the `/C: Is a directory` error and exit code 126 when using loopguard-ctx with Git Bash ([#7](https://github.com/yvgude/loopguard-ctx/issues/7), [#11](https://github.com/yvgude/loopguard-ctx/issues/11), via PR [#8](https://github.com/yvgude/loopguard-ctx/pull/8))
+
+### Added
+
+- **`loopguard-ctx-on` / `loopguard-ctx-off` / `loopguard-ctx-status`** — Shell toggle functions installed by `loopguard-ctx init --global`. Switch between compressed AI mode and human-readable output without restarting the shell. `LEAN_CTX_ENABLED=0` disables by default ([#13](https://github.com/yvgude/loopguard-ctx/issues/13))
+- **Slow query log** — Commands exceeding `slow_command_threshold_ms` (default: 5000ms) are automatically logged to `~/.loopguard-ctx/slow-commands.log`. New `loopguard-ctx slow-log [list|clear]` command to inspect or clear the log. Configure threshold in `config.toml` ([#14](https://github.com/yvgude/loopguard-ctx/issues/14))
+- **`loopguard-ctx update`** — Built-in self-update command. Fetches the latest release from the GitHub API, downloads the appropriate binary archive for the current platform (macOS arm64/x86\_64, Linux x86\_64/aarch64 musl, Windows x86\_64), and safely replaces the running binary. `loopguard-ctx update --check` checks for updates without installing ([#15](https://github.com/yvgude/loopguard-ctx/issues/15))
+- **`slow_command_threshold_ms` config option** — New field in `~/.loopguard-ctx/config.toml` (default: 5000). Set to `0` to disable slow logging
+
+### Docs
+
+- **README** updated with `loopguard-ctx-on/off/status` usage and `loopguard-ctx update` examples (via PR [#9](https://github.com/yvgude/loopguard-ctx/pull/9))
+- **`loopguard-ctx-session-metrics.mdc`** example added to `rust/examples/` showing how to surface live MCP session token savings in agent transcripts
+
+---
+
+## [2.3.3] — 2026-03-26
+
+### Added
+
+- **Pi Coding Agent integration** — New `pi-loopguard-ctx` npm package that overrides Pi's `bash`, `read`, `grep`, `find`, and `ls` tools to route all output through loopguard-ctx. Smart read mode selection based on file type and size (full/map/signatures). Includes compression stats footer and `/loopguard-ctx` slash command
+- **`loopguard-ctx init --agent pi`** — One-command setup: auto-installs the `pi-loopguard-ctx` Pi Package and creates project-local `AGENTS.md` with loopguard-ctx instructions
+- **Pi AGENTS.md template** — Skill file teaching Pi to leverage loopguard-ctx compression transparently
+
+## [2.3.2] — 2026-03-26
+
+### Fixed
+
+- **Dashboard flicker-free live updates** — Replaced full DOM rebuild on each poll with incremental value patching. KPI values, charts, and tables now update in-place without page flicker. Charts update data arrays instead of being destroyed and recreated. Polling interval reduced from 10s to 3s for near-real-time feel
+
+### Added
+
+- **`loopguard-ctx gain --live`** — Live terminal dashboard mode. Refreshes in-place every 2s without scrolling. Press Ctrl+C to exit
+- **Zed editor docs** — Full setup guide with `context_servers` configuration added to website getting-started page
+
+## [2.3.1] — 2026-03-26
+
+### Fixed
+
+- **Dashboard live update** — Added `Cache-Control: no-cache, no-store, must-revalidate` headers to API responses, preventing browser caching of stale data. `mcp-live.json` now updates on every MCP tool call instead of only during auto-checkpoint (every 15 calls)
+- **ctx_search respects .gitignore** — Replaced `walkdir` with the `ignore` crate (same library ripgrep uses) in `ctx_search`, `ctx_tree`, `ctx_graph`, and `ctx_intent`. Next.js projects no longer scan 50k+ files in `node_modules`/`.next`. Added `ignore_gitignore` parameter to `ctx_search` for opt-out ([#6](https://github.com/yvgude/loopguard-ctx/issues/6))
+
+### Added
+
+- **Zed editor configuration** — Added Zed MCP setup instructions to README with `context_servers` configuration example ([#5](https://github.com/yvgude/loopguard-ctx/issues/5))
+- **`ignore` crate dependency** — Provides automatic `.gitignore`, `.git/info/exclude`, and global gitignore support for all file-walking operations
+
+## [2.3.0] — 2026-03-26
+
+### Scientific Compression Engine (10 Information-Theoretic Optimizations)
+
+Major release adding a scientifically-grounded compression engine — 10 optimizations derived from Shannon entropy, Kolmogorov complexity, Bayesian inference, and rate-distortion theory.
+
+### Added
+
+- **I1: BPE Token-Aware Entropy** — Shannon entropy calculated on BPE token distributions instead of character frequencies, precisely matching LLM tokenizer behavior. Low-entropy threshold calibrated for real code
+- **I2: N-Gram Jaccard Similarity** — Bigram-based Jaccard replaces word-set Jaccard for order-sensitive deduplication. Includes Minhash approximation (128 hashes, error < 0.01) for O(1) comparisons
+- **I3: Cross-File Dedup v2** — Detects shared 5-line blocks across cached files and replaces duplicates with `[= Fn:L1-L2]` references. `ctx_dedup` now supports `analyze` and `apply` actions
+- **I4: Bayesian Mode Predictor** — Learns optimal read mode (full/map/signatures/aggressive/entropy) per file signature (extension × size bucket) from historical outcomes. Persists to `~/.loopguard-ctx/mode_stats.json`
+- **I5: Adaptive LITM Profiles** — Model-specific Lost-In-The-Middle weights (Claude α=0.50, GPT α=0.45, Gemini α=0.40) for optimal context positioning. Configurable via `LEAN_CTX_LITM_PROFILE` env var
+- **I6: Boltzmann Cache Eviction** — Thermodynamic-inspired eviction scoring: `score = frequency × exp(-age/τ)`. Respects configurable token budget (`LEAN_CTX_CACHE_MAX_TOKENS`, default 500K)
+- **I7: Information Density Metric** — Measures semantic tokens per output token. Integrated into `QualityScore` with adaptive thresholds. Dense code (>0.15 density) gets lighter compression
+- **I8: Auto-Delta Encoding** — Automatically detects file changes on `ctx_read(mode="full")` and sends compact diffs when delta < 60% of full content. Typical savings: 98.9% for 1-line edits
+- **I9: Huffman Instruction Templates** — Short codes (ACT1, BRIEF, FULL, DELTA, etc.) replace verbose task complexity instructions. 52-60% shorter per instruction, break-even at 24 calls, saves 286 tokens per 50-call session
+- **I10: Kolmogorov Complexity Proxy** — Gzip-ratio approximation of Kolmogorov complexity classifies files as High/Medium/Low compressibility. Guides mode selection in `ctx_analyze`
+
+### Changed
+
+- **Crate restructure** — Added `lib.rs` for public API exposure, enabling integration testing. Binary `main.rs` now imports from library crate
+- **Entropy filter** uses BPE token entropy (threshold 1.0) instead of character entropy
+- **Pattern grouping** uses N-gram Jaccard (n=2) instead of word-set Jaccard
+- **`ctx_smart_read`** consults Bayesian mode predictor before falling back to heuristics
+- **`ctx_analyze`** reports Kolmogorov proxy and compressibility class
+- **Server instructions** include LITM profile name and instruction decoder block
+
+### Dependencies
+
+- Added `flate2 = "1"` for gzip-based Kolmogorov complexity proxy
+
+### Benchmarks (on loopguard-ctx's own 14 source files, 33,737 tokens)
+
+| Scenario | Savings |
+|---|---|
+| Cache re-read | **99%** (~8 tokens vs thousands) |
+| Map mode (server.rs) | **97.6%** (8,684 → 206 tokens) |
+| Auto-delta (1-line edit) | **98.9%** (3,325 → 38 tokens) |
+| Typical 40-read session | **69.0%** (149,695 → 46,332 tokens) |
+| Entropy mode (dense code) | 0.8% (already optimal) |
+| Aggressive mode | 3.9% |
+
+## [2.2.0] — 2026-03-26
+
+### Cognitive Efficiency Protocol (CEP v1)
+
+Major release introducing the Cognitive Efficiency Protocol — a holistic approach to LLM communication optimization that leverages the model's mathematical processing strengths.
+
+### Added
+
+- **CEP Compliance Scoring** in `ctx_metrics` — tracks Cache utilization, Mode diversity, Compression rate, and an overall CEP Score (0-100)
+- **Adaptive Instructions Engine** (`adaptive.rs`) — classifies task complexity (Mechanical / Standard / Architectural) based on session context and dynamically adjusts LLM reasoning guidance
+- **Smart Context Prefill Hints** in `ctx_context` — suggests optimal read modes for large or infrequently-used files
+- **Quality Scorer** (`quality.rs`) — measures AST, identifier, and line preservation to ensure compression quality stays above 95%
+- **Auto-Validation Pipeline** (`validator.rs`) — syntax checks for Rust, JS/TS, Python, JSON, TOML after file changes
+- **CEP A/B Benchmark** in `benchmark.rs` — compare token counts with and without CEP overhead
+- **MCP Live Stats** (`~/.loopguard-ctx/mcp-live.json`) — real-time CEP metrics for dashboard integration
+- **Dashboard CEP Intelligence Card** — shows CEP Score, Cache Hit Rate, Mode Diversity, Compression, and Task Complexity in the web dashboard
+- **TOON-Inspired Output Format** — indentation-based headers replacing bracket-label format for ~15% fewer tokens per header
+- **Extended Filler Detection v2** — 60+ patterns across Hedging, Meta-Commentary, Closings, Transitions, and Acknowledgments
+- **Dynamic MAP Threshold** — ROI-based identifier registration replaces fixed 12-char minimum
+- **Formal Action Vocabulary (TDD v2)** — Unicode symbols for code changes (`⊕⊖∆→⇒✓✗⚠`) and structural elements (`λ§∂τε`)
+
+### Fixed
+
+- **`--global --agent` no longer overwrites project files** — running `loopguard-ctx init --global --agent claude` now installs global hooks without creating `CLAUDE.md` in the current directory
+- **Multiple `--agent` flags** — `loopguard-ctx init --global --agent claude --agent codex` now processes all agents, not just the first
+
+---
+
+## [2.1.3] — 2026-03-26
+
+### Bug Fix: Shell Hook Idempotent Updates
+
+Fixes a critical UX issue where `loopguard-ctx init --global` refused to update existing shell aliases, leaving users stuck with broken (bare `loopguard-ctx`) aliases from older versions even after upgrading the binary.
+
+### Fixed
+
+- **`init --global` now auto-replaces old aliases** — running `loopguard-ctx init --global` detects and removes the previous loopguard-ctx block from `.bashrc`/`.zshrc`/`config.fish`/PowerShell profile, then writes fresh aliases with the correct absolute binary path
+- **No manual cleanup required** — users no longer need to manually delete old alias blocks before re-running init
+- **PowerShell profile update** — `init_powershell` also auto-replaces the old function block
+
+### Added
+
+- `remove_loopguard_ctx_block()` helper to cleanly strip old POSIX/fish hook blocks from shell config files
+- `remove_loopguard_ctx_block_ps()` helper for PowerShell profile block removal (brace-depth aware)
+- 4 unit tests for block removal covering bash, fish, PowerShell, and no-op cases
+
+### Note for existing users
+
+Simply run `loopguard-ctx init --global` — the old aliases will be automatically replaced with the correct absolute-path versions. No manual `.bashrc` editing needed.
+
+---
+
+## [2.1.2] — 2026-03-26
+
+### Bug Fix: Shell Hook PATH Resolution
+
+Fixes a critical bug where `loopguard-ctx init --global` and `loopguard-ctx init --agent <tool>` generated shell aliases and hook scripts using bare `loopguard-ctx` instead of the absolute binary path. This caused all rewritten commands to fail with exit code 126 when `loopguard-ctx` was not in the shell's PATH.
+
+### Fixed
+
+- **Shell aliases (bash/zsh/fish)** now use the absolute binary path from `std::env::current_exe()` instead of hardcoded `loopguard-ctx`
+- **Editor hook scripts (Claude, Cursor, Gemini)** embed `LEAN_CTX_BIN="/full/path/loopguard-ctx"` at the top and use `$LEAN_CTX_BIN` throughout
+- **Codex and Cline instruction files** reference the full binary path
+- **Windows + Git Bash compatibility**: Windows paths (`C:\Users\...`) are automatically converted to Git Bash paths (`/c/Users/...`) in bash hook scripts, fixing the `/C: Is a directory` error
+
+### Added
+
+- `to_bash_compatible_path()` helper for cross-platform path conversion (Windows drive letters to POSIX format)
+- `resolve_binary_path_for_bash()` for bash-specific path resolution
+- 6 unit tests for path conversion covering Unix paths, Windows drive letters, and edge cases
+
+### Note for existing users
+
+After updating, re-run `loopguard-ctx init --global` and/or `loopguard-ctx init --agent <tool>` to regenerate the aliases/hooks with the absolute path. Remove the old shell hook block from your `.zshrc`/`.bashrc` first (between `# loopguard-ctx shell hook` and `fi`).
+
+---
+
+## [2.1.1] — 2026-03-25
+
+### Tool Enforcement + Editor Hook Improvements + Security & Trust
+
+This release ensures AI coding tools reliably use loopguard-ctx MCP tools, and establishes a comprehensive security posture.
+
+### Changed
+
+- **MCP tool descriptions** now start with "REPLACES built-in X tool — ALWAYS use this instead of X"
+- **Server instructions** include a LITM-optimized REMINDER at the end
+- **`loopguard-ctx init --agent cursor`** now auto-creates `.cursor/rules/loopguard-ctx.mdc` in the project directory
+- **`loopguard-ctx init --agent claude`** now auto-creates `CLAUDE.md` in the project directory
+- **`loopguard-ctx init --agent windsurf`** now uses bundled template
+- Example files now embedded via `include_str!` for consistent deployment
+
+### Added
+
+- **SECURITY.md** — Comprehensive security policy: vulnerability reporting, dependency audit, VirusTotal false positive explanation, build reproducibility
+- **CI workflow** (`ci.yml`) — Automated tests, clippy lints (warnings=errors), rustfmt check, cargo audit on every push/PR
+- **Security Check workflow** (`security-check.yml`) — Dangerous pattern scan (network ops, unsafe blocks, shell injection, hardcoded secrets), critical file change alerts, dependency audit
+- **72 unit + integration tests** — Cache operations, entropy compression, LITM efficiency, shell pattern compression (git, cargo), CLI commands, pattern dispatch routing
+- **README badges** — CI status, Security Check status, crates.io version, downloads, license
+- **Security section** in README with VirusTotal false positive explanation
+
+---
+
+## [2.1.0] — 2026-03-25
+
+### Real Benchmark Engine + Information Preservation
+
+This release replaces the estimation-based benchmark with a **real measurement engine** that scans project files and produces verifiable, shareable results.
+
+### Added
+
+- **`core/preservation.rs`** — AST-based information preservation scoring using tree-sitter. Measures how many functions, exports, and imports survive each compression mode.
+- **Project-wide benchmark** (`loopguard-ctx benchmark run [path]`):
+  - Scans up to 50 representative files across all languages
+  - Measures real token counts per compression mode (map, signatures, aggressive, entropy, cache_hit)
+  - Tracks wall-clock latency per operation
+  - Computes preservation quality scores per mode
+  - Session simulation: models a 30-min coding session with real numbers
+- **Three output formats**:
+  - `loopguard-ctx benchmark run` — ANSI terminal table
+  - `loopguard-ctx benchmark run --json` — machine-readable JSON
+  - `loopguard-ctx benchmark report` — shareable Markdown for GitHub/LinkedIn
+- **MCP `ctx_benchmark` extended** — new `action=project` parameter for project-wide benchmarks via MCP, with `format` parameter (terminal/markdown/json)
+
+### Changed
+
+- `loopguard-ctx benchmark` CLI now uses subcommands (`run`, `report`) instead of scenario names
+- Benchmark engine uses real file measurements instead of estimates from stats.json
+
+---
+
+## [2.0.0] — 2026-03-25
+
+### Major: Context Continuity Protocol (CCP) + LITM-Aware Positioning
+
+This release introduces the **Context Continuity Protocol** — cross-session memory that persists task context, findings, and decisions across chat sessions and context compactions. Combined with **LITM-aware positioning** (based on Liu et al., 2023), CCP eliminates 99.2% of cold-start tokens and improves information recall by +42%.
+
+### Added
+
+- **2 new MCP tools** (19 → 21 total):
+  - `ctx_session` — Session state manager with actions: status, load, save, task, finding, decision, reset, list, cleanup. Persists to `~/.loopguard-ctx/sessions/`. Load previous sessions in ~400 tokens (vs ~50K cold start)
+  - `ctx_wrapped` — Generate savings report cards showing tokens saved, costs avoided, top commands, and cache efficiency
+
+- **3 new CLI commands**:
+  - `loopguard-ctx wrapped [--week|--month|--all]` — Shareable savings report card
+  - `loopguard-ctx sessions [list|show|cleanup]` — Manage CCP sessions
+  - `loopguard-ctx benchmark run [path]` — Real project benchmark (superseded by v2.1.0 project benchmarks)
+
+- **LITM-Aware Positioning Engine** (`core/litm.rs`):
+  - Places session state at context begin position (attention α=0.9)
+  - Places findings/test results at end position (attention γ=0.85)
+  - Eliminates lossy middle (attention β=0.55 → 0.0)
+  - Quantified: +42% relative LITM efficiency improvement
+
+- **Session State Persistence**:
+  - Automatic session state tracking across all tool calls
+  - Batch save every 5 tool calls
+  - Auto-save before idle cache clear
+  - Session state embedded in auto-checkpoints
+  - Session state embedded in MCP server instructions (LITM P1 position)
+  - 7-day session archival with cleanup
+
+- **Benchmark Engine** (`core/benchmark.rs`):
+  - Project-wide benchmark scanning up to 50 representative files
+  - Per-mode token measurement using tiktoken (o200k_base)
+  - Session simulation with real file data
+  - Superseded by v2.1.0 project benchmarks with latency and preservation scoring
+
+### Improved
+
+- Auto-checkpoint now includes session state summary
+- MCP server instructions now include CCP usage hints and session load prompt
+- Idle cache expiry now auto-saves session before clearing
+
+---
+
+## [1.9.0] — 2026-03-25
+
+### Major: Context Intelligence Engine
+
+This release transforms loopguard-ctx from a compression tool into a **Context Intelligence Engine** — 9 new MCP tools, 15 new shell patterns, AI tool hooks, and a complete intent-detection system.
+
+### Added
+
+- **9 new MCP tools** (10 → 19 total):
+  - `ctx_smart_read` — Adaptive file reading: automatically selects the optimal compression mode based on file size, type, cache state, and token count
+  - `ctx_delta` — Incremental file updates via Myers diff. Only sends changed hunks instead of full content
+  - `ctx_dedup` — Cross-file deduplication analysis: finds shared imports and boilerplate across cached files
+  - `ctx_fill` — Priority-based context filling with a token budget. Automatically maximizes information density
+  - `ctx_intent` — Semantic intent detection: classifies queries (fix, add, refactor, understand, test, config, deploy) and auto-loads relevant files
+  - `ctx_response` — Bi-directional response compression with filler removal and TDD shortcuts
+  - `ctx_context` — Multi-turn context manager: shows cached files, read counts, and session state
+  - `ctx_graph` — Project intelligence graph: analyzes file dependencies, imports/exports, and finds related files
+  - `ctx_discover` — Analyzes shell history to find missed compression opportunities with estimated savings
+
+- **15 new shell pattern modules** (32 → 47 total):
+  - `aws` (S3, EC2, Lambda, CloudFormation, ECS, CloudWatch Logs)
+  - `psql` (table output, describe, DML)
+  - `mysql` (table output, SHOW, queries)
+  - `prisma` (generate, migrate, db push/pull, format, validate)
+  - `helm` (list, install, upgrade, status, template, repo)
+  - `bun` (test, install, build)
+  - `deno` (test, lint, check, fmt)
+  - `swift` (test, build, package resolve)
+  - `zig` (test, build)
+  - `cmake` (configure, build, ctest)
+  - `ansible` (playbook recap, task summary)
+  - `composer` (install, update, outdated)
+  - `mix` (test, deps, compile, credo/dialyzer)
+  - `bazel` (test, build, query)
+  - `systemd` (systemctl status/list, journalctl log deduplication)
+
+- **AI tool hook integration** via `loopguard-ctx init --agent <tool>`:
+  - Claude Code (PreToolUse hook)
+  - Cursor (hooks.json)
+  - Gemini CLI (BeforeTool hook)
+  - Codex (AGENTS.md)
+  - Windsurf (.windsurfrules)
+  - Cline/Roo (.clinerules)
+  - Copilot (PreToolUse hook)
+
+### Improved
+
+- **Myers diff algorithm** in `compressor.rs`: Replaced naive line-index comparison with LCS-based diff using the `similar` crate. Insertions/deletions are now correctly tracked instead of producing mass-deltas
+- **Language-aware aggressive compression**: `aggressive` mode now correctly handles Python `#` comments, SQL `--` comments, Shell `#` comments, HTML `<!-- -->` blocks, and multi-line `/* */` blocks
+- **Indentation normalization**: Detects tab-based indentation and preserves it correctly
+
+### Fixed
+
+- **UTF-8 panic in `grep.rs`** (fixes [#4](https://github.com/yvgude/loopguard-ctx/issues/4)): String truncation now uses `.chars().take(n)` instead of byte-based slicing `[..n]`, preventing panics on multi-byte characters (em dash, CJK, emoji)
+- Applied the same UTF-8 safety fix to `env_filter.rs`, `typescript.rs`, and `ctx_context.rs`
+
+### Dependencies
+
+- Added `similar = "2"` for Myers diff algorithm
+
+---
+
+## [1.8.2] — 2026-03-23
+
+### Added
+- Tee logging for full output recovery
+- Poetry/uv shell pattern support
+- Flutter/Dart shell pattern support
+- .NET (dotnet) shell pattern support
+
+### Fixed
+- AUR source build: force GNU BFD linker via RUSTFLAGS to work around lld/tree-sitter symbol resolution
+
+---
+
+## [1.8.0] — 2026-03-22
+
+### Added
+- Web dashboard at localhost:3333
+- Visual terminal dashboard with ANSI colors, Unicode bars, sparklines
+- `loopguard-ctx discover` command
+- `loopguard-ctx session` command
+- `loopguard-ctx doctor` diagnostics
+- `loopguard-ctx config` management
+
+---
+
+## [1.7.0] — 2026-03-21
+
+### Added
+- Token Dense Dialect (TDD) mode with symbol shorthand
+- `ctx_cache` tool for cache management
+- `ctx_analyze` tool for entropy analysis
+- `ctx_benchmark` tool for compression comparison
+- Fish shell support
+- PowerShell support
+
+---
+
+## [1.5.0] — 2026-03-18
+
+### Added
+- tree-sitter AST parsing for 14 languages
+- `ctx_compress` context checkpoints
+- `ctx_multi_read` batch file reads
+
+---
+
+## [1.0.0] — 2026-03-15
+
+### Initial Release
+- Shell hook with 20+ patterns
+- MCP server with ctx_read, ctx_tree, ctx_shell, ctx_search
+- Session caching with MD5 hashing
+- 6 compression modes (full, map, signatures, diff, aggressive, entropy)
