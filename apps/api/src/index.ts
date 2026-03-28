@@ -5,6 +5,7 @@ import metricsRouter from './routes/metrics';
 const PORT = Number(process.env['PORT'] ?? 3001);
 
 const ALLOWED_ORIGINS = [
+  'https://loopguard.vercel.app',
   'https://loopguard.dev',
   'https://www.loopguard.dev',
   'http://localhost:3000',   // web dev

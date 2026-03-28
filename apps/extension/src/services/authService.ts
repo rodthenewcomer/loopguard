@@ -5,14 +5,14 @@ import type { ApiClient } from './apiClient';
 const JWT_SECRET_KEY = 'loopguard.auth.jwt';
 const EMAIL_SECRET_KEY = 'loopguard.auth.email';
 
-const AUTH_BASE_URL = 'https://loopguard.dev/auth/extension';
+const AUTH_BASE_URL = 'https://loopguard.vercel.app/auth/extension';
 
 /**
  * AuthService — manages Supabase JWT lifecycle for the extension.
  *
  * Sign-in flow:
  *   1. User runs "LoopGuard: Sign In"
- *   2. Browser opens → user authenticates on loopguard.dev
+ *   2. Browser opens → user authenticates on loopguard.vercel.app
  *   3. Web app redirects to {scheme}://loopguard-dev.loopguard/auth?token=JWT&email=user@example.com
  *      where {scheme} = vscode | cursor | windsurf (read from vscode.env.uriScheme)
  *   4. Extension URI handler calls handleCallback()

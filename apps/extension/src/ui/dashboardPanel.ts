@@ -392,7 +392,7 @@ ${
     <h4>Unlock the Rust engine — 89–99% reduction</h4>
     <p>Pro also includes MCP server, shell hooks, 30-day history, and token dashboard.</p>
   </div>
-  <a href="https://loopguard.dev/pricing" class="upgrade-btn">Upgrade · $9/mo</a>
+  <a href="https://loopguard.vercel.app/pricing" class="upgrade-btn">Upgrade · $9/mo</a>
 </div>
 
 </body>
