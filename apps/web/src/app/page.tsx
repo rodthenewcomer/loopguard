@@ -125,7 +125,7 @@ const INTEGRATIONS = [
     icon: IC.code,
     title: 'VS Code / Cursor / Windsurf',
     sub: 'Extension — Windows · macOS · Linux',
-    desc: 'Loop detection, status bar, clipboard context copy. One click from the Marketplace. Zero configuration.',
+    desc: 'Loop detection + context engine (~80% token reduction) built in. One click from the Marketplace. Copy Optimized Context sends only the lines that matter to your AI.',
     badge: 'Free',
     badgeColor: '#22C55E',
   },
@@ -149,10 +149,10 @@ const INTEGRATIONS = [
 
 /* ── Stats ──────────────────────────────────────────────────────── */
 const STATS = [
-  { value: '93%',   label: 'Average token reduction per session', color: '#22D3EE' },
-  { value: '~$0.35',label: 'Cost saved per session',             color: '#22C55E' },
-  { value: '47min', label: 'Average time saved per day',         color: '#F59E0B' },
-  { value: '3',     label: 'Platforms: Windows · Mac · Linux',   color: '#A78BFA' },
+  { value: '93%',   label: 'Token reduction per context copy',          color: '#22D3EE' },
+  { value: '~$77',  label: 'Avg saved/month (10 sessions/day)',          color: '#22C55E' },
+  { value: '47min', label: 'Avg time saved per day from loop detection', color: '#F59E0B' },
+  { value: '8.6×',  label: 'ROI on Pro at $9/mo',                       color: '#A78BFA' },
 ];
 
 /* ── Pricing ────────────────────────────────────────────────────── */
@@ -244,7 +244,7 @@ export default function LandingPage() {
             {/* Live badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#1F2937] shimmer-badge mb-6">
               <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-              <span className="text-xs text-[#9CA3AF] font-medium">93% token reduction · ~$0.35 saved per session</span>
+              <span className="text-xs text-[#9CA3AF] font-medium">93% token reduction · save ~$77/month on AI costs</span>
             </div>
 
             {/* Headline */}
@@ -694,6 +694,9 @@ export default function LandingPage() {
                 </div>
                 <div className="text-5xl font-black text-white mt-2">$9</div>
                 <div className="text-sm text-[#6B7280] mt-1">per month · cancel anytime</div>
+                <div className="mt-2 text-xs text-[#22C55E] font-medium">
+                  Pays for itself after 26 context copies. Average user saves ~$77/month.
+                </div>
               </div>
               <ul className="space-y-3 mb-8">
                 {PRO_FEATURES.map((f) => (
