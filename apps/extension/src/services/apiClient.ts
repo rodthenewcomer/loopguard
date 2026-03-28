@@ -51,6 +51,31 @@ export class ApiClient {
     return this._token !== null;
   }
 
+  /**
+   * Exchanges a one-time auth code (from the IDE URI callback) for a JWT.
+   * This call does NOT require a bearer token — the code is the credential.
+   * Returns null on any failure so the caller can show a clear error.
+   */
+  async exchangeCode(code: string): Promise<{ jwt: string; email: string } | null> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/auth/exchange`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+        signal: controller.signal,
+      });
+      if (!res.ok) return null;
+      return (await res.json()) as { jwt: string; email: string };
+    } catch (err) {
+      logger.warn('[ApiClient] exchangeCode failed', { err });
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async sendSession(payload: SessionPayload): Promise<void> {
     if (this._token === null) return;
     await this._post('/api/v1/metrics/session', payload);

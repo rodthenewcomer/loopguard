@@ -13,11 +13,15 @@ const AUTH_BASE_URL = 'https://loopguard.vercel.app/auth/extension';
  * Sign-in flow:
  *   1. User runs "LoopGuard: Sign In"
  *   2. Browser opens → user authenticates on loopguard.vercel.app
- *   3. Web app redirects to {scheme}://loopguard-dev.loopguard/auth?token=JWT&email=user@example.com
+ *   3. Web app creates a one-time code in Supabase (5-min TTL) and redirects to:
+ *      {scheme}://loopguard-dev.loopguard/auth?code=RANDOM_CODE&email=user@example.com
  *      where {scheme} = vscode | cursor | windsurf (read from vscode.env.uriScheme)
- *   4. Extension URI handler calls handleCallback()
- *   5. JWT stored in SecretStorage (OS keychain on macOS/Windows/Linux)
- *   6. Subsequent API calls include Bearer token
+ *   4. Extension URI handler calls handleCallback(code, email)
+ *   5. Extension exchanges the code for a JWT via POST /api/v1/auth/exchange
+ *   6. JWT stored in SecretStorage (OS keychain on macOS/Windows/Linux)
+ *   7. Subsequent API calls include Bearer token
+ *
+ * The JWT never appears in browser history, server logs, or referrer headers.
  */
 export class AuthService {
   private readonly _secrets: vscode.SecretStorage;
@@ -67,17 +71,30 @@ export class AuthService {
 
   /**
    * Called by the URI handler when VS Code receives:
-   * vscode://loopguard-dev.loopguard/auth?token=JWT&email=user@example.com
+   * vscode://loopguard-dev.loopguard/auth?code=ONE_TIME_CODE&email=user@example.com
+   *
+   * Exchanges the code for a JWT server-side so the raw token never travels
+   * through the URL (and thus never lands in browser history or server logs).
    */
-  async handleCallback(token: string, email: string): Promise<void> {
-    await this._secrets.store(JWT_SECRET_KEY, token);
-    await this._secrets.store(EMAIL_SECRET_KEY, email);
-    this._apiClient.setToken(token);
-    this._email = email;
+  async handleCallback(code: string, _email: string): Promise<void> {
+    const result = await this._apiClient.exchangeCode(code);
 
-    logger.info('Auth: signed in', { email });
+    if (result === null) {
+      logger.warn('Auth: code exchange failed');
+      vscode.window.showErrorMessage(
+        'LoopGuard: Sign-in failed — the auth code expired or was already used. Please try signing in again.',
+      );
+      return;
+    }
+
+    await this._secrets.store(JWT_SECRET_KEY, result.jwt);
+    await this._secrets.store(EMAIL_SECRET_KEY, result.email);
+    this._apiClient.setToken(result.jwt);
+    this._email = result.email;
+
+    logger.info('Auth: signed in', { email: result.email });
     vscode.window.showInformationMessage(
-      `LoopGuard: Signed in as ${email}. Session metrics will now sync to your dashboard.`,
+      `LoopGuard: Signed in as ${result.email}. Session metrics will now sync to your dashboard.`,
     );
   }
 

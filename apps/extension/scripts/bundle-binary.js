@@ -34,11 +34,12 @@ const BIN_DIR = resolve(__dirname, '../bin');
 
 // Map VS Code platform/arch to Rust target triple and binary name
 const TARGET_MAP = {
-  'darwin/arm64': { triple: 'aarch64-apple-darwin',       exe: 'loopguard-ctx' },
-  'darwin/x64':   { triple: 'x86_64-apple-darwin',        exe: 'loopguard-ctx' },
-  'win32/x64':    { triple: 'x86_64-pc-windows-gnu',      exe: 'loopguard-ctx.exe' },
-  'linux/x64':    { triple: 'x86_64-unknown-linux-musl',  exe: 'loopguard-ctx' },
-  'linux/arm64':  { triple: 'aarch64-unknown-linux-musl', exe: 'loopguard-ctx' },
+  'darwin/arm64': { triple: 'aarch64-apple-darwin',        exe: 'loopguard-ctx' },
+  'darwin/x64':   { triple: 'x86_64-apple-darwin',         exe: 'loopguard-ctx' },
+  // CI builds msvc (not gnu) — must match release.yml target
+  'win32/x64':    { triple: 'x86_64-pc-windows-msvc',      exe: 'loopguard-ctx.exe' },
+  'linux/x64':    { triple: 'x86_64-unknown-linux-musl',   exe: 'loopguard-ctx' },
+  'linux/arm64':  { triple: 'aarch64-unknown-linux-musl',  exe: 'loopguard-ctx' },
 };
 
 const key = `${platform}/${arch}`;

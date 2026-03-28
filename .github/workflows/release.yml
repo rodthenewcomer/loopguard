@@ -32,6 +32,7 @@ jobs:
             os: windows-latest
             vscode-platform: win32-x64
             binary: loopguard-ctx.exe
+            needs-msvc: true
 
           - target: x86_64-unknown-linux-musl
             os: ubuntu-22.04

@@ -54,7 +54,7 @@ fn main() {
                 return;
             }
             "setup" => {
-                setup::run_setup();
+                setup::run_setup_for_agents(&rest);
                 return;
             }
             "read" => {
@@ -300,8 +300,8 @@ EXAMPLES:
     loopguard-ctx grep \"pub fn\" src/
     loopguard-ctx deps .
 
-WEBSITE: https://loopguardctx.com
-GITHUB:  https://github.com/yvgude/loopguard-ctx
+WEBSITE: https://loopguard.vercel.app
+GITHUB:  https://github.com/loopguard/loopguard
 "
     );
 }

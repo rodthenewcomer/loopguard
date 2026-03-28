@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LeanCTX — Dashboard</title>
+<title>LoopGuard — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -11,16 +11,16 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#060609;--surface:#0c0c14;--surface-2:#111120;--surface-3:#18182b;
-  --border:#1a1a30;--border-light:#28284a;--border-glow:rgba(255,255,255,0.06);
-  --text:#e4e4ef;--text-bright:#ffffff;--muted:#7b7b9a;
-  --accent:#34d399;--accent-bright:#6ee7b7;
-  --accent-2:#818cf8;--accent-2-bright:#a5b4fc;
-  --accent-3:#c084fc;
-  --danger:#f87171;--warning:#fbbf24;
-  --blue:#38bdf8;--pink:#f472b6;
+  --bg:#0B1220;--surface:#111827;--surface-2:#1a2235;--surface-3:#1a2235;
+  --border:#1F2937;--border-light:#374151;--border-glow:rgba(31,41,55,0.8);
+  --text:#F9FAFB;--text-bright:#F9FAFB;--muted:#9CA3AF;
+  --accent:#22D3EE;--accent-bright:#a5f3fc;
+  --accent-2:#2563EB;--accent-2-bright:#3B82F6;
+  --accent-3:#22C55E;
+  --danger:#EF4444;--warning:#F59E0B;
+  --blue:#22D3EE;--pink:#F59E0B;
   --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --font-display:'Space Grotesk','Inter',-apple-system,sans-serif;
+  --font-display:'Inter',-apple-system,sans-serif;
   --mono:'JetBrains Mono','Fira Code','Cascadia Code',monospace;
   --r:12px;--r-sm:8px;
 }
@@ -57,8 +57,8 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 
 .btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 14px;
   border-radius:var(--r-sm);font-size:11px;font-family:var(--font);cursor:pointer;transition:.25s}
-.btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(52,211,153,0.06);
-  box-shadow:0 0 20px rgba(52,211,153,0.08)}
+.btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(34,211,238,0.06);
+  box-shadow:0 0 20px rgba(34,211,238,0.08)}
 
 .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
 .kpi{background:var(--surface);border:1px solid var(--border-glow);border-radius:var(--r);
@@ -107,9 +107,9 @@ tr:last-child td{border-bottom:none}
 tr:hover td{background:var(--surface-2)}
 
 .tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;font-family:var(--mono)}
-.tg{background:rgba(52,211,153,.1);color:var(--accent)}
-.tp{background:rgba(129,140,248,.1);color:var(--accent-2)}
-.tb{background:rgba(56,189,248,.1);color:var(--blue)}
+.tg{background:rgba(34,211,238,.1);color:var(--accent)}
+.tp{background:rgba(37,99,235,.1);color:var(--accent-2)}
+.tb{background:rgba(34,211,238,.1);color:var(--blue)}
 .ty{background:rgba(251,191,36,.1);color:var(--warning)}
 
 .bar-bg{background:var(--surface-2);border-radius:4px;height:5px;overflow:hidden;margin-top:4px}
@@ -142,10 +142,11 @@ tr:hover td{background:var(--surface-2)}
   <header>
     <div style="display:flex;align-items:center;gap:16px">
       <div class="logo">
-        <h1>Lean<span>CTX</span></h1>
+        <svg width="22" height="22" viewBox="0 0 34 34" fill="none" style="flex-shrink:0;margin-right:2px"><path d="M17 2L3 8v10c0 8.3 5.8 15.8 14 17.7C25.2 33.8 31 26.3 31 18V8L17 2z" fill="url(#lg)"/><defs><linearGradient id="lg" x1="3" y1="2" x2="31" y2="35" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#22D3EE"/></linearGradient></defs></svg>
+        <h1>Loop<span>Guard</span></h1>
         <span class="version">v2.6.0</span>
       </div>
-      <a class="hdr-link" href="https://leanctx.com" target="_blank">leanctx.com ↗</a>
+      <a class="hdr-link" href="https://loopguard.vercel.app" target="_blank">loopguard.vercel.app ↗</a>
     </div>
     <div class="hdr-right">
       <div class="filter-group" id="rangeFilter">
@@ -165,7 +166,7 @@ tr:hover td{background:var(--surface-2)}
     </div>
   </header>
   <div id="root"><div class="loading">Loading dashboard...</div></div>
-  <div class="footer">LeanCTX — The Cognitive Filter for AI Engineering · <a href="https://leanctx.com" target="_blank">leanctx.com</a></div>
+  <div class="footer">LoopGuard — Stop AI Loops. Cut Token Spend. · <a href="https://loopguard.vercel.app" target="_blank">loopguard.vercel.app</a></div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
@@ -338,7 +339,7 @@ function buildDom(){
             <div class="split-stat-val" data-live id="vTotalIn"></div></div>
           <div><span class="split-stat-label">Total Output</span>
             <div class="split-stat-val" data-live id="vTotalOut"></div></div>
-          <div><span class="split-stat-label">Cost Without LeanCTX</span>
+          <div><span class="split-stat-label">Cost Without LoopGuard</span>
             <div class="split-stat-val" data-live id="vCostWithout" style="color:var(--danger)"></div></div>
         </div>
         <div class="bar-bg" style="margin-top:12px">
@@ -411,7 +412,7 @@ function updateAll(d){
     if(domBuilt){
       $('root').innerHTML=`<div class="empty">
         <h2>No data yet</h2>
-        <p>Start using LeanCTX via shell hook (<code>git status</code>, <code>npm install</code>) or MCP tools (<code>ctx_read</code>, <code>ctx_shell</code>) in your editor. Savings will appear here automatically.</p>
+        <p>Start using LoopGuard via shell hook (<code>git status</code>, <code>npm install</code>) or MCP tools (<code>ctx_read</code>, <code>ctx_shell</code>) in your editor. Savings will appear here automatically.</p>
       </div>`;
       domBuilt=false;
     }
@@ -481,7 +482,7 @@ async function load(){
     updateAll(rawData);
   }catch(e){
     if(!domBuilt){
-      $('root').innerHTML='<div class="empty"><h2>Connection Error</h2><p>Could not reach the dashboard API. Make sure LeanCTX dashboard is running.</p></div>';
+      $('root').innerHTML='<div class="empty"><h2>Connection Error</h2><p>Could not reach the dashboard API. Make sure LoopGuard dashboard is running.</p></div>';
     }
   }
 }
@@ -493,8 +494,8 @@ function chartDefaults(){
     animation:{duration:600,easing:'easeOutQuart'},
     plugins:{legend:{display:false}},
     scales:{
-      x:{ticks:{color:'#7b7b9a',font:{size:10,family:'Inter'}},grid:{color:'rgba(255,255,255,0.04)'},border:{display:false}},
-      y:{ticks:{color:'#7b7b9a',font:{size:10,family:'Inter'},callback:v=>fmt(v)},grid:{color:'rgba(255,255,255,0.04)'},border:{display:false}}
+      x:{ticks:{color:'#9CA3AF',font:{size:10,family:'Inter'}},grid:{color:'rgba(31,41,55,0.8)'},border:{display:false}},
+      y:{ticks:{color:'#9CA3AF',font:{size:10,family:'Inter'},callback:v=>fmt(v)},grid:{color:'rgba(31,41,55,0.8)'},border:{display:false}}
     }
   };
 }
@@ -518,8 +519,8 @@ function updateCharts(daily,cmds,split){
       type:'line',
       data:{labels,datasets:[{
         data:cumulative,fill:true,
-        borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.06)',
-        borderWidth:2,pointRadius:daily.length>30?0:3,pointBackgroundColor:'#34d399',
+        borderColor:'#22D3EE',backgroundColor:'rgba(34,211,238,.06)',
+        borderWidth:2,pointRadius:daily.length>30?0:3,pointBackgroundColor:'#22D3EE',
         tension:.35
       }]},
       options:{...chartDefaults(),plugins:{legend:{display:false},
@@ -536,8 +537,8 @@ function updateCharts(daily,cmds,split){
       type:'line',
       data:{labels,datasets:[{
         data:rateArr,fill:true,
-        borderColor:'#818cf8',backgroundColor:'rgba(129,140,248,.06)',
-        borderWidth:2,pointRadius:daily.length>20?0:3,pointBackgroundColor:'#818cf8',
+        borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,.06)',
+        borderWidth:2,pointRadius:daily.length>20?0:3,pointBackgroundColor:'#2563EB',
         tension:.35
       }]},
       options:{...chartDefaults(),
@@ -558,11 +559,11 @@ function updateCharts(daily,cmds,split){
     charts.daily=new Chart($('cDaily'),{
       type:'bar',
       data:{labels,datasets:[
-        {label:'Saved',data:savedArr,backgroundColor:'rgba(52,211,153,.5)',borderRadius:6,borderSkipped:false},
-        {label:'Sent',data:outputArr,backgroundColor:'rgba(129,140,248,.25)',borderRadius:6,borderSkipped:false}
+        {label:'Saved',data:savedArr,backgroundColor:'rgba(34,211,238,.5)',borderRadius:6,borderSkipped:false},
+        {label:'Sent',data:outputArr,backgroundColor:'rgba(37,99,235,.25)',borderRadius:6,borderSkipped:false}
       ]},
       options:{...chartDefaults(),
-        plugins:{legend:{display:true,position:'bottom',labels:{color:'#7b7b9a',font:{size:11,family:'Inter'},
+        plugins:{legend:{display:true,position:'bottom',labels:{color:'#9CA3AF',font:{size:11,family:'Inter'},
           usePointStyle:true,pointStyle:'circle',padding:16}}},
         scales:{...chartDefaults().scales,x:{...chartDefaults().scales.x,stacked:true},
           y:{...chartDefaults().scales.y,stacked:true}}}
@@ -573,20 +574,20 @@ function updateCharts(daily,cmds,split){
   if(charts.cmds){
     charts.cmds.data.labels=top10.map(c=>c[0]);
     charts.cmds.data.datasets[0].data=top10.map(c=>c[1].input_tokens-c[1].output_tokens);
-    charts.cmds.data.datasets[0].backgroundColor=top10.map(c=>isMcp(c[0])?'#818cf8':'#38bdf8');
+    charts.cmds.data.datasets[0].backgroundColor=top10.map(c=>isMcp(c[0])?'#2563EB':'#22D3EE');
     charts.cmds.update('none');
   }else{
     charts.cmds=new Chart($('cCommands'),{
       type:'bar',
       data:{labels:top10.map(c=>c[0]),datasets:[{
         data:top10.map(c=>c[1].input_tokens-c[1].output_tokens),
-        backgroundColor:top10.map(c=>isMcp(c[0])?'#818cf8':'#38bdf8'),
+        backgroundColor:top10.map(c=>isMcp(c[0])?'#2563EB':'#22D3EE'),
         borderRadius:6,borderSkipped:false
       }]},
       options:{...chartDefaults(),indexAxis:'y',
         scales:{
-          x:{ticks:{color:'#7b7b9a',font:{size:10},callback:v=>fmt(v)},grid:{color:'rgba(255,255,255,0.04)'},border:{display:false}},
-          y:{ticks:{color:'#e4e4ef',font:{size:11,family:"'JetBrains Mono',monospace"}},grid:{display:false},border:{display:false}}
+          x:{ticks:{color:'#9CA3AF',font:{size:10},callback:v=>fmt(v)},grid:{color:'rgba(31,41,55,0.8)'},border:{display:false}},
+          y:{ticks:{color:'#F9FAFB',font:{size:11,family:"'JetBrains Mono',monospace"}},grid:{display:false},border:{display:false}}
         },
         plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.parsed.x)+' tokens saved'}}}}
     });
@@ -602,12 +603,12 @@ function updateCharts(daily,cmds,split){
         labels:['MCP Tools','Shell Hook'],
         datasets:[{
           data:[split.mcp.saved,split.hook.saved],
-          backgroundColor:['#818cf8','#38bdf8'],borderWidth:0,hoverOffset:8,
+          backgroundColor:['#2563EB','#22D3EE'],borderWidth:0,hoverOffset:8,
           borderRadius:4
         }]
       },
       options:{responsive:true,maintainAspectRatio:true,cutout:'65%',
-        plugins:{legend:{position:'bottom',labels:{color:'#7b7b9a',font:{size:12,family:'Inter'},
+        plugins:{legend:{position:'bottom',labels:{color:'#9CA3AF',font:{size:12,family:'Inter'},
           padding:20,usePointStyle:true,pointStyle:'circle'}},
           tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fmt(ctx.parsed)} tokens saved`}}}}
     });

@@ -15,6 +15,96 @@ enum ConfigType {
     VsCodeMcp,
 }
 
+/// Entry point called by the CLI with args from `setup [--agent=<name>]`.
+/// When `--agent=<name>` is provided, configures only that agent.
+/// Otherwise runs the full auto-detect setup for all detected editors.
+pub fn run_setup_for_agents(args: &[String]) {
+    let agent = args
+        .iter()
+        .find_map(|a| a.strip_prefix("--agent="))
+        .map(str::to_lowercase);
+
+    match agent.as_deref() {
+        Some(name) => run_setup_for_single_agent(name),
+        None => run_setup(),
+    }
+}
+
+/// Configure MCP for one specific agent by name (e.g. "claude", "cursor").
+fn run_setup_for_single_agent(agent: &str) {
+    let home = match dirs::home_dir() {
+        Some(h) => h,
+        None => {
+            eprintln!("Cannot determine home directory");
+            std::process::exit(1);
+        }
+    };
+
+    let binary = std::env::current_exe()
+        .map(|p| p.to_string_lossy().to_string())
+        .unwrap_or_else(|_| "loopguard-ctx".to_string());
+
+    let targets = build_targets(&home, &binary);
+
+    // Match by agent_key (exact) or name (case-insensitive contains)
+    let target = targets.iter().find(|t| {
+        t.agent_key == agent
+            || t.name.to_lowercase().replace(' ', "-").contains(agent)
+            || t.name.to_lowercase().contains(agent)
+    });
+
+    let target = match target {
+        Some(t) => t,
+        None => {
+            eprintln!(
+                "Unknown agent '{}'. Known: claude, cursor, windsurf, codex, zed, vscode",
+                agent
+            );
+            std::process::exit(1);
+        }
+    };
+
+    println!(
+        "\n\x1b[1;32m▶\x1b[0m \x1b[1mLoopGuard MCP → {}\x1b[0m\n",
+        target.name
+    );
+
+    let already = target.config_path.exists()
+        && std::fs::read_to_string(&target.config_path)
+            .map(|c| c.contains("loopguard-ctx"))
+            .unwrap_or(false);
+
+    if already {
+        println!(
+            "  \x1b[32m✓\x1b[0m {} already configured ({})",
+            target.name,
+            target.config_path.display()
+        );
+    } else {
+        match write_config(target, &binary) {
+            Ok(()) => {
+                println!(
+                    "  \x1b[32m✓\x1b[0m {} configured ({})",
+                    target.name,
+                    target.config_path.display()
+                );
+            }
+            Err(e) => {
+                eprintln!("  \x1b[31m✗\x1b[0m Failed: {e}");
+                std::process::exit(1);
+            }
+        }
+    }
+
+    // Install agent instruction hooks if applicable
+    if !target.agent_key.is_empty() {
+        crate::hooks::install_agent_hook(target.agent_key, true);
+    }
+
+    println!();
+    println!("\x1b[1;32m✓ Done.\x1b[0m Restart {} to activate 21 MCP tools.", target.name);
+}
+
 pub fn run_setup() {
     let home = match dirs::home_dir() {
         Some(h) => h,
@@ -80,7 +170,7 @@ pub fn run_setup() {
     if configured.is_empty() && skipped.is_empty() {
         println!(
             "  \x1b[33m⚠\x1b[0m No editors detected. \
-             Configure manually: https://loopguardctx.com/docs/getting-started#editor-setup"
+             Configure manually: https://loopguard.vercel.app/docs"
         );
     }
 
@@ -180,7 +270,7 @@ fn build_targets(home: &std::path::Path, _binary: &str) -> Vec<EditorTarget> {
         },
         EditorTarget {
             name: "VS Code / Copilot",
-            agent_key: "",
+            agent_key: "vscode",
             config_path: vscode_mcp_path(),
             detect_path: detect_vscode_path(),
             config_type: ConfigType::VsCodeMcp,

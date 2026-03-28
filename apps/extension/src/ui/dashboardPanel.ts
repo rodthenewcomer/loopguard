@@ -10,6 +10,7 @@ import { formatDuration } from '@loopguard/utils';
  */
 export class DashboardPanel {
   private static _instance: DashboardPanel | undefined;
+  private static _engineTier: 'rust' | 'ts' = 'ts';
   private readonly _panel: vscode.WebviewPanel;
   private _disposed = false;
 
@@ -20,6 +21,7 @@ export class DashboardPanel {
       vscode.ViewColumn.Beside,
       {
         enableScripts: true,
+        enableCommandUris: true,
         retainContextWhenHidden: true,
         localResourceRoots: [extensionUri],
       },
@@ -53,18 +55,32 @@ export class DashboardPanel {
     }
   }
 
+  static setEngineTier(tier: 'rust' | 'ts'): void {
+    DashboardPanel._engineTier = tier;
+  }
+
   static dispose(): void {
     DashboardPanel._instance?._panel.dispose();
   }
 
   private _render(metrics: SessionMetrics, activeLoops: LoopEvent[]): void {
-    this._panel.webview.html = buildHtml(metrics, activeLoops);
+    this._panel.webview.html = buildHtml(
+      this._panel.webview,
+      metrics,
+      activeLoops,
+      DashboardPanel._engineTier,
+    );
   }
 }
 
 /* ── HTML generator ──────────────────────────────────────────────── */
 
-function buildHtml(metrics: SessionMetrics, activeLoops: LoopEvent[]): string {
+function buildHtml(
+  webview: vscode.Webview,
+  metrics: SessionMetrics,
+  activeLoops: LoopEvent[],
+  engineTier: 'rust' | 'ts' = 'ts',
+): string {
   const timeWasted = formatDuration(metrics.totalTimeWasted);
   const tokensK =
     metrics.tokensSaved >= 1000
@@ -94,10 +110,18 @@ function buildHtml(metrics: SessionMetrics, activeLoops: LoopEvent[]): string {
           })
           .join('');
 
+  const csp = [
+    `default-src 'none'`,
+    `style-src 'unsafe-inline'`,
+    `img-src ${webview.cspSource} https: data:`,
+    `script-src 'none'`,
+  ].join('; ');
+
   return /* html */ `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="${csp}"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>LoopGuard Dashboard</title>
 <style>
@@ -180,7 +204,7 @@ function buildHtml(metrics: SessionMetrics, activeLoops: LoopEvent[]): string {
     font-size: 28px;
     font-weight: 800;
     line-height: 1;
-    tabular-nums: true;
+    font-variant-numeric: tabular-nums;
   }
   .stat-sub {
     font-size: 11px;
@@ -369,8 +393,10 @@ ${
 <!-- Context engine status -->
 <div class="engine-row">
   <span class="engine-label">Context engine mode</span>
-  <span class="engine-value" style="color:#22D3EE">TypeScript fallback (~80%)</span>
-  <a href="command:loopguard.setupMCP" style="font-size:11px;color:#2563EB;text-decoration:none;">→ Enable Rust engine</a>
+  <span class="engine-value" style="color:${engineTier === 'rust' ? '#22D3EE' : '#F59E0B'}">
+    ${engineTier === 'rust' ? 'Rust engine (89–99%)' : 'TypeScript fallback (~80%)'}
+  </span>
+  ${engineTier === 'ts' ? `<a href="command:loopguard.setupMCP" style="font-size:11px;color:#2563EB;text-decoration:none;">→ Enable Rust engine</a>` : '<span style="font-size:11px;color:#22C55E;">✓ Optimal</span>'}
 </div>
 
 <!-- Active loops -->
@@ -392,7 +418,7 @@ ${
     <h4>Unlock the Rust engine — 89–99% reduction</h4>
     <p>Pro also includes MCP server, shell hooks, 30-day history, and token dashboard.</p>
   </div>
-  <a href="https://loopguard.vercel.app/pricing" class="upgrade-btn">Upgrade · $9/mo</a>
+  <a href="https://loopguard.vercel.app/upgrade" class="upgrade-btn">Upgrade · $9/mo</a>
 </div>
 
 </body>

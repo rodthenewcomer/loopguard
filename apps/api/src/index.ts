@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import metricsRouter from './routes/metrics';
+import authRouter from './routes/auth';
 
 const PORT = Number(process.env['PORT'] ?? 3001);
 
@@ -37,6 +38,8 @@ app.get('/health', (_req, res) => {
 });
 
 // ── Routes ─────────────────────────────────────────────────────────
+// Auth: one-time code exchange (IDE extension sign-in)
+app.use('/api/v1/auth', authRouter);
 // Metrics: session sync, loop recording, dashboard summary
 app.use('/api/v1/metrics', metricsRouter);
 

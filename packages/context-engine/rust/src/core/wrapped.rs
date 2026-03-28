@@ -110,7 +110,7 @@ impl WrappedReport {
              Cache efficiency: {cache:.1}%\n \
              {border}\n  \
              \"Your AI saw only what mattered.\"\n  \
-             loopguardctx.com\n",
+             loopguard.vercel.app\n",
             sessions = self.sessions_count,
             cmds = self.total_commands,
             cache = self.cache_hit_rate,

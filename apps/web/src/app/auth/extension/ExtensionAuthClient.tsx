@@ -7,7 +7,7 @@
  *  2. Google redirects back to this page (redirectTo = current URL)
  *  3. onAuthStateChange fires SIGNED_IN → sendCallbackToExtension() opens IDE
  *
- * Callback URI: {ide}://loopguard-dev.loopguard/auth?token=JWT&email=user@example.com
+ * Callback URI: {ide}://loopguard-dev.loopguard/auth?code=ONE_TIME_CODE&email=user@example.com
  */
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -45,11 +45,29 @@ export default function ExtensionAuthClient() {
   const [step, setStep] = useState<'idle' | 'signing-in' | 'authing' | 'done' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const sendCallbackToExtension = (token: string, userEmail: string) => {
-    const callbackUrl =
-      `${ideScheme}://loopguard-dev.loopguard/auth` +
-      `?token=${encodeURIComponent(token)}&email=${encodeURIComponent(userEmail)}`;
-    window.location.href = callbackUrl;
+  const sendCallbackToExtension = async (token: string, userEmail: string) => {
+    try {
+      // Exchange the JWT for a short-lived one-time code.
+      // The code (not the JWT) is what travels through the IDE URI callback,
+      // keeping the raw token out of browser history and server access logs.
+      const res = await fetch('/api/auth/code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jwt: token }),
+      });
+
+      if (!res.ok) throw new Error(`code exchange failed: ${res.status}`);
+      const { code } = (await res.json()) as { code: string };
+
+      const callbackUrl =
+        `${ideScheme}://loopguard-dev.loopguard/auth` +
+        `?code=${encodeURIComponent(code)}&email=${encodeURIComponent(userEmail)}`;
+      window.location.href = callbackUrl;
+    } catch (err) {
+      console.error('[ExtensionAuth] sendCallback failed:', err);
+      setErrorMsg('Failed to connect to IDE. Please try again.');
+      setStep('error');
+    }
   };
 
   // Handles OAuth redirect-back: Supabase sets the session from the URL hash,
@@ -58,8 +76,9 @@ export default function ExtensionAuthClient() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         setStep('authing');
-        sendCallbackToExtension(session.access_token, session.user.email ?? '');
-        setTimeout(() => setStep('done'), 1500);
+        void sendCallbackToExtension(session.access_token, session.user.email ?? '').then(
+          () => setTimeout(() => setStep('done'), 1500),
+        );
       }
     });
     return () => subscription.unsubscribe();

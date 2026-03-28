@@ -43,8 +43,18 @@ export class LoopDetector {
     const now = Date.now();
     const { hash } = incoming;
 
-    // If we've already emitted a loop for this hash, skip re-detection
-    if (this.emittedLoops.has(hash)) return null;
+    // If we've already emitted a loop for this hash, keep tracking time but don't re-emit
+    if (this.emittedLoops.has(hash)) {
+      const existing = this.activeLoops.get(hash);
+      if (existing !== undefined && existing.status === 'active') {
+        this.activeLoops.set(hash, {
+          ...existing,
+          lastSeen: now,
+          occurrences: existing.occurrences + 1,
+        });
+      }
+      return null;
+    }
 
     // Get or initialize history for this hash
     const history = this.records.get(hash) ?? [];

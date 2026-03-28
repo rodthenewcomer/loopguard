@@ -29,7 +29,8 @@ const LINE_PROXIMITY = 5;
 
 export class EditTracker {
   private readonly editHistory: Map<string, EditRecord[]> = new Map();
-  private readonly emittedHashes: Set<string> = new Set();
+  /** Maps region hash → file URI so clearUri() can remove the right entries */
+  private readonly emittedLoopUris: Map<string, string> = new Map();
 
   /**
    * Records an edit to a line range in a file.
@@ -56,9 +57,9 @@ export class EditTracker {
 
     // Build a stable hash for this region to avoid re-emitting
     const regionHash = hashString(`edit:${uri}:${lineStart}`);
-    if (this.emittedHashes.has(regionHash)) return null;
+    if (this.emittedLoopUris.has(regionHash)) return null;
 
-    this.emittedHashes.add(regionHash);
+    this.emittedLoopUris.set(regionHash, uri);
 
     const firstEdit = regionEdits[0];
     const timeWasted = now - (firstEdit?.timestamp ?? now);
@@ -80,14 +81,14 @@ export class EditTracker {
    */
   clearUri(uri: string): void {
     this.editHistory.delete(uri);
-    // Also clear emitted hashes for this URI so it can re-detect
-    for (const hash of this.emittedHashes) {
-      if (hash.includes(uri)) this.emittedHashes.delete(hash);
+    // Remove all emitted hashes that belong to this URI so it can re-detect
+    for (const [hash, storedUri] of this.emittedLoopUris) {
+      if (storedUri === uri) this.emittedLoopUris.delete(hash);
     }
   }
 
   reset(): void {
     this.editHistory.clear();
-    this.emittedHashes.clear();
+    this.emittedLoopUris.clear();
   }
 }

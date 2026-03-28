@@ -23,11 +23,26 @@ const execFileAsync = promisify(execFile);
 // How often to sync session metrics to the API while active (ms)
 const SYNC_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
+// Module-level ref so deactivate() can fire the final sync
+let _syncFinalSession: ((endedAt: number) => void) | undefined;
+
 const FIRST_INSTALL_KEY = 'loopguard.firstInstall';
 const BINARY_DOWNLOAD_URL = 'https://github.com/loopguard/loopguard/releases/latest';
 
 /* ── activate ──────────────────────────────────────────────────────*/
 export function activate(context: vscode.ExtensionContext): void {
+  try {
+    _activate(context);
+  } catch (err) {
+    // Never crash VS Code on our behalf — log and degrade gracefully
+    logger.error('LoopGuard activation failed', { err });
+    vscode.window.showWarningMessage(
+      'LoopGuard failed to start. Loop detection is disabled. Check Output → LoopGuard for details.',
+    );
+  }
+}
+
+function _activate(context: vscode.ExtensionContext): void {
   logger.info('LoopGuard activating...');
 
   const config = getConfig();
@@ -47,6 +62,11 @@ export function activate(context: vscode.ExtensionContext): void {
   const authService = new AuthService(context.secrets, apiClient);
 
   sessionTracker.startSession();
+
+  // Cache Rust engine availability and tell the dashboard panel which tier is active
+  contextEngine.isBinaryAvailable().then((available) => {
+    DashboardPanel.setEngineTier(available ? 'rust' : 'ts');
+  }).catch(() => undefined);
 
   // Restore auth token from SecretStorage — async, best-effort
   authService.initialize().catch((err) => logger.error('Auth init failed', { err }));
@@ -88,7 +108,7 @@ export function activate(context: vscode.ExtensionContext): void {
       sessionTracker.recordLoop(event);
 
       // Sync loop event to API (best-effort, privacy-safe)
-        void apiClient.sendLoop({
+      void apiClient.sendLoop({
         sessionId: sessionTracker.getMetrics().sessionId,
         errorHash: event.errorHash,
         occurrences: event.occurrences,
@@ -136,20 +156,20 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   /* ── URI handler — receives auth callback from web app ────────── */
-  // Handles: vscode://loopguard-dev.loopguard/auth?token=JWT&email=user@example.com
+  // Handles: vscode://loopguard-dev.loopguard/auth?code=CODE&email=user@example.com
   const uriHandler = vscode.window.registerUriHandler({
     handleUri(uri: vscode.Uri) {
       if (uri.path !== '/auth') return;
       const params = new URLSearchParams(uri.query);
-      const token = params.get('token');
+      const code = params.get('code');
       const email = params.get('email') ?? 'unknown';
 
-      if (token === null || token.length === 0) {
-        vscode.window.showErrorMessage('LoopGuard: Auth callback missing token.');
+      if (code === null || code.length === 0) {
+        vscode.window.showErrorMessage('LoopGuard: Auth callback missing code. Please try signing in again.');
         return;
       }
 
-      authService.handleCallback(token, email).catch((err) =>
+      authService.handleCallback(code, email).catch((err) =>
         logger.error('Auth callback failed', { err }),
       );
     },
@@ -245,14 +265,18 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // MCP Server Setup — requires loopguard-ctx binary
   const setupMCP = vscode.commands.registerCommand('loopguard.setupMCP', async () => {
+    // Agent keys must match what setup.rs:build_targets() expects for --agent=<key>
     const agents = [
-      { label: 'Cursor', value: 'cursor' },
-      { label: 'Claude Code', value: 'claude' },
-      { label: 'Windsurf', value: 'windsurf' },
-      { label: 'GitHub Copilot', value: 'copilot' },
+      { label: '$(github) Claude Code', description: '~/.claude.json', value: 'claude' },
+      { label: '$(edit) Cursor', description: '~/.cursor/mcp.json', value: 'cursor' },
+      { label: '$(cloud) Windsurf', description: '~/.codeium/windsurf/mcp_config.json', value: 'windsurf' },
+      { label: '$(zap) Zed', description: '~/.config/zed/settings.json', value: 'zed' },
+      { label: '$(code) VS Code / Copilot', description: 'User mcp.json', value: 'vscode' },
+      { label: '$(list-unordered) All detected editors', description: 'Auto-configure everything', value: '' },
     ];
     const pick = await vscode.window.showQuickPick(agents, {
-      placeHolder: 'Which AI tool do you want to configure?',
+      placeHolder: 'Configure MCP for which AI tool?',
+      matchOnDescription: true,
     });
     if (pick === undefined) return;
 
@@ -269,14 +293,21 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     try {
+      const binary = await contextEngine.getResolvedBinaryPath();
+      if (binary === null) {
+        vscode.window.showErrorMessage('LoopGuard: loopguard-ctx binary not found.');
+        return;
+      }
+      const args = pick.value ? ['setup', `--agent=${pick.value}`] : ['setup'];
+      const label = pick.value ? pick.label.replace(/^\$\([^)]+\)\s*/, '') : 'all detected editors';
       await vscode.window.withProgress(
-        { location: vscode.ProgressLocation.Notification, title: `Configuring MCP for ${pick.label}…` },
+        { location: vscode.ProgressLocation.Notification, title: `Configuring MCP for ${label}…` },
         async () => {
-          await execFileAsync('loopguard-ctx', ['setup', `--agent=${pick.value}`], { timeout: 10000 });
+          await execFileAsync(binary, args, { timeout: 15000 });
         },
       );
       vscode.window.showInformationMessage(
-        `LoopGuard MCP configured for ${pick.label}. Restart ${pick.label} to activate 21 context tools.`,
+        `LoopGuard MCP configured for ${label}. Restart your AI tool to activate the context engine.`,
       );
       logger.info('MCP setup complete', { agent: pick.value });
     } catch (err) {
@@ -300,10 +331,15 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     try {
+      const binary = await contextEngine.getResolvedBinaryPath();
+      if (binary === null) {
+        vscode.window.showErrorMessage('LoopGuard: loopguard-ctx binary not found.');
+        return;
+      }
       await vscode.window.withProgress(
         { location: vscode.ProgressLocation.Notification, title: 'Installing shell hooks…' },
         async () => {
-          await execFileAsync('loopguard-ctx', ['init'], { timeout: 10000 });
+          await execFileAsync(binary, ['init'], { timeout: 10000 });
         },
       );
       vscode.window.showInformationMessage(
@@ -322,6 +358,9 @@ export function activate(context: vscode.ExtensionContext): void {
     contextEngine.updateConfig(newConfig);
     logger.info('Config updated', { sensitivity: newConfig.sensitivity });
   });
+
+  // Expose syncSession to deactivate() for final end-of-session payload
+  _syncFinalSession = (endedAt: number) => syncSession(endedAt);
 
   // Periodic session sync — sends latest metrics every 5 minutes
   const syncTimer = setInterval(() => syncSession(), SYNC_INTERVAL_MS);
@@ -366,6 +405,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
 /* ── deactivate ────────────────────────────────────────────────────*/
 export function deactivate(): void {
+  // Send final session payload with endedAt so history is accurate
+  _syncFinalSession?.(Date.now());
+
   vscode.commands.executeCommand('setContext', 'loopguard.active', false).then(
     undefined,
     () => undefined,

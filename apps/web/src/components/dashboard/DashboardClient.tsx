@@ -246,6 +246,11 @@ function DashboardBody({
             <span className="text-xs text-[#6B7280]">{data.recentLoops.length} total</span>
           </div>
           <div className="divide-y divide-[#1F2937]">
+            {data.recentLoops.length === 0 && (
+              <div className="px-5 py-8 text-center text-xs text-[#4B5563]">
+                No loops detected yet — keep coding.
+              </div>
+            )}
             {data.recentLoops.map((loop) => {
               const minsAgo = Math.round((Date.now() - loop.detectedAt) / 60_000);
               const timeLabel = minsAgo < 60

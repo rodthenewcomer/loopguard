@@ -62,13 +62,21 @@ export class AlertPanel {
   }
 
   /**
-   * First-time welcome notification.
+   * First-time welcome notification — shown once on fresh install.
+   * Gives the user two actionable paths rather than just dismissing.
    */
   showWelcome(): void {
-    vscode.window.showInformationMessage(
-      '👋 LoopGuard is active. It will alert you when you\'re stuck in an AI coding loop.',
-      'Got it',
-    );
+    void vscode.window.showInformationMessage(
+      'LoopGuard is active. Loop detection is running. Sign in to sync your dashboard, or paste context directly into any AI.',
+      'Sign In',
+      'Copy Context',
+    ).then((action) => {
+      if (action === 'Sign In') {
+        void vscode.commands.executeCommand('loopguard.signIn');
+      } else if (action === 'Copy Context') {
+        void vscode.commands.executeCommand('loopguard.copyContext');
+      }
+    });
   }
 
   private async showNewApproachTips(): Promise<void> {

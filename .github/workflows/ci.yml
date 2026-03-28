@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  check:
+    name: Type-check & build
+    runs-on: ubuntu-latest
+    env:
+      # Stub values — prevents Supabase client crash at build time
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+      SUPABASE_URL: https://placeholder.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: placeholder
+      NEXT_PUBLIC_API_URL: https://api.loopguard.dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check all packages
+        run: npx turbo type-check
+
+      - name: Build all packages
+        run: npx turbo build
+
+  test-core:
+    name: Core unit tests
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build dependencies
+        run: npx turbo build --filter=@loopguard/types --filter=@loopguard/utils
+
+      - name: Run core tests
+        run: npm test --workspace=packages/core
+
+  rust-check:
+    name: Rust check + smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/context-engine/rust
+
+      - name: cargo check
+        working-directory: packages/context-engine/rust
+        run: cargo check --all-targets
+
+      - name: cargo clippy (no warnings)
+        working-directory: packages/context-engine/rust
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Build native binary for smoke test
+        working-directory: packages/context-engine/rust
+        run: cargo build --release
+
+      - name: Smoke test — version
+        working-directory: packages/context-engine/rust
+        run: ./target/release/loopguard-ctx --version
+
+      - name: Smoke test — read (entropy mode)
+        working-directory: packages/context-engine/rust
+        run: ./target/release/loopguard-ctx read src/main.rs --mode=entropy
+
+      - name: Smoke test — setup --agent=claude (dry run)
+        working-directory: packages/context-engine/rust
+        # Should exit 0 and write ~/.claude.json (or say already configured)
+        run: ./target/release/loopguard-ctx setup --agent=claude

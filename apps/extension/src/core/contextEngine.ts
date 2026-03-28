@@ -28,6 +28,8 @@ export class ContextEngine {
   private enabled: boolean = true;
   private binaryPath: string | null = null;
   private binaryChecked = false;
+  /** True when binaryPath is a bare command name on PATH (skip existsSync check) */
+  private binaryIsOnPath = false;
 
   constructor(config: LoopGuardConfig, extensionUri?: vscode.Uri) {
     this.enabled = config.enableContextEngine;
@@ -101,6 +103,11 @@ export class ContextEngine {
     return (await this.findBinary()) !== null;
   }
 
+  /** Returns the resolved binary path (bundled or system), or null if unavailable. */
+  async getResolvedBinaryPath(): Promise<string | null> {
+    return this.findBinary();
+  }
+
   private async getSnapshotFromBinary(
     binary: string,
     document: vscode.TextDocument,
@@ -148,25 +155,33 @@ export class ContextEngine {
 
   private async findBinary(): Promise<string | null> {
     if (this.binaryChecked) {
-      return this.binaryPath && existsSync(this.binaryPath) ? this.binaryPath : null;
+      if (this.binaryPath === null) return null;
+      // Path-based binary: verify the file still exists (VSIX could be updated)
+      if (!this.binaryIsOnPath && !existsSync(this.binaryPath)) {
+        this.binaryPath = null;
+        return null;
+      }
+      return this.binaryPath;
     }
     this.binaryChecked = true;
 
-    // 1. Try bundled path first
+    // 1. Try bundled path first (absolute path resolved from extensionUri)
     if (this.binaryPath !== null && existsSync(this.binaryPath)) {
       try {
         await execFileAsync(this.binaryPath, ['--version'], { timeout: 2000 });
         logger.info('Using bundled loopguard-ctx binary', { path: this.binaryPath });
+        this.binaryIsOnPath = false;
         return this.binaryPath;
       } catch {
-        // fall through
+        // fall through to PATH check
       }
     }
 
-    // 2. Try system PATH
+    // 2. Try system PATH (bare command name — existsSync is meaningless here)
     try {
       await execFileAsync('loopguard-ctx', ['--version'], { timeout: 2000 });
       this.binaryPath = 'loopguard-ctx';
+      this.binaryIsOnPath = true;
       logger.info('Using system loopguard-ctx binary');
       return 'loopguard-ctx';
     } catch {
