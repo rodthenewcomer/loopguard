@@ -177,18 +177,27 @@ export class ContextEngine {
       }
     }
 
-    // 2. Try system PATH (bare command name — existsSync is meaningless here)
-    try {
-      await execFileAsync('loopguard-ctx', ['--version'], { timeout: 2000 });
-      this.binaryPath = 'loopguard-ctx';
-      this.binaryIsOnPath = true;
-      logger.info('Using system loopguard-ctx binary');
-      return 'loopguard-ctx';
-    } catch {
-      logger.info('loopguard-ctx binary not found, using TypeScript fallback');
-      this.binaryPath = null;
-      return null;
+    // 2. Try system PATH — on Windows also try the .exe suffix explicitly
+    const pathCandidates =
+      process.platform === 'win32'
+        ? ['loopguard-ctx.exe', 'loopguard-ctx']
+        : ['loopguard-ctx'];
+
+    for (const cmd of pathCandidates) {
+      try {
+        await execFileAsync(cmd, ['--version'], { timeout: 2000 });
+        this.binaryPath = cmd;
+        this.binaryIsOnPath = true;
+        logger.info('Using system loopguard-ctx binary', { cmd });
+        return cmd;
+      } catch {
+        // try next candidate
+      }
     }
+
+    logger.info('loopguard-ctx binary not found, using TypeScript fallback');
+    this.binaryPath = null;
+    return null;
   }
 
   private buildFullSnapshot(
@@ -222,6 +231,11 @@ export class ContextEngine {
   private resolveBinaryPath(extensionPath: string): string {
     const platform = process.platform;
     const arch = process.arch;
+    const supported = ['darwin', 'linux', 'win32'];
+    const supportedArch = ['x64', 'arm64'];
+    if (!supported.includes(platform) || !supportedArch.includes(arch)) {
+      logger.info(`Unsupported platform/arch: ${platform}-${arch}, will use TypeScript fallback`);
+    }
     const binaryName = platform === 'win32' ? 'loopguard-ctx.exe' : 'loopguard-ctx';
     return join(extensionPath, 'bin', `${platform}-${arch}`, binaryName);
   }
