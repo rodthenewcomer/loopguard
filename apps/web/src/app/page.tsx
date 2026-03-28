@@ -274,20 +274,19 @@ export default function LandingPage() {
             {/* CTAs */}
             <div className="flex flex-wrap items-center gap-3 mb-10">
               <a
-                id="install"
-                href="https://marketplace.visualstudio.com"
+                href="/setup"
                 className="flex items-center gap-2 px-6 py-3 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-blue-900/40 hover:shadow-blue-900/60 glow-primary"
               >
                 <Icon path={IC.zap} />
                 Install Free
               </a>
-              <a
-                href="#how-it-works"
+              <Link
+                href="/signup"
                 className="flex items-center gap-2 px-6 py-3 border border-[#1F2937] hover:border-[#374151] text-[#9CA3AF] hover:text-white font-medium rounded-xl transition-all duration-200"
               >
-                See how it works
+                Create free account
                 <Icon path={IC.arrow} />
-              </a>
+              </Link>
             </div>
 
             {/* Trust signals */}
@@ -328,6 +327,65 @@ export default function LandingPage() {
           ))}
         </div>
       </div>
+
+      {/* ── HOW TO GET STARTED ───────────────────────────────────── */}
+      <section className="max-w-5xl mx-auto px-6 py-20">
+        <ScrollReveal className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-white mb-3">Up and running in 60 seconds.</h2>
+          <p className="text-[#6B7280]">Three steps. No config. No API keys.</p>
+        </ScrollReveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
+          {/* Connector line (desktop only) */}
+          <div className="hidden md:block absolute top-[2.75rem] left-[calc(16.66%+1.5rem)] right-[calc(16.66%+1.5rem)] h-px bg-gradient-to-r from-[#1F2937] via-[#2563EB]/40 to-[#1F2937]" aria-hidden="true" />
+
+          {[
+            {
+              step: '1',
+              color: '#2563EB',
+              title: 'Install the extension',
+              body: 'One click from the VS Code Marketplace. Works on Windows, macOS and Linux — no setup required.',
+              cta: { label: 'Go to setup →', href: '/setup' },
+            },
+            {
+              step: '2',
+              color: '#22D3EE',
+              title: 'Create a free account',
+              body: 'Sign up to sync your session data and see your loops, token savings and time wasted in the dashboard.',
+              cta: { label: 'Sign up free →', href: '/signup' },
+            },
+            {
+              step: '3',
+              color: '#22C55E',
+              title: 'Start coding',
+              body: "LoopGuard runs silently in the background. The moment you hit a loop or copy context, it's already working.",
+              cta: null,
+            },
+          ].map((item, i) => (
+            <ScrollReveal key={item.step} delay={i * 100}>
+              <div className="relative p-6 rounded-2xl border border-[#1F2937] bg-[#111827]/60 hover:border-[#374151] transition-all duration-300 group">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black mb-4 flex-shrink-0"
+                  style={{ background: item.color + '20', color: item.color, border: `1px solid ${item.color}40` }}
+                >
+                  {item.step}
+                </div>
+                <h3 className="text-white font-semibold text-base mb-2">{item.title}</h3>
+                <p className="text-[#6B7280] text-sm leading-relaxed mb-4">{item.body}</p>
+                {item.cta && (
+                  <a
+                    href={item.cta.href}
+                    className="text-sm font-medium transition-colors duration-200"
+                    style={{ color: item.color }}
+                  >
+                    {item.cta.label}
+                  </a>
+                )}
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
 
       {/* ── WHAT LOOPGUARD DOES ──────────────────────────────────── */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-28">
@@ -674,7 +732,7 @@ export default function LandingPage() {
                 ))}
               </ul>
               <a
-                href="#install"
+                href="/setup"
                 className="block text-center py-3 border border-[#374151] hover:border-[#4B5563] text-[#9CA3AF] hover:text-white font-semibold rounded-xl transition-all duration-200 text-sm"
               >
                 Get Started Free
@@ -707,7 +765,7 @@ export default function LandingPage() {
                 ))}
               </ul>
               <a
-                href="#install"
+                href="/setup"
                 className="block text-center py-3 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold rounded-xl transition-all duration-200 text-sm glow-primary shadow-lg shadow-blue-900/40"
               >
                 Start Pro — $9/month
@@ -737,14 +795,18 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
-                href="https://marketplace.visualstudio.com"
+                href="/setup"
                 className="flex items-center gap-2 px-8 py-4 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold rounded-xl text-lg transition-all duration-200 shadow-2xl shadow-blue-900/50 glow-primary"
               >
                 <Icon path={IC.zap} />
-                Install Free
+                Install Extension
               </a>
-              <Link href="/dashboard" className="text-sm text-[#6B7280] hover:text-[#9CA3AF] transition-colors">
-                View dashboard demo →
+              <Link
+                href="/signup"
+                className="flex items-center gap-2 px-8 py-4 border border-[#374151] hover:border-[#4B5563] text-[#D1D5DB] hover:text-white font-semibold rounded-xl text-lg transition-all duration-200"
+              >
+                Create free account
+                <Icon path={IC.arrow} />
               </Link>
             </div>
             <p className="text-xs text-[#4B5563] mt-6">
