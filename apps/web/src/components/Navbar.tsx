@@ -1,37 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-
-function Logo() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-      <path
-        d="M17 2L3 8v10c0 8.3 5.8 15.8 14 17.7C25.2 33.8 31 26.3 31 18V8L17 2z"
-        fill="url(#nav-grad)"
-      />
-      <path
-        d="M11.5 17c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5-2.5 5.5-5.5 5.5-5.5-2.5-5.5-5.5z"
-        stroke="rgba(255,255,255,0.8)"
-        strokeWidth="1.4"
-        fill="none"
-      />
-      <path
-        d="M13.5 17h2.2l1.1-2.2 1.6 4.4 1.1-2.2H21"
-        stroke="white"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <defs>
-        <linearGradient id="nav-grad" x1="3" y1="2" x2="31" y2="35" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#3B82F6" />
-          <stop offset="100%" stopColor="#22D3EE" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-}
+import Image from 'next/image';
 
 const NAV_LINKS = [
   { label: 'Features',    href: '/#features' },
@@ -64,7 +34,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <Logo />
+          <Image src="/icon-192x192.png" alt="LoopGuard" width={32} height={32} className="rounded-lg" />
           <span className="text-[17px] font-bold text-white tracking-tight">LoopGuard</span>
         </Link>
 

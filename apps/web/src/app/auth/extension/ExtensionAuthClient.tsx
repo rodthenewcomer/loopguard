@@ -113,15 +113,7 @@ export default function ExtensionAuthClient() {
     <div className="min-h-screen bg-[#0B1220] flex flex-col items-center justify-center px-6 py-16">
       {/* Logo */}
       <div className="flex items-center gap-2.5 mb-10">
-        <svg width="36" height="36" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-          <path d="M17 2L3 8v10c0 8.3 5.8 15.8 14 17.7C25.2 33.8 31 26.3 31 18V8L17 2z" fill="url(#ag)" />
-          <defs>
-            <linearGradient id="ag" x1="3" y1="2" x2="31" y2="35" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#3B82F6" />
-              <stop offset="100%" stopColor="#22D3EE" />
-            </linearGradient>
-          </defs>
-        </svg>
+        <img src="/icon-192x192.png" alt="LoopGuard" width="28" height="28" className="rounded-lg" />
         <span className="text-xl font-bold text-white">LoopGuard</span>
       </div>
 

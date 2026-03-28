@@ -13,15 +13,7 @@ export default function LoginPage() {
       <header className="border-b border-[#1F2937]">
         <div className="max-w-md mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <svg width="28" height="28" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-              <path d="M17 2L3 8v10c0 8.3 5.8 15.8 14 17.7C25.2 33.8 31 26.3 31 18V8L17 2z" fill="url(#lg)" />
-              <defs>
-                <linearGradient id="lg" x1="3" y1="2" x2="31" y2="35" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#3B82F6" />
-                  <stop offset="100%" stopColor="#22D3EE" />
-                </linearGradient>
-              </defs>
-            </svg>
+            <img src="/icon-192x192.png" alt="LoopGuard" width="28" height="28" className="rounded-lg" />
             <span className="font-bold text-white">LoopGuard</span>
           </Link>
           <Link href="/signup" className="text-sm text-[#6B7280] hover:text-[#9CA3AF] transition-colors">

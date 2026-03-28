@@ -896,15 +896,7 @@ export default function LandingPage() {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
-                <svg width="30" height="30" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-                  <path d="M17 2L3 8v10c0 8.3 5.8 15.8 14 17.7C25.2 33.8 31 26.3 31 18V8L17 2z" fill="url(#fg)" />
-                  <defs>
-                    <linearGradient id="fg" x1="3" y1="2" x2="31" y2="35" gradientUnits="userSpaceOnUse">
-                      <stop offset="0%" stopColor="#3B82F6" />
-                      <stop offset="100%" stopColor="#22D3EE" />
-                    </linearGradient>
-                  </defs>
-                </svg>
+                <img src="/icon-192x192.png" alt="LoopGuard" width={30} height={30} className="rounded-lg" />
                 <span className="font-bold text-white text-lg">LoopGuard</span>
               </div>
               <p className="text-[#4B5563] text-sm leading-relaxed max-w-xs mb-6">
