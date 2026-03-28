@@ -149,10 +149,10 @@ const INTEGRATIONS = [
 
 /* ── Stats ──────────────────────────────────────────────────────── */
 const STATS = [
-  { value: '93%',   label: 'Average token reduction',         color: '#22D3EE' },
-  { value: '47min', label: 'Average time saved per day',      color: '#F59E0B' },
-  { value: '3',     label: 'Platforms: Windows · Mac · Linux',color: '#A78BFA' },
-  { value: '$0',    label: 'Cost to start — free forever',    color: '#22C55E' },
+  { value: '93%',   label: 'Average token reduction per session', color: '#22D3EE' },
+  { value: '~$0.35',label: 'Cost saved per session',             color: '#22C55E' },
+  { value: '47min', label: 'Average time saved per day',         color: '#F59E0B' },
+  { value: '3',     label: 'Platforms: Windows · Mac · Linux',   color: '#A78BFA' },
 ];
 
 /* ── Pricing ────────────────────────────────────────────────────── */
@@ -244,7 +244,7 @@ export default function LandingPage() {
             {/* Live badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#1F2937] shimmer-badge mb-6">
               <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-              <span className="text-xs text-[#9CA3AF] font-medium">Now with Rust-powered 93% token reduction</span>
+              <span className="text-xs text-[#9CA3AF] font-medium">93% token reduction · ~$0.35 saved per session</span>
             </div>
 
             {/* Headline */}
