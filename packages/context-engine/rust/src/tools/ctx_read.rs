@@ -386,7 +386,7 @@ mod tests {
     #[test]
     fn test_header_toon_saves_tokens() {
         let content = "use crate::foo;\nuse crate::bar;\npub fn baz() {}\npub fn qux() {}\n";
-        let old_header = format!("F1=main.rs [4L +] deps:[foo,bar] exports:[baz,qux]");
+        let old_header = "F1=main.rs [4L +] deps:[foo,bar] exports:[baz,qux]".to_string();
         let new_header = build_header("F1", "main.rs", "rs", content, 4, true);
         let old_tokens = count_tokens(&old_header);
         let new_tokens = count_tokens(&new_header);
