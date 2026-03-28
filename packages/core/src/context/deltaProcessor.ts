@@ -118,8 +118,12 @@ export class DeltaProcessor {
         // Add trailing context
         currentChunk.lines.push(newLine);
 
-        // Check if we've added enough trailing context
-        const trailingCount = currentChunk.lines.length - (i - currentChunk.startLine);
+        // Count how many consecutive unchanged lines we've added after the last changed line.
+        // currentChunk.startLine is 1-based, so the 0-based index of its first line is
+        // (currentChunk.startLine - 1). The number of trailing unchanged lines is how many
+        // lines past the chunk's total span we have added.
+        const chunkSpan = i - (currentChunk.startLine - 1); // lines covered (0-based length)
+        const trailingCount = currentChunk.lines.length - chunkSpan;
         if (trailingCount >= CONTEXT_RADIUS) {
           chunks.push(currentChunk);
           currentChunk = null;

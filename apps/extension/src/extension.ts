@@ -27,7 +27,7 @@ const SYNC_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 let _syncFinalSession: ((endedAt: number) => void) | undefined;
 
 const FIRST_INSTALL_KEY = 'loopguard.firstInstall';
-const BINARY_DOWNLOAD_URL = 'https://github.com/loopguard/loopguard/releases/latest';
+const BINARY_DOWNLOAD_URL = 'https://github.com/rodthenewcomer/loopguard/releases/latest';
 
 /* ── activate ──────────────────────────────────────────────────────*/
 export function activate(context: vscode.ExtensionContext): void {
@@ -282,11 +282,11 @@ function _activate(context: vscode.ExtensionContext): void {
 
     if (!(await contextEngine.isBinaryAvailable())) {
       const action = await vscode.window.showErrorMessage(
-        'LoopGuard: The loopguard-ctx binary is required for MCP setup.',
-        'Download from GitHub',
+        'LoopGuard: The loopguard-ctx binary is not yet installed. It ships automatically when you install from the VS Code Marketplace. If you installed manually, download the platform-specific VSIX from GitHub Releases.',
+        'GitHub Releases',
         'Cancel',
       );
-      if (action === 'Download from GitHub') {
+      if (action === 'GitHub Releases') {
         await vscode.env.openExternal(vscode.Uri.parse(BINARY_DOWNLOAD_URL));
       }
       return;
@@ -320,11 +320,11 @@ function _activate(context: vscode.ExtensionContext): void {
   const setupShellHooks = vscode.commands.registerCommand('loopguard.setupShellHooks', async () => {
     if (!(await contextEngine.isBinaryAvailable())) {
       const action = await vscode.window.showErrorMessage(
-        'LoopGuard: The loopguard-ctx binary is required for shell hooks.',
-        'Download from GitHub',
+        'LoopGuard: The loopguard-ctx binary is not yet installed. It ships automatically when you install from the VS Code Marketplace. If you installed manually, download the platform-specific VSIX from GitHub Releases.',
+        'GitHub Releases',
         'Cancel',
       );
-      if (action === 'Download from GitHub') {
+      if (action === 'GitHub Releases') {
         await vscode.env.openExternal(vscode.Uri.parse(BINARY_DOWNLOAD_URL));
       }
       return;

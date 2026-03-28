@@ -301,7 +301,7 @@ EXAMPLES:
     loopguard-ctx deps .
 
 WEBSITE: https://loopguard.vercel.app
-GITHUB:  https://github.com/loopguard/loopguard
+GITHUB:  https://github.com/rodthenewcomer/loopguard
 "
     );
 }
