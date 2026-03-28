@@ -76,16 +76,16 @@ const WHAT_WE_DO = [
   {
     n: '01',
     color: '#F59E0B',
-    title: 'Watches for loops',
-    body: 'Every time the same error reappears — in diagnostics or your edit history — LoopGuard increments a counter. At a threshold, it fires an alert with the exact time lost.',
-    tag: 'Loop Detection',
+    title: 'Cuts the circuit before the bill arrives',
+    body: 'Every turn a stuck AI takes costs real money. LoopGuard watches both your diagnostics and your edit history. The moment it detects a loop — whether you\'re typing or an agent is running — it fires an alert with the exact time and tokens burned.',
+    tag: 'Loop Circuit Breaker',
   },
   {
     n: '02',
     color: '#22D3EE',
-    title: 'Strips the noise before it reaches AI',
-    body: 'Instead of pasting full files, LoopGuard extracts AST function signatures, high-entropy lines, and the exact error context. The AI sees 7% of the file — the 7% that matters.',
-    tag: 'Context Engine',
+    title: 'Your AI reads the file. It gets 7% of it.',
+    body: 'LoopGuard sits between your editor and your AI. Every context request — manual copy or automatic agent read — is filtered through the relevance engine. AST signatures, entropy-scored lines, exact error context. The rest is dropped.',
+    tag: 'Relevance Engine',
   },
 ];
 
@@ -102,46 +102,46 @@ const IDES = [
 
 /* ── Loop detection features ────────────────────────────────────── */
 const LOOP_FEATURES = [
-  'Watches VS Code diagnostics in real time — all languages',
-  'Detects edit-pattern loops even when error message changes',
-  'Fires alert with exact minutes wasted — not an estimate',
-  'Works on Windows, macOS and Linux — same binary',
-  'Session dashboard: all loops, all time, all token spend',
+  'Watches VS Code diagnostics in real time — all 14 languages',
+  'Detects edit-pattern loops even when the error message changes',
+  'Fires an alert the moment a loop is confirmed — with exact cost in time and tokens',
+  'Works with autonomous agents — catches Claude Code and Cursor agents spinning silently',
+  'Session dashboard: every loop, every cost, every pattern across your history',
 ];
 
 /* ── Context engine features ────────────────────────────────────── */
 const CTX_FEATURES = [
-  'Rust engine: 89–99% token reduction per clipboard copy',
-  'AST signatures — function stubs, not full bodies',
-  'Shannon entropy scoring — high-value lines only',
-  'Myers delta — re-reads cost ~13 tokens, not thousands',
-  'TypeScript fallback — works even without the Rust binary',
-  '14 languages: TS, Python, Rust, Go, Java, C++, and more',
+  'Rust engine: 89–99% token reduction — not compression, selection',
+  'AST parse: function signatures sent, full bodies dropped',
+  'Shannon entropy scoring: complex logic surfaced, boilerplate removed',
+  'Session memory: if your agent read auth.ts 3 times, the 4th costs 13 tokens',
+  'Myers delta: only what changed since the last request — not the whole file again',
+  '14 languages: TypeScript, Python, Rust, Go, Java, C++, and more',
 ];
 
 /* ── Integrations ───────────────────────────────────────────────── */
 const INTEGRATIONS = [
   {
     icon: IC.code,
-    title: 'VS Code / Cursor / Windsurf',
-    sub: 'Extension — Windows · macOS · Linux',
-    desc: 'Loop detection + context engine (~80% token reduction) built in. One click from the Marketplace. Copy Optimized Context sends only the lines that matter to your AI.',
+    title: 'IDE Extension',
+    sub: 'VS Code · Cursor · Windsurf — Windows · macOS · Linux',
+    desc: 'Loop circuit breaker + relevance engine built in. Free forever. One click install, zero config. Hit a loop: instant alert with time and tokens burned. Copy context: AI gets the 7% that matters.',
     badge: 'Free',
     badgeColor: '#22C55E',
   },
   {
     icon: IC.mcp,
-    title: 'MCP Server',
-    sub: 'Claude Code · Cursor · Windsurf · Copilot',
-    desc: '21 context tools wired into your AI agent. Run once: LoopGuard: Configure MCP Server. Works from the terminal too — no VS Code required.',
+    title: 'AI Gateway',
+    sub: 'Intercepts every file read by Claude Code, Cursor, Windsurf, Copilot',
+    desc: 'Wire LoopGuard once. Every time your AI agent reads a file, the request routes through the relevance engine automatically — no copy-paste, no commands. A 1,800-line component becomes 140 lines. Your agent never knows the difference.',
     badge: 'Pro',
     badgeColor: '#2563EB',
   },
   {
     icon: IC.terminal,
-    title: 'Shell Hooks',
-    sub: 'bash · zsh · fish — all platforms',
-    desc: 'npm install, git log, docker build — compressed 60–90% before they ever reach your AI context window. One command to install.',
+    title: 'Terminal Filter',
+    sub: 'Surfaces signal. Drops noise. Every CLI command.',
+    desc: '`npm install` pumps 3,400 tokens of progress bars and resolved packages into your AI. LoopGuard intercepts it and sends 12 lines: the warning that broke your build, the peer conflict, the final status. Nothing else.',
     badge: 'Pro',
     badgeColor: '#2563EB',
   },
@@ -244,7 +244,7 @@ export default function LandingPage() {
             {/* Live badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#1F2937] shimmer-badge mb-6">
               <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-              <span className="text-xs text-[#9CA3AF] font-medium">93% token reduction · save ~$77/month on AI costs</span>
+              <span className="text-xs text-[#9CA3AF] font-medium">AI loop circuit breaker · 93% context reduction · works with Claude Code &amp; Cursor agents</span>
             </div>
 
             {/* Headline */}
@@ -258,16 +258,16 @@ export default function LandingPage() {
 
             {/* Explicit product description */}
             <p className="text-[#9CA3AF] text-lg leading-relaxed mb-3">
-              LoopGuard is a VS Code extension that does two things:
+              The guardrail layer for AI coding agents.
             </p>
             <div className="space-y-2 mb-8">
               <div className="flex items-start gap-3 text-[#9CA3AF] text-base">
                 <span className="text-[#F59E0B] mt-1 flex-shrink-0"><Icon path={IC.alert} size={16} /></span>
-                <span><span className="text-white font-medium">Detects AI loops</span> — fires an alert the moment you cycle through the same error, with the exact time wasted.</span>
+                <span><span className="text-white font-medium">Cuts the loop before it costs you</span> — detects the moment you or your agent cycles through the same error, with exact time and tokens burned.</span>
               </div>
               <div className="flex items-start gap-3 text-[#9CA3AF] text-base">
                 <span className="text-[#22D3EE] mt-1 flex-shrink-0"><Icon path={IC.zap} size={16} /></span>
-                <span><span className="text-white font-medium">Cuts token noise by 93%</span> — extracts only the relevant code before it reaches your AI, on every request.</span>
+                <span><span className="text-white font-medium">Every AI read, filtered automatically</span> — the relevance engine sits between your code and your AI. Agents get 7% of the file. The 7% that matters.</span>
               </div>
             </div>
 
@@ -390,10 +390,10 @@ export default function LandingPage() {
       {/* ── WHAT LOOPGUARD DOES ──────────────────────────────────── */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-28">
         <ScrollReveal className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-white mb-4">Two problems. One extension.</h2>
+          <h2 className="text-4xl font-bold text-white mb-4">Two things no other tool does.</h2>
           <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
-            LoopGuard runs silently in the background on Windows, macOS and Linux.
-            No config. No API keys. No changes to your workflow.
+            Every other context tool is passive — it compresses when you ask.
+            LoopGuard is active. It watches, intercepts, and intervenes before the damage is done.
           </p>
         </ScrollReveal>
 
@@ -534,12 +534,10 @@ export default function LandingPage() {
                   Loop Detection
                 </div>
                 <h2 className="text-4xl font-bold text-white leading-tight mb-5">
-                  Know you&rsquo;re stuck — before 2 hours disappear.
+                  Catch the loop at turn 2.<br/>Not turn 10.
                 </h2>
                 <p className="text-[#6B7280] text-base leading-relaxed mb-8">
-                  LoopGuard watches both your VS Code diagnostics and your edit patterns independently.
-                  Two detection methods — catches every loop type, even when the error message changes.
-                  Works identically on Windows, macOS, and Linux.
+                  Two independent detection methods run in parallel — diagnostic-based and edit-pattern. Either one can trigger. Catches loops even when the error message changes. Works with autonomous agents running in the background, not just manual sessions.
                 </p>
                 <ul className="space-y-3">
                   {LOOP_FEATURES.map((f) => (
@@ -572,12 +570,10 @@ export default function LandingPage() {
                   Context Engine
                 </div>
                 <h2 className="text-4xl font-bold text-white leading-tight mb-5">
-                  Send 7% of the file. Get 100% of the answer.
+                  Your AI reads the file.<br/>It gets 7% of it.
                 </h2>
                 <p className="text-[#6B7280] text-base leading-relaxed mb-8">
-                  Our Rust engine parses your file&rsquo;s AST, scores each line by Shannon entropy, and extracts
-                  only what the AI needs to solve your specific error. The AI gets a sharper signal.
-                  You get a smaller bill. Works on every platform without recompiling.
+                  The Rust engine parses the AST, scores every line by Shannon entropy, and drops everything below the threshold. What remains: the function signatures your AI needs, the high-complexity lines it will use, the exact error context it must see. The rest is noise. It gets dropped — automatically, on every request.
                 </p>
                 <ul className="space-y-3 mb-8">
                   {CTX_FEATURES.map((f) => (
@@ -656,9 +652,9 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[#0d1219]/40" aria-hidden="true" />
         <div className="relative max-w-6xl mx-auto px-6">
           <ScrollReveal className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Three ways to use it.</h2>
+            <h2 className="text-4xl font-bold text-white mb-4">One layer. Three surfaces.</h2>
             <p className="text-[#6B7280] text-lg max-w-xl mx-auto">
-              Start with the extension. Go deeper with MCP and shell hooks. All three work on Windows, macOS and Linux.
+              In your IDE, inside your AI agent, or at the terminal — LoopGuard intercepts context at every point where noise enters your AI workflow.
             </p>
           </ScrollReveal>
 
@@ -704,6 +700,83 @@ export default function LandingPage() {
               </div>
             </ScrollReveal>
           ))}
+        </div>
+      </section>
+
+      {/* ── THE LOOP TAX ─────────────────────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-6 py-20">
+        <ScrollReveal className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-white mb-4">The loop tax is real.</h2>
+          <p className="text-[#6B7280] text-lg max-w-2xl mx-auto">
+            Every stuck AI turn costs money. Loops aren&rsquo;t just frustrating — they have a line item.
+          </p>
+        </ScrollReveal>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* Left: cost math */}
+          <ScrollReveal direction="left">
+            <div
+              className="rounded-2xl border border-[#1F2937] p-7"
+              style={{ background: 'linear-gradient(145deg, #111827, #0f172a)' }}
+            >
+              <div className="text-xs text-[#4B5563] uppercase tracking-widest mb-5">A typical stuck session</div>
+              <div className="space-y-4">
+                {[
+                  { label: 'Same error. 8 AI turns. Each turn: ~2,000 tokens context.', tokens: '16,000 tokens', cost: '$0.48', color: '#EF4444' },
+                  { label: 'LoopGuard catches at turn 2. 2 turns × 140 tokens context.', tokens: '280 tokens', cost: '$0.01', color: '#22C55E' },
+                ].map((row) => (
+                  <div key={row.label} className="p-4 rounded-xl border border-[#1F2937] bg-[#0d1117]">
+                    <p className="text-[#6B7280] text-xs leading-relaxed mb-2">{row.label}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs text-[#4B5563]">{row.tokens}</span>
+                      <span className="font-black text-lg tabular-nums" style={{ color: row.color }}>{row.cost}</span>
+                    </div>
+                  </div>
+                ))}
+                <div className="pt-3 border-t border-[#1F2937] flex items-center justify-between">
+                  <span className="text-sm text-[#9CA3AF] font-medium">Saved on one loop</span>
+                  <span className="text-[#22C55E] font-black text-2xl">$0.47</span>
+                </div>
+                <p className="text-xs text-[#4B5563] leading-relaxed">
+                  5 loops/day × 22 working days = 110 loops/month.<br/>
+                  110 × $0.47 = <strong className="text-[#22C55E]">$51.70 saved per month</strong> — just on loop turns.<br/>
+                  Add context reduction on every other request: <strong className="text-[#22C55E]">~$77/month total.</strong>
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Right: agent era angle */}
+          <ScrollReveal direction="right">
+            <div className="space-y-4">
+              <div
+                className="p-6 rounded-2xl border border-[#F59E0B]/25 bg-[#F59E0B]/5"
+              >
+                <div className="text-xs font-bold text-[#F59E0B] uppercase tracking-wide mb-2">The agent problem</div>
+                <p className="text-[#9CA3AF] text-sm leading-relaxed">
+                  When you loop, you notice. When <strong className="text-white">Claude Code or a Cursor agent loops</strong>, it keeps going — burning tokens silently for 20 minutes until you check the terminal. LoopGuard watches autonomous agents too. When the same error pattern appears twice in an agent run, it cuts the circuit.
+                </p>
+              </div>
+
+              <div
+                className="p-6 rounded-2xl border border-[#22D3EE]/25 bg-[#22D3EE]/5"
+              >
+                <div className="text-xs font-bold text-[#22D3EE] uppercase tracking-wide mb-2">Session memory</div>
+                <p className="text-[#9CA3AF] text-sm leading-relaxed">
+                  Your agent read <code className="text-[#22D3EE] text-xs bg-[#0d1117] px-1 rounded">auth.ts</code> three times this session? The fourth read costs <strong className="text-white">13 tokens</strong> — not 2,400. LoopGuard caches every file read and serves delta-only updates. Files your AI already knows don&rsquo;t get resent.
+                </p>
+              </div>
+
+              <div
+                className="p-6 rounded-2xl border border-[#22C55E]/25 bg-[#22C55E]/5"
+              >
+                <div className="text-xs font-bold text-[#22C55E] uppercase tracking-wide mb-2">Relevance, not compression</div>
+                <p className="text-[#9CA3AF] text-sm leading-relaxed">
+                  Every other tool tries to make context smaller. LoopGuard decides <strong className="text-white">what context should exist at all</strong>. The 200-line helper your AI keeps re-reading but never uses? It never gets sent again.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 

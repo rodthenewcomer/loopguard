@@ -42,8 +42,8 @@ const NAV = [
   {
     group: 'Integrations',
     items: [
-      { label: 'MCP Server',    id: 'mcp' },
-      { label: 'Shell hooks',   id: 'shell-hooks' },
+      { label: 'AI Gateway (MCP)', id: 'mcp' },
+      { label: 'Terminal Filter',  id: 'shell-hooks' },
       { label: 'Binary install',id: 'binary' },
     ],
   },
@@ -505,11 +505,16 @@ export default function DocsPage() {
           {/* ═══════════════════════════════════════════════════════
               INTEGRATIONS
           ═══════════════════════════════════════════════════════ */}
-          <H2 id="mcp">MCP Server</H2>
+          <H2 id="mcp">AI Gateway (MCP Server)</H2>
           <P>
-            LoopGuard includes an MCP (Model Context Protocol) server with 21 context tools. This
-            lets Claude Code, Cursor, Windsurf, and GitHub Copilot call LoopGuard&rsquo;s context
-            engine directly as part of their AI requests.
+            LoopGuard&rsquo;s AI Gateway is an MCP server that intercepts every file read your AI agent makes
+            and routes it through the relevance engine automatically. Instead of your agent reading a
+            1,800-line component and burning 2,400 tokens, it receives 140 lines — the signatures,
+            the high-entropy logic, the error context. The agent never knows the difference.
+          </P>
+          <P>
+            Works with Claude Code, Cursor, Windsurf, and GitHub Copilot. No copy-paste. No manual commands.
+            Wire it once and every subsequent agent read is filtered automatically for the life of the session.
           </P>
 
           <H3>Setup (one command)</H3>
@@ -548,11 +553,17 @@ export default function DocsPage() {
           />
 
           {/* ─────────────────────────────────────────────────────── */}
-          <H2 id="shell-hooks">Shell hooks (Pro)</H2>
+          <H2 id="shell-hooks">Terminal Filter (Shell Hooks, Pro)</H2>
           <P>
-            Shell hooks intercept the output of CLI commands — <Code>npm install</Code>,{' '}
-            <Code>git log</Code>, <Code>docker build</Code>, etc. — and compress them before they
-            reach your AI context window. Typical reduction: 60–90%.
+            The Terminal Filter intercepts CLI output and surfaces only the signal before it reaches
+            your AI. Not compression — extraction.
+          </P>
+          <P>
+            <Code>npm install</Code> generates 3,400 tokens of progress bars, resolved package lines,
+            and peer dependency trees. Your AI does not need any of that. The Terminal Filter sends
+            the 12 lines that matter: the warning that caused the failure, the peer conflict, the
+            final exit status. <Code>docker build</Code> sends only the failing layer and its error.{' '}
+            <Code>git log</Code> sends only the commits relevant to the current branch and issue context.
           </P>
 
           <H3>Installation</H3>
