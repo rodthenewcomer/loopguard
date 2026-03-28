@@ -181,8 +181,8 @@ const FOOTER_COLS = [
     links: [
       { label: 'Features',   href: '#features' },
       { label: 'Pricing',    href: '#pricing' },
-      { label: 'Changelog',  href: '#' },
-      { label: 'Roadmap',    href: '#' },
+      { label: 'Changelog',  href: '/changelog' },
+      { label: 'Roadmap',    href: '/roadmap' },
     ],
   },
   {
@@ -199,8 +199,8 @@ const FOOTER_COLS = [
     heading: 'Resources',
     links: [
       { label: 'GitHub',          href: 'https://github.com/rodthenewcomer/loopguard' },
-      { label: 'Privacy Policy',  href: '#' },
-      { label: 'Terms of Service',href: '#' },
+      { label: 'Privacy Policy',  href: '/privacy' },
+      { label: 'Terms of Service',href: '/terms' },
       { label: 'Support',         href: 'mailto:support@loopguard.dev' },
     ],
   },
