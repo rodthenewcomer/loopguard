@@ -268,7 +268,7 @@ export default function DocsPage() {
 
           <H3>What you see on first launch</H3>
           <CheckList items={[
-            'The LoopGuard status bar item appears at the bottom of VS Code — it shows "LoopGuard ●" when active.',
+            'The LoopGuard status bar item appears at the bottom of VS Code — in the clean state it shows the standard check-mark variant of LoopGuard.',
             'The output channel "LoopGuard" is created. Open it with View → Output → LoopGuard to see diagnostics.',
             'A welcome notification appears with a link to sign in and connect to the web dashboard (optional).',
             'Loop detection starts immediately — no sign-in required for the core features.',
@@ -625,7 +625,7 @@ loopguard-ctx init`}</Pre>
             'Check that detection is not paused. Run LoopGuard: Toggle Detection if needed.',
             'Check the sensitivity — "low" requires the same error 5 times. Try "high" (2×) to test.',
             'Make sure the error is actually appearing in the VS Code Problems panel (View → Problems). LoopGuard only sees errors that VS Code diagnostics report — it does not read terminal output.',
-            'Open the LoopGuard output channel (View → Output → LoopGuard). It logs every diagnostic event it receives.',
+            'Open the LoopGuard output channel (View → Output → LoopGuard). It logs LoopGuard activity and errors while you reproduce the issue.',
             'Some linters report slightly different messages each time. If the message changes, LoopGuard treats it as a different fingerprint. Use "high" sensitivity to catch these earlier.',
           ]} />
 
@@ -668,7 +668,7 @@ loopguard-ctx init`}</Pre>
             'On Linux with xdg-open, make sure a default browser is set: xdg-settings get default-web-browser',
             'If the browser opens but the redirect does not come back, check that your OS allows the vscode:// URI scheme. On Linux this may need to be registered: xdg-mime default code.desktop x-scheme-handler/vscode',
             'In Cursor, the URI scheme is cursor:// — LoopGuard detects this automatically via vscode.env.uriScheme.',
-            'If you are on a remote / SSH session, deep-link callbacks will not work. Use the web dashboard at loopguard.vercel.app/login to sign in, then run LoopGuard: Sign In from the Command Palette again.',
+            'If you are on a remote / SSH session, deep-link callbacks may not work yet. Core loop detection and local context copy still work offline, but dashboard sign-in is best done from a local desktop session for now.',
           ]} />
 
           <div className="mt-16 pt-10 border-t border-[#1F2937]">

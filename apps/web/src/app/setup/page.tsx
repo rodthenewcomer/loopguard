@@ -84,7 +84,7 @@ export default function SetupPage() {
             Set up LoopGuard
           </h1>
           <p className="text-[#6B7280] text-lg max-w-xl mx-auto">
-            Works with VS Code, Cursor, Windsurf, Codex CLI, Claude Code in terminal, and any shell.
+            Works with VS Code, Cursor, Windsurf, Codex CLI, Claude Code in terminal, and supported shells like bash, zsh, and fish.
             Pick your tool below.
           </p>
         </div>
