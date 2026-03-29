@@ -381,6 +381,14 @@ function _activate(context: vscode.ExtensionContext): void {
   // Periodic session sync — sends latest metrics every 5 minutes
   const syncTimer = setInterval(() => syncSession(), SYNC_INTERVAL_MS);
 
+  // Dashboard UI refresh — ticks the session timer and metrics every 30s
+  // Only re-renders if the panel is open (DashboardPanel.update is a no-op otherwise)
+  const UI_REFRESH_MS = 30_000;
+  const uiRefreshTimer = setInterval(() => refreshLoopState(), UI_REFRESH_MS);
+
+  // Immediate session sync after auth initializes (gives web dashboard data right away)
+  setTimeout(() => syncSession(), 3_000);
+
   /* ── Subscriptions ────────────────────────────────────────────── */
   context.subscriptions.push(
     statusBar,
@@ -397,6 +405,7 @@ function _activate(context: vscode.ExtensionContext): void {
     setupShellHooks,
     configWatcher,
     { dispose: () => { clearInterval(syncTimer); } },
+    { dispose: () => { clearInterval(uiRefreshTimer); } },
     { dispose: () => DashboardPanel.dispose() },
     { dispose: () => logger.dispose() },
   );
