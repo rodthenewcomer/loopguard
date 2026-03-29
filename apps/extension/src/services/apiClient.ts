@@ -2,12 +2,12 @@ import { logger } from '../utils/logger';
 
 /**
  * API base URL.
- * In production this resolves to https://api.loopguard.dev
- * In local dev: set LOOPGUARD_API_URL=http://localhost:3001
+ * Production: https://loopguard-api-production-b9a5.up.railway.app
+ * Local dev: set LOOPGUARD_API_URL=http://localhost:3001
  */
 const API_BASE =
   (typeof process !== 'undefined' && process.env['LOOPGUARD_API_URL']) ??
-  'https://api.loopguard.dev';
+  'https://loopguard-api-production-b9a5.up.railway.app';
 
 const TIMEOUT_MS = 8000;
 
