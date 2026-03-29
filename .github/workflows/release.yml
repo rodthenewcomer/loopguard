@@ -159,6 +159,7 @@ jobs:
     name: Create GitHub Release
     needs: package-extension
     runs-on: ubuntu-22.04
+    if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
 
@@ -203,7 +204,7 @@ jobs:
     needs: package-extension
     runs-on: ubuntu-22.04
     # Only publish on real version tags (not pre-release like v0.1.0-beta)
-    if: "!contains(github.ref_name, '-')"
+    if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-')
     steps:
       - uses: actions/checkout@v4
 
