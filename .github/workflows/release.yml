@@ -24,7 +24,7 @@ jobs:
             binary: loopguard-ctx
 
           - target: x86_64-apple-darwin
-            os: macos-13          # Intel runner
+            os: macos-14          # M1 runner — cross-compiles to Intel via Apple SDK
             vscode-platform: darwin-x64
             binary: loopguard-ctx
 
@@ -39,7 +39,7 @@ jobs:
             vscode-platform: linux-x64
             binary: loopguard-ctx
 
-          - target: aarch64-unknown-linux-musl
+          - target: aarch64-unknown-linux-gnu
             os: ubuntu-22.04
             vscode-platform: linux-arm64
             binary: loopguard-ctx
@@ -52,14 +52,15 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - name: Install musl tools (Linux)
+      - name: Install Linux build tools
         if: contains(matrix.target, 'linux')
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y musl-tools clang llvm
-          # For arm64 cross-compilation
+          if [[ "${{ matrix.target }}" == *musl* ]]; then
+            sudo apt-get install -y musl-tools clang llvm
+          fi
           if [[ "${{ matrix.target }}" == aarch64* ]]; then
-            sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+            sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu g++-aarch64-linux-gnu
           fi
 
       - name: Cache Rust build
@@ -72,13 +73,13 @@ jobs:
         run: cargo build --release --target ${{ matrix.target }}
         env:
           # Linkers
-          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER: aarch64-linux-gnu-gcc
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER: musl-gcc
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
           # C compilers for tree-sitter grammar compilation (C code)
           CC_x86_64_unknown_linux_musl: musl-gcc
           CXX_x86_64_unknown_linux_musl: musl-gcc
-          CC_aarch64_unknown_linux_musl: aarch64-linux-gnu-gcc
-          CXX_aarch64_unknown_linux_musl: aarch64-linux-gnu-gcc
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
           # Static linking — no runtime deps on target system
           OPENSSL_STATIC: "1"
           OPENSSL_NO_VENDOR: "0"
