@@ -332,38 +332,47 @@ export default function LandingPage() {
       <section className="max-w-5xl mx-auto px-6 py-20">
         <ScrollReveal className="text-center mb-12">
           <h2 className="text-3xl font-bold text-white mb-3">Up and running in 60 seconds.</h2>
-          <p className="text-[#6B7280]">Three steps for the extension. Codex and other MCP clients get their own guided setup too.</p>
+          <p className="text-[#6B7280]">Pick your path. IDE extension or Claude Code terminal — both take under a minute.</p>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
-          {/* Connector line (desktop only) */}
-          <div className="hidden md:block absolute top-[2.75rem] left-[calc(16.66%+1.5rem)] right-[calc(16.66%+1.5rem)] h-px bg-gradient-to-r from-[#1F2937] via-[#2563EB]/40 to-[#1F2937]" aria-hidden="true" />
+        {/* Path A — IDE extension */}
+        <ScrollReveal className="mb-3">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#2563EB]/10 border border-[#2563EB]/20">
+              <Icon path={IC.code} size={13} />
+              <span className="text-xs font-semibold text-[#2563EB]">VS Code · Cursor · Windsurf</span>
+            </div>
+            <div className="flex-1 h-px bg-[#1F2937]" />
+          </div>
+        </ScrollReveal>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative mb-12">
+          <div className="hidden md:block absolute top-[2.75rem] left-[calc(16.66%+1.5rem)] right-[calc(16.66%+1.5rem)] h-px bg-gradient-to-r from-[#1F2937] via-[#2563EB]/40 to-[#1F2937]" aria-hidden="true" />
           {[
             {
               step: '1',
               color: '#2563EB',
               title: 'Install the extension',
-              body: 'One click from the VS Code Marketplace. Works on Windows, macOS and Linux — no setup required.',
-              cta: { label: 'Go to setup →', href: '/setup' },
+              body: 'Search LoopGuard in the Extensions panel, or run: ext install LoopGuard.loopguard',
+              cta: { label: 'Full setup guide →', href: '/setup#vscode' },
             },
             {
               step: '2',
               color: '#22D3EE',
-              title: 'Create a free account',
-              body: 'Sign up to sync your session data and see your loops, token savings and time wasted in the dashboard.',
-              cta: { label: 'Sign up free →', href: '/signup' },
+              title: 'Open any project',
+              body: 'LoopGuard activates automatically. The status bar shows it is running — no config needed.',
+              cta: null,
             },
             {
               step: '3',
               color: '#22C55E',
-              title: 'Start coding',
-              body: "LoopGuard runs silently in the background. The moment you hit a loop or copy context, it's already working.",
-              cta: null,
+              title: 'Sign in to sync',
+              body: 'Run LoopGuard: Sign In from the Command Palette to see your loops and token savings in the dashboard.',
+              cta: { label: 'Create free account →', href: '/signup' },
             },
           ].map((item, i) => (
             <ScrollReveal key={item.step} delay={i * 100}>
-              <div className="relative p-6 rounded-2xl border border-[#1F2937] bg-[#111827]/60 hover:border-[#374151] transition-all duration-300 group">
+              <div className="relative p-6 rounded-2xl border border-[#1F2937] bg-[#111827]/60 hover:border-[#374151] transition-all duration-300">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black mb-4 flex-shrink-0"
                   style={{ background: item.color + '20', color: item.color, border: `1px solid ${item.color}40` }}
@@ -373,11 +382,68 @@ export default function LandingPage() {
                 <h3 className="text-white font-semibold text-base mb-2">{item.title}</h3>
                 <p className="text-[#6B7280] text-sm leading-relaxed mb-4">{item.body}</p>
                 {item.cta && (
-                  <a
-                    href={item.cta.href}
-                    className="text-sm font-medium transition-colors duration-200"
-                    style={{ color: item.color }}
-                  >
+                  <a href={item.cta.href} className="text-sm font-medium transition-colors duration-200" style={{ color: item.color }}>
+                    {item.cta.label}
+                  </a>
+                )}
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+
+        {/* Path B — Claude Code terminal */}
+        <ScrollReveal className="mb-3">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#22D3EE]/10 border border-[#22D3EE]/20">
+              <Icon path={IC.terminal} size={13} />
+              <span className="text-xs font-semibold text-[#22D3EE]">Claude Code terminal — no VS Code needed</span>
+            </div>
+            <div className="flex-1 h-px bg-[#1F2937]" />
+          </div>
+        </ScrollReveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
+          <div className="hidden md:block absolute top-[2.75rem] left-[calc(16.66%+1.5rem)] right-[calc(16.66%+1.5rem)] h-px bg-gradient-to-r from-[#1F2937] via-[#22D3EE]/30 to-[#1F2937]" aria-hidden="true" />
+          {[
+            {
+              step: '1',
+              color: '#22D3EE',
+              title: 'Download the binary',
+              body: 'Grab loopguard-ctx for your platform from GitHub Releases and move it to /usr/local/bin/.',
+              cta: { label: 'GitHub Releases →', href: 'https://github.com/rodthenewcomer/loopguard/releases/latest' },
+            },
+            {
+              step: '2',
+              color: '#22D3EE',
+              title: 'Wire Claude Code',
+              body: 'One command registers LoopGuard as an MCP server and installs a PreToolUse hook in Claude Code.',
+              code: 'loopguard-ctx setup --agent=claude',
+            },
+            {
+              step: '3',
+              color: '#22C55E',
+              title: 'Restart Claude Code',
+              body: 'Close and reopen your terminal. Claude Code now has 21 LoopGuard MCP tools for focused reads and compressed shell output.',
+              cta: { label: 'Full Claude Code guide →', href: '/setup#claude-code' },
+            },
+          ].map((item, i) => (
+            <ScrollReveal key={item.step} delay={i * 100}>
+              <div className="relative p-6 rounded-2xl border border-[#1F2937] bg-[#111827]/60 hover:border-[#374151] transition-all duration-300">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black mb-4 flex-shrink-0"
+                  style={{ background: item.color + '20', color: item.color, border: `1px solid ${item.color}40` }}
+                >
+                  {item.step}
+                </div>
+                <h3 className="text-white font-semibold text-base mb-2">{item.title}</h3>
+                <p className="text-[#6B7280] text-sm leading-relaxed mb-3">{item.body}</p>
+                {'code' in item && item.code && (
+                  <div className="mb-3 px-3 py-2 bg-[#0d1117] border border-[#1F2937] rounded-lg">
+                    <code className="text-[#22D3EE] text-xs font-mono">{item.code}</code>
+                  </div>
+                )}
+                {'cta' in item && item.cta && (
+                  <a href={item.cta.href} className="text-sm font-medium transition-colors duration-200" style={{ color: item.color }}>
                     {item.cta.label}
                   </a>
                 )}
