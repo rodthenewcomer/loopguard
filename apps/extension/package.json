@@ -1,37 +1,43 @@
 {
   "name": "loopguard",
-  "displayName": "LoopGuard \u2014 AI Loop Detector & Context Optimizer",
-  "description": "Detects AI coding loops before they waste your time. Cuts token spend by 93% with a Rust-powered context engine that sends only what matters. Free for VS Code and Cursor.",
-  "version": "0.1.7",
+  "displayName": "LoopGuard",
+  "description": "Detect repeated diagnostics in VS Code and copy focused local context from the active file.",
+  "version": "0.1.8",
   "publisher": "LoopGuard",
   "icon": "icon.png",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://loopguard.vercel.app",
+  "bugs": {
+    "url": "https://github.com/rodthenewcomer/loopguard/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/rodthenewcomer/loopguard"
   },
+  "pricing": "Free",
   "engines": {
     "vscode": "^1.90.0"
   },
   "categories": [
     "Other",
-    "Debuggers",
-    "Machine Learning"
+    "Debuggers"
   ],
   "keywords": [
-    "AI",
+    "diagnostics",
+    "debugging",
     "productivity",
     "loop detection",
-    "cursor",
-    "copilot",
     "context",
-    "tokens"
+    "editor"
   ],
   "activationEvents": [
     "onStartupFinished",
     "onUri"
   ],
   "main": "./dist/extension.js",
+  "extensionKind": [
+    "ui"
+  ],
   "contributes": {
     "commands": [
       {
