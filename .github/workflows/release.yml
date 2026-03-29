@@ -56,10 +56,10 @@ jobs:
         if: contains(matrix.target, 'linux')
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y musl-tools
+          sudo apt-get install -y musl-tools clang llvm
           # For arm64 cross-compilation
           if [[ "${{ matrix.target }}" == aarch64* ]]; then
-            sudo apt-get install -y gcc-aarch64-linux-gnu
+            sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
           fi
 
       - name: Cache Rust build
@@ -71,7 +71,17 @@ jobs:
         working-directory: packages/context-engine/rust
         run: cargo build --release --target ${{ matrix.target }}
         env:
+          # Linkers
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER: aarch64-linux-gnu-gcc
+          CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER: musl-gcc
+          # C compilers for tree-sitter grammar compilation (C code)
+          CC_x86_64_unknown_linux_musl: musl-gcc
+          CXX_x86_64_unknown_linux_musl: musl-gcc
+          CC_aarch64_unknown_linux_musl: aarch64-linux-gnu-gcc
+          CXX_aarch64_unknown_linux_musl: aarch64-linux-gnu-gcc
+          # Static linking — no runtime deps on target system
+          OPENSSL_STATIC: "1"
+          OPENSSL_NO_VENDOR: "0"
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
