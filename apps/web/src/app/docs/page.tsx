@@ -11,9 +11,10 @@ const NAV = [
   {
     group: 'Getting Started',
     items: [
-      { label: 'Installation',    id: 'installation' },
-      { label: 'First launch',    id: 'first-launch' },
-      { label: 'Quick reference', id: 'commands' },
+      { label: 'Installation',              id: 'installation' },
+      { label: 'Claude Code terminal',      id: 'install-terminal' },
+      { label: 'First launch',              id: 'first-launch' },
+      { label: 'Quick reference',           id: 'commands' },
     ],
   },
   {
@@ -218,22 +219,61 @@ export default function DocsPage() {
           ═══════════════════════════════════════════════════════ */}
           <H2 id="installation">Installation</H2>
           <P>
-            LoopGuard is distributed as a VS Code extension on the Marketplace. The platform-specific
-            Rust binary (<Code>loopguard-ctx</Code>) is bundled inside the VSIX — no separate
-            download, no Rust toolchain required.
+            LoopGuard has two install paths. Pick the one that matches how you work.
           </P>
+          <Table
+            headers={['Path', 'What you get', 'Account needed?']}
+            rows={[
+              ['VS Code extension', 'Loop detection + context engine + dashboard', 'No (optional for sync)'],
+              ['Claude Code terminal (binary only)', 'Context engine via MCP + shell compression', 'No — runs 100% locally'],
+            ]}
+          />
+          <Note>
+            Loop detection (diagnostic + edit-pattern alerts) requires the VS Code extension. It uses the VS Code
+            diagnostics API and is not available in terminal-only mode. The standalone binary provides context
+            compression only.
+          </Note>
 
-          <H3>From the VS Code Marketplace</H3>
+          <H3>VS Code · Cursor · Windsurf (extension)</H3>
           <P>Open VS Code, press <Code>Ctrl+P</Code> (or <Code>Cmd+P</Code> on macOS), and run:</P>
           <Pre>ext install LoopGuard.loopguard</Pre>
-          <P>Or search <strong className="text-white">LoopGuard</strong> in the Extensions panel and click Install.</P>
+          <P>Or search <strong className="text-white">LoopGuard</strong> in the Extensions panel and click Install. Works identically in Cursor and Windsurf — the URI callback auto-detects your IDE.</P>
 
-          <H3>Works with Cursor and Windsurf</H3>
+          <h3 id="install-terminal" className="text-lg font-semibold text-[#F9FAFB] mt-8 mb-3 scroll-mt-24">Claude Code terminal (no VS Code required)</h3>
           <P>
-            LoopGuard is compatible with any VS Code-based IDE. In Cursor or Windsurf, open the
-            Extensions panel (same shortcut), search LoopGuard, and install. The URI callback for
-            sign-in auto-detects your IDE — no extra configuration needed.
+            If you use Claude Code in the terminal without VS Code, install the standalone binary instead.
+            No account, no extension, no sign-in needed — everything runs locally.
           </P>
+          <Pre>{`# 1. Download the binary for your platform from GitHub Releases
+# macOS Apple Silicon
+curl -L https://github.com/rodthenewcomer/loopguard/releases/latest/download/loopguard-ctx-darwin-arm64 -o loopguard-ctx
+
+# macOS Intel
+curl -L https://github.com/rodthenewcomer/loopguard/releases/latest/download/loopguard-ctx-darwin-x64 -o loopguard-ctx
+
+# Linux x64
+curl -L https://github.com/rodthenewcomer/loopguard/releases/latest/download/loopguard-ctx-linux-x64 -o loopguard-ctx
+
+# 2. Install it
+chmod +x loopguard-ctx && mv loopguard-ctx /usr/local/bin/
+
+# 3. Verify
+loopguard-ctx --version
+
+# 4. Wire Claude Code (registers MCP server + installs PreToolUse hook)
+loopguard-ctx setup --agent=claude
+
+# 5. Restart Claude Code — done`}</Pre>
+          <P>
+            After restart, Claude Code routes every file read through the context engine automatically
+            via the PreToolUse hook. You can also call <Code>ctx_read</Code>, <Code>ctx_search</Code>,{' '}
+            <Code>ctx_shell</Code>, and other MCP tools directly from within a Claude Code session.
+            Run <Code>loopguard-ctx gain</Code> at any time to see your token savings.
+          </P>
+          <Warning>
+            Loop detection is not available in terminal-only mode. If you want loop detection alerts,
+            install the VS Code extension instead (or in addition).
+          </Warning>
 
           <H3>Manual installation (.vsix)</H3>
           <P>

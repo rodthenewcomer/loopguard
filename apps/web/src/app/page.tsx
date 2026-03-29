@@ -393,12 +393,31 @@ export default function LandingPage() {
 
         {/* Path B — Claude Code terminal */}
         <ScrollReveal className="mb-3">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-2">
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#22D3EE]/10 border border-[#22D3EE]/20">
               <Icon path={IC.terminal} size={13} />
               <span className="text-xs font-semibold text-[#22D3EE]">Claude Code terminal — no VS Code needed</span>
             </div>
             <div className="flex-1 h-px bg-[#1F2937]" />
+          </div>
+          {/* What you get + signup clarity */}
+          <div className="flex flex-wrap gap-4 mb-4 pl-1">
+            <div className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+              Context compression via MCP + PreToolUse hook
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+              Shell output compression — 90+ CLI patterns
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+              No account required — runs 100% locally
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-[#4B5563]">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4B5563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              Loop detection requires the VS Code extension — not available in terminal-only mode
+            </div>
           </div>
         </ScrollReveal>
 
@@ -409,21 +428,22 @@ export default function LandingPage() {
               step: '1',
               color: '#22D3EE',
               title: 'Download the binary',
-              body: 'Grab loopguard-ctx for your platform from GitHub Releases and move it to /usr/local/bin/.',
+              body: 'Grab loopguard-ctx for your platform from GitHub Releases, then:',
+              code: 'chmod +x loopguard-ctx && mv loopguard-ctx /usr/local/bin/',
               cta: { label: 'GitHub Releases →', href: 'https://github.com/rodthenewcomer/loopguard/releases/latest' },
             },
             {
               step: '2',
               color: '#22D3EE',
               title: 'Wire Claude Code',
-              body: 'One command registers LoopGuard as an MCP server and installs a PreToolUse hook in Claude Code.',
+              body: 'Registers LoopGuard as an MCP server and installs a PreToolUse hook. No account needed.',
               code: 'loopguard-ctx setup --agent=claude',
             },
             {
               step: '3',
               color: '#22C55E',
               title: 'Restart Claude Code',
-              body: 'Close and reopen your terminal. Claude Code now has 21 LoopGuard MCP tools for focused reads and compressed shell output.',
+              body: 'Close and reopen your terminal. Every file read Claude Code makes is now routed through the context engine automatically.',
               cta: { label: 'Full Claude Code guide →', href: '/setup#claude-code' },
             },
           ].map((item, i) => (
