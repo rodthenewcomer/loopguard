@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Documentation — LoopGuard',
-  description: 'Complete documentation for LoopGuard — installation, loop detection, context engine, MCP server, shell hooks, and troubleshooting.',
+  description: 'Complete documentation for LoopGuard — installation, loop detection, focused context copy, MCP setup, shell helpers, and troubleshooting.',
 };
 
 /* ── Sidebar nav ─────────────────────────────────────────────────── */
@@ -42,8 +42,8 @@ const NAV = [
   {
     group: 'Integrations',
     items: [
-      { label: 'AI Gateway (MCP)', id: 'mcp' },
-      { label: 'Terminal Filter',  id: 'shell-hooks' },
+      { label: 'MCP server', id: 'mcp' },
+      { label: 'Shell helper',  id: 'shell-hooks' },
       { label: 'Binary install',id: 'binary' },
     ],
   },
@@ -291,12 +291,13 @@ export default function DocsPage() {
             headers={['Command', 'What it does']}
             rows={[
               ['LoopGuard: Copy Optimized Context', 'Compress current file context and copy to clipboard'],
-              ['LoopGuard: Show Session Dashboard', 'Open the in-IDE webview with loops, tokens, time'],
+              ['LoopGuard: Show Dashboard', 'Open the in-IDE dashboard with live session metrics'],
               ['LoopGuard: Sign In', 'Authenticate with your LoopGuard account (optional)'],
               ['LoopGuard: Sign Out', 'Remove stored credentials from secure keychain'],
               ['LoopGuard: Configure MCP Server', 'Write the MCP server config to your AI tool'],
+              ['LoopGuard: Install Shell Hooks', 'Install the shell helper using the bundled loopguard-ctx binary'],
+              ['LoopGuard: Toggle Detection', 'Pause or resume loop detection for the current session'],
               ['LoopGuard: Reset Session', 'Clear current session loop counter and timer'],
-              ['LoopGuard: Show Output', 'Open the LoopGuard output channel for diagnostics'],
             ]}
           />
 
@@ -313,7 +314,7 @@ export default function DocsPage() {
           <P>
             LoopGuard subscribes to <Code>vscode.languages.onDidChangeDiagnostics</Code>. Every
             time VS Code reports a diagnostic (error, warning) for any file, LoopGuard computes a
-            SHA-256 hash of the error message text. If the same hash appears N times in a session
+            short deterministic fingerprint of the diagnostic text. If the same fingerprint appears N times in a session
             (where N is your sensitivity threshold), a loop is detected.
           </P>
           <P>
@@ -324,9 +325,9 @@ export default function DocsPage() {
           <H3>Method 2 — Edit-pattern loop detection</H3>
           <P>
             LoopGuard also watches <Code>vscode.workspace.onDidChangeTextDocument</Code>. It
-            tracks edit ranges across saves. If the same region of a file is edited repeatedly with
-            no net forward progress (edits are reverted or the diff collapses back to the original),
-            a loop is detected even if the error message changes.
+            tracks repeated edits in the same region of a file over a short time window. If you keep
+            revisiting the same lines without breaking out, LoopGuard can flag that as an edit loop
+            even when the diagnostic text changes.
           </P>
           <P>
             This catches more subtle loops — for example, when you rename a variable three times
@@ -335,9 +336,9 @@ export default function DocsPage() {
 
           <H3>What gets tracked</H3>
           <P>
-            LoopGuard tracks only a SHA-256 hash of the error message. The original message text
-            is never stored or transmitted. The file type (e.g. <Code>ts</Code>, <Code>py</Code>)
-            is stored — never the file name or file path. See the{' '}
+            LoopGuard syncs only an anonymized fingerprint of the error message. The original
+            message text is never sent to the backend. The file type (for example <Code>ts</Code>{' '}
+            or <Code>py</Code>) is stored — never the file name or file path. See the{' '}
             <Link href="/privacy" className="text-[#2563EB] hover:text-[#3B82F6] underline underline-offset-2 transition-colors">
               Privacy Policy
             </Link>{' '}
@@ -353,14 +354,14 @@ export default function DocsPage() {
           <Table
             headers={['Action', 'What it does']}
             rows={[
-              ['Try New Approach', 'Opens a panel suggesting three fundamentally different approaches to the problem (Pro — coming in v0.3.0)'],
-              ['View Details', 'Opens the session dashboard webview showing the full loop timeline'],
-              ['Dismiss', 'Closes the notification. The loop counter continues — you will be alerted again if the loop continues.'],
+              ['Try New Approach', 'Shows a short loop-breaking suggestion such as isolating the repro or asking the AI to explain instead of patch'],
+              ['View Details', 'Opens the dashboard webview with the current session metrics and active loops'],
+              ['Ignore', 'Marks the current active loop as ignored so the same loop is not immediately re-alerted'],
             ]}
           />
           <Note>
-            Dismissing an alert does not reset the loop counter. If you want to reset the session,
-            run <Code>LoopGuard: Reset Session</Code> from the Command Palette.
+            Closing the notification without choosing an action does not reset the loop counter. If you
+            want to clear everything, run <Code>LoopGuard: Reset Session</Code> from the Command Palette.
           </Note>
 
           {/* ─────────────────────────────────────────────────────── */}
@@ -396,11 +397,10 @@ export default function DocsPage() {
 
           <H3>What gets extracted</H3>
           <CheckList items={[
-            'All import / require statements from the current file',
-            'AST function and class signatures (stubs, not full bodies)',
-            'The 20 lines immediately surrounding the current error position',
-            'High-entropy lines across the file (scored by Shannon entropy — complex logic, not boilerplate)',
-            'Myers delta from the last context copy — lines that changed since the previous request',
+            'Import and dependency lines near the top of the file when they can be identified',
+            'A focused window around the first active error in the current document (about 30 lines on each side in the TypeScript fallback)',
+            'A local token estimate so LoopGuard can report approximate savings after the copy',
+            'When the bundled loopguard-ctx binary is available, a richer entropy-based read path instead of the plain TypeScript fallback',
           ]} />
 
           <H3>Keyboard shortcut</H3>
@@ -408,7 +408,7 @@ export default function DocsPage() {
           <Pre>{`// keybindings.json
 {
   "key": "ctrl+shift+c",
-  "command": "loopguard.copyOptimizedContext",
+  "command": "loopguard.copyContext",
   "when": "editorFocus"
 }`}</Pre>
 
@@ -416,46 +416,40 @@ export default function DocsPage() {
           <H2 id="engines">Rust engine vs TypeScript engine</H2>
           <P>
             LoopGuard ships two context engine implementations. The TypeScript engine runs on every
-            install. The Rust engine (Pro) runs as a bundled subprocess for maximum reduction.
+            install. When the bundled <Code>loopguard-ctx</Code> binary is available, LoopGuard can
+            use that richer local read path automatically.
           </P>
           <Table
-            headers={['', 'TypeScript engine (Free)', 'Rust engine (Pro)']}
+            headers={['', 'TypeScript fallback', 'Bundled loopguard-ctx binary']}
             rows={[
-              ['Token reduction', '~80%', '89–99%'],
-              ['Languages', '14 (regex-based)', '14 (full AST parse)'],
-              ['AST analysis', 'Partial', 'Full (tree-sitter)'],
-              ['Shannon entropy scoring', 'No', 'Yes'],
-              ['Myers delta', 'No', 'Yes — re-reads cost ~13 tokens'],
-              ['Memory cache', 'No', 'Yes — unchanged files skipped'],
-              ['Binary required', 'No', 'Yes (bundled in VSIX)'],
+              ['Typical behavior', 'Imports + focused nearby lines', 'Entropy-based focused read via the local binary'],
+              ['Availability', 'Always available', 'Used when the bundled binary loads correctly'],
+              ['Token savings', 'Often substantial, but estimate-based', 'Often higher, but still workload-dependent'],
+              ['Network access', 'None', 'None'],
+              ['Fallback', 'N/A', 'Falls back to TypeScript automatically on failure'],
             ]}
           />
           <P>
-            The Rust engine runs as a subprocess (<Code>loopguard-ctx</Code>) communicating over
-            stdin/stdout. It has no network access. If the binary fails to load, LoopGuard falls
-            back to the TypeScript engine automatically.
+            The binary runs as a local subprocess (<Code>loopguard-ctx</Code>) and has no network
+            access. The percentage shown in the extension UI is an estimate, not a tokenizer-perfect
+            billing guarantee.
           </P>
 
           {/* ─────────────────────────────────────────────────────── */}
           <H2 id="languages">Supported languages</H2>
-          <P>Both engines support the following languages for context extraction:</P>
+          <P>
+            Loop detection itself is language-agnostic because it listens to IDE diagnostics. Context
+            copy works best on common code and config files, and the binary path has broader language-aware
+            support than the TypeScript fallback.
+          </P>
           <Table
-            headers={['Language', 'Extension', 'AST support (Rust engine)']}
+            headers={['Language family', 'Typical file types', 'Support level']}
             rows={[
-              ['TypeScript / TSX', '.ts, .tsx', 'Full'],
-              ['JavaScript / JSX', '.js, .jsx', 'Full'],
-              ['Python', '.py', 'Full'],
-              ['Rust', '.rs', 'Full'],
-              ['Go', '.go', 'Full'],
-              ['Java', '.java', 'Full'],
-              ['C / C++', '.c, .cpp, .h', 'Full'],
-              ['C#', '.cs', 'Full'],
-              ['Ruby', '.rb', 'Partial'],
-              ['PHP', '.php', 'Partial'],
-              ['Swift', '.swift', 'Partial'],
-              ['Kotlin', '.kt', 'Partial'],
-              ['Shell / Bash', '.sh', 'Regex only'],
-              ['YAML / JSON', '.yaml, .json', 'Structure only'],
+              ['TypeScript / JavaScript', '.ts, .tsx, .js, .jsx', 'Strong'],
+              ['Python / Rust / Go / Java', '.py, .rs, .go, .java', 'Strong'],
+              ['C-family / C#', '.c, .cpp, .h, .cs', 'Good'],
+              ['Config and data files', '.json, .yaml, .toml', 'Good'],
+              ['Other text files', 'Any readable text document', 'Best effort'],
             ]}
           />
 
@@ -464,14 +458,14 @@ export default function DocsPage() {
           ═══════════════════════════════════════════════════════ */}
           <H2 id="dashboard">VS Code session dashboard</H2>
           <P>
-            Run <Code>LoopGuard: Show Session Dashboard</Code> to open the in-IDE webview. It shows
-            your current session in real time:
+            Run <Code>LoopGuard: Show Dashboard</Code> to open the in-IDE webview. It updates during
+            the current session and shows:
           </P>
           <CheckList items={[
-            'Total session time and active coding time',
-            'Every loop detected — with the error hash, timestamp, and minutes wasted',
-            'Total tokens saved and estimated cost reduction',
-            'A timeline bar showing where in the session loops occurred',
+            'Current session duration, total time wasted, tokens saved, and estimated cost saved',
+            'The active loop count and the current loop list',
+            'Whether the bundled binary is active or LoopGuard is using the TypeScript fallback',
+            'Short next-step suggestions when you are visibly stuck',
           ]} />
           <P>
             The dashboard is a VS Code webview panel. It updates automatically as the session
@@ -486,86 +480,84 @@ export default function DocsPage() {
             row-level security ensures no other user can access it.
           </P>
           <P>
+            The web dashboard refreshes periodically for signed-in users, so it feels near-real-time,
+            but it is still limited by the extension&rsquo;s sync cadence.
+          </P>
+          <P>
             To connect your account: run <Code>LoopGuard: Sign In</Code> → a browser tab opens →
             sign in with email/password or Google → you are redirected back to VS Code automatically.
           </P>
           <Note>
-            Session sync is optional. LoopGuard runs fully offline. If the API is unreachable,
-            metrics are queued locally and synced when connectivity resumes.
+            Session sync is optional. LoopGuard runs fully offline. If the API is unreachable, the
+            extension keeps working locally, but it does not maintain a durable offline sync queue yet.
           </Note>
 
           {/* ═══════════════════════════════════════════════════════
               INTEGRATIONS
           ═══════════════════════════════════════════════════════ */}
-          <H2 id="mcp">AI Gateway (MCP Server)</H2>
+          <H2 id="mcp">MCP server</H2>
           <P>
-            LoopGuard&rsquo;s AI Gateway is an MCP server that intercepts every file read your AI agent makes
-            and routes it through the relevance engine automatically. Instead of your agent reading a
-            1,800-line component and burning 2,400 tokens, it receives 140 lines — the signatures,
-            the high-entropy logic, the error context. The agent never knows the difference.
+            <Code>loopguard-ctx</Code> can run as an MCP server over stdio, exposing focused file,
+            search, tree, and shell tools to compatible AI agents. That means the agent can ask
+            LoopGuard for a smarter read instead of grabbing full files every time.
           </P>
           <P>
-            Works with Claude Code, Cursor, Windsurf, and GitHub Copilot. No copy-paste. No manual commands.
-            Wire it once and every subsequent agent read is filtered automatically for the life of the session.
+            Today, LoopGuard can configure MCP for Claude Code, Cursor, Windsurf, Codex CLI, Zed,
+            and VS Code / Copilot. If a tool supports custom MCP stdio servers, LoopGuard can usually
+            plug into it.
           </P>
 
           <H3>Setup (one command)</H3>
           <P>
             Run <Code>LoopGuard: Configure MCP Server</Code> from the Command Palette. LoopGuard
-            writes the correct config for your IDE automatically.
+            writes the correct config for your tool automatically, including the absolute path to the
+            local <Code>loopguard-ctx</Code> binary.
           </P>
-          <P>If you prefer to configure manually, add this to your MCP config:</P>
-          <Pre>{`// For Claude Code (~/.claude.json or .claude/settings.json):
+          <P>If you prefer to configure manually, use the config format your agent expects:</P>
+          <Pre>{`// JSON-style MCP config (Cursor / Claude Code / Windsurf)
 {
   "mcpServers": {
-    "loopguard": {
-      "command": "node",
-      "args": ["~/.vscode/extensions/LoopGuard.loopguard-*/mcp/server.js"],
-      "env": {}
+    "loopguard-ctx": {
+      "command": "/absolute/path/to/loopguard-ctx"
     }
   }
-}`}</Pre>
+}
 
-          <H3>Available MCP tools (21 total)</H3>
+# Codex CLI (~/.codex/config.toml)
+[mcp_servers.loopguard-ctx]
+command = "/absolute/path/to/loopguard-ctx"
+args = []`}</Pre>
+
+          <H3>Available MCP tools</H3>
           <Table
             headers={['Tool', 'What it does']}
             rows={[
-              ['get_context', 'Returns compressed context for the current file'],
-              ['get_loop_status', 'Returns whether a loop is currently active and time wasted'],
-              ['get_session_summary', 'Returns current session metrics as JSON'],
-              ['get_imports', 'Returns all imports from a file'],
-              ['get_signatures', 'Returns all function/class signatures from a file'],
-              ['get_error_context', 'Returns the 20 lines surrounding the current error'],
-              ['get_high_entropy_lines', 'Returns lines scored above entropy threshold'],
-              ['get_delta', 'Returns only changed lines since last context request'],
-              ['get_file_hash', 'Returns SHA-256 hash of a file for cache validation'],
-              ['compress_output', 'Compress CLI output (npm/git/docker) for AI context'],
-              ['...11 more', 'Run LoopGuard: Configure MCP Server to see full list'],
+              ['ctx_read', 'Focused file reads with multiple read modes'],
+              ['ctx_search', 'Token-efficient code search results'],
+              ['ctx_tree', 'Compact directory listings and project maps'],
+              ['ctx_shell', 'Compressed shell output for supported commands'],
+              ['Additional tools', 'The binary exposes more MCP tools; use setup or the binary docs to inspect the full list'],
             ]}
           />
 
           {/* ─────────────────────────────────────────────────────── */}
-          <H2 id="shell-hooks">Terminal Filter (Shell Hooks, Pro)</H2>
+          <H2 id="shell-hooks">Shell helper</H2>
           <P>
-            The Terminal Filter intercepts CLI output and surfaces only the signal before it reaches
-            your AI. Not compression — extraction.
+            The shell helper installs LoopGuard&rsquo;s local command wrapper so supported shell output can
+            be reduced before you paste it into an AI tool or route it through a compatible agent flow.
           </P>
           <P>
-            <Code>npm install</Code> generates 3,400 tokens of progress bars, resolved package lines,
-            and peer dependency trees. Your AI does not need any of that. The Terminal Filter sends
-            the 12 lines that matter: the warning that caused the failure, the peer conflict, the
-            final exit status. <Code>docker build</Code> sends only the failing layer and its error.{' '}
-            <Code>git log</Code> sends only the commits relevant to the current branch and issue context.
+            For example, <Code>npm install</Code>, <Code>git log</Code>, or <Code>docker build</Code>
+            often generate far more output than an AI tool needs. LoopGuard&rsquo;s shell path is designed
+            to keep the useful parts and drop repetitive noise.
           </P>
 
           <H3>Installation</H3>
-          <Pre>{`# Install for your shell (run in terminal):
-loopguard hooks install
+          <Pre>{`# From the extension
+LoopGuard: Install Shell Hooks
 
-# Or install for a specific shell:
-loopguard hooks install --shell zsh
-loopguard hooks install --shell bash
-loopguard hooks install --shell fish`}</Pre>
+# Or with the standalone binary
+loopguard-ctx init`}</Pre>
           <P>
             This adds a hook to your shell rc file (<Code>~/.zshrc</Code>, <Code>~/.bashrc</Code>,
             or <Code>~/.config/fish/config.fish</Code>). Restart your terminal or run{' '}
@@ -574,15 +566,12 @@ loopguard hooks install --shell fish`}</Pre>
 
           <H3>How it works</H3>
           <P>
-            The hook wraps command output through the <Code>loopguard-ctx</Code> binary before it
-            is written to your terminal buffer. The binary strips repeated lines, collapses
-            progress bars, and extracts only the final error message from long build logs. The
-            original output is not modified in your terminal — only the version copied to AI context
-            is compressed.
+            The helper uses <Code>loopguard-ctx</Code> locally. The original command still runs on
+            your machine; LoopGuard just gives you a cleaner representation for AI-facing workflows.
           </P>
           <Warning>
-            Shell hooks require Pro. They have no effect in Free tier but do not error — they
-            silently pass output through unchanged.
+            Shell behavior varies by shell and AI tool. If you want the most predictable agent
+            integration, MCP setup is the stronger path.
           </Warning>
 
           {/* ─────────────────────────────────────────────────────── */}
@@ -592,10 +581,9 @@ loopguard hooks install --shell fish`}</Pre>
             VS Code selects the correct VSIX based on your platform at install time.
           </P>
           <P>
-            The binary lives at{' '}
-            <Code>~/.vscode/extensions/LoopGuard.loopguard-*/bin/loopguard-ctx</Code> and is
-            called as a subprocess by the extension. It communicates over stdin/stdout and has no
-            network access.
+            The binary lives under the extension&rsquo;s <Code>bin/&lt;platform-arch&gt;/</Code> directory
+            and is called as a subprocess by the extension. It communicates over stdin/stdout and has
+            no network access.
           </P>
           <P>
             If you need the binary separately (e.g. for shell hooks in a terminal without VS Code),
@@ -614,13 +602,8 @@ loopguard hooks install --shell fish`}</Pre>
             rows={[
               ['loopguard.sensitivity', 'string', '"medium"', 'Loop detection threshold: "low" (5×) | "medium" (3×) | "high" (2×)'],
               ['loopguard.enableContextEngine', 'boolean', 'true', 'Enable/disable the context engine (Copy Optimized Context)'],
-              ['loopguard.enableLoopDetection', 'boolean', 'true', 'Enable/disable loop detection entirely'],
-              ['loopguard.enableShellHooks', 'boolean', 'true', 'Enable/disable shell hook output compression (Pro)'],
+              ['loopguard.enableNotifications', 'boolean', 'true', 'Show or hide LoopGuard alert popups'],
               ['loopguard.loopThreshold', 'number', '3', 'Override for the exact repetition count (overrides sensitivity)'],
-              ['loopguard.contextMaxTokens', 'number', '2000', 'Maximum tokens for Copy Optimized Context output'],
-              ['loopguard.showStatusBar', 'boolean', 'true', 'Show/hide the LoopGuard status bar item'],
-              ['loopguard.autoSync', 'boolean', 'true', 'Auto-sync session metrics every 5 minutes (requires sign-in)'],
-              ['loopguard.debugMode', 'boolean', 'false', 'Write verbose logs to the LoopGuard output channel'],
             ]}
           />
 
@@ -628,26 +611,10 @@ loopguard hooks install --shell fish`}</Pre>
           <H2 id="settings-json">settings.json reference</H2>
           <P>Copy-paste this into your <Code>.vscode/settings.json</Code> or user settings:</P>
           <Pre>{`{
-  // Loop detection
   "loopguard.sensitivity": "medium",       // "low" | "medium" | "high"
-  "loopguard.enableLoopDetection": true,
   "loopguard.loopThreshold": 3,            // exact count (overrides sensitivity)
-
-  // Context engine
   "loopguard.enableContextEngine": true,
-  "loopguard.contextMaxTokens": 2000,
-
-  // Shell hooks (Pro)
-  "loopguard.enableShellHooks": true,
-
-  // UI
-  "loopguard.showStatusBar": true,
-
-  // Sync
-  "loopguard.autoSync": true,
-
-  // Debug
-  "loopguard.debugMode": false
+  "loopguard.enableNotifications": true
 }`}</Pre>
 
           {/* ═══════════════════════════════════════════════════════
@@ -655,11 +622,11 @@ loopguard hooks install --shell fish`}</Pre>
           ═══════════════════════════════════════════════════════ */}
           <H2 id="no-detection">Loops not being detected</H2>
           <CheckList items={[
-            'Check that loopguard.enableLoopDetection is not set to false in your settings.',
+            'Check that detection is not paused. Run LoopGuard: Toggle Detection if needed.',
             'Check the sensitivity — "low" requires the same error 5 times. Try "high" (2×) to test.',
             'Make sure the error is actually appearing in the VS Code Problems panel (View → Problems). LoopGuard only sees errors that VS Code diagnostics report — it does not read terminal output.',
             'Open the LoopGuard output channel (View → Output → LoopGuard). It logs every diagnostic event it receives.',
-            'Some linters report errors with slightly different messages each time (e.g. including line numbers). LoopGuard hashes the full message — if the message text changes, it is a different hash. Use "high" sensitivity to catch these.',
+            'Some linters report slightly different messages each time. If the message changes, LoopGuard treats it as a different fingerprint. Use "high" sensitivity to catch these earlier.',
           ]} />
 
           {/* ─────────────────────────────────────────────────────── */}
@@ -683,10 +650,10 @@ loopguard hooks install --shell fish`}</Pre>
           </P>
           <CheckList items={[
             'Make sure loopguard-ctx binary is working first — run LoopGuard: Copy Optimized Context to verify the context engine loads.',
-            'Check that the MCP server file exists: ls ~/.vscode/extensions/LoopGuard.loopguard-*/mcp/server.js',
+            'Check that the target config file was actually updated: for example ~/.cursor/mcp.json, ~/.claude.json, ~/.codeium/windsurf/mcp_config.json, ~/.codex/config.toml, or your VS Code user mcp.json.',
             'Restart your AI tool (Cursor, Claude Code, etc.) after running Configure MCP Server — the config is only read on startup.',
-            'Check your AI tool\'s MCP log for errors. In Claude Code run: cat ~/.claude/logs/mcp-*.log | tail -50',
-            'Make sure Node.js is installed and accessible from your terminal — the MCP server runs as a Node.js process.',
+            'Check your AI tool\'s MCP log for errors if it has one.',
+            'No Node.js install is required for LoopGuard MCP. The server is the local loopguard-ctx binary.',
           ]} />
 
           {/* ─────────────────────────────────────────────────────── */}

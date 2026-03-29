@@ -41,6 +41,10 @@ export class SessionTracker {
     this.tokensSaved += count;
   }
 
+  syncLoops(loops: LoopEvent[]): void {
+    this.loops = loops.map((loop) => ({ ...loop }));
+  }
+
   getMetrics(): SessionMetrics {
     const totalTimeWasted = this.loops.reduce((sum, loop) => {
       return sum + Math.max(0, loop.lastSeen - loop.firstSeen);

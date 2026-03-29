@@ -15,10 +15,16 @@ const DEBOUNCE_MS = 500;
 export class DiagnosticListener {
   private readonly loopEngine: LoopEngine;
   private readonly onLoopDetected: (events: LoopEvent[]) => void;
+  private readonly onStateChange: () => void;
 
-  constructor(loopEngine: LoopEngine, onLoopDetected: (events: LoopEvent[]) => void) {
+  constructor(
+    loopEngine: LoopEngine,
+    onLoopDetected: (events: LoopEvent[]) => void,
+    onStateChange: () => void,
+  ) {
     this.loopEngine = loopEngine;
     this.onLoopDetected = onLoopDetected;
+    this.onStateChange = onStateChange;
   }
 
   /**
@@ -50,8 +56,7 @@ export class DiagnosticListener {
       }
     }
 
-    if (allDetected.length > 0) {
-      this.onLoopDetected(allDetected);
-    }
+    if (allDetected.length > 0) this.onLoopDetected(allDetected);
+    this.onStateChange();
   }
 }

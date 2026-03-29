@@ -87,7 +87,7 @@ function _activate(context: vscode.ExtensionContext): void {
   /** Sync current session metrics to the API. Best-effort, never throws. */
   function syncSession(endedAt?: number): void {
     const metrics = sessionTracker.getMetrics();
-    const loops = loopEngine.getActiveLoops();
+    const loops = getActiveLoops();
     const fileTypes = [...new Set(loops.map((l) => getFileType(l.fileUri)))];
 
     void apiClient.sendSession({
@@ -102,11 +102,26 @@ function _activate(context: vscode.ExtensionContext): void {
     }); // errors already handled inside ApiClient
   }
 
+  function getAllLoops(): LoopEvent[] {
+    return [...loopEngine.getAllLoops(), ...editTracker.getAllLoops()];
+  }
+
+  function getActiveLoops(): LoopEvent[] {
+    return [...loopEngine.getActiveLoops(), ...editTracker.getActiveLoops()];
+  }
+
+  function refreshLoopState(): void {
+    const allLoops = getAllLoops();
+    const activeLoops = getActiveLoops();
+    sessionTracker.syncLoops(allLoops);
+    const metrics = sessionTracker.getMetrics();
+    statusBar.update(metrics, activeLoops.length);
+    DashboardPanel.update(metrics, activeLoops);
+  }
+
   /* ── Loop handler ─────────────────────────────────────────────── */
   const onLoopDetected = async (events: LoopEvent[]): Promise<void> => {
     for (const event of events) {
-      sessionTracker.recordLoop(event);
-
       // Sync loop event to API (best-effort, privacy-safe)
       void apiClient.sendLoop({
         sessionId: sessionTracker.getMetrics().sessionId,
@@ -119,10 +134,9 @@ function _activate(context: vscode.ExtensionContext): void {
       });
     }
 
+    refreshLoopState();
     const metrics = sessionTracker.getMetrics();
-    const activeLoops = loopEngine.getActiveLoops();
-    statusBar.update(metrics, activeLoops.length);
-    DashboardPanel.update(metrics, activeLoops);
+    const activeLoops = getActiveLoops();
 
     const liveConfig = getConfig(); // read live — never stale captured config
     if (!liveConfig.enableNotifications || events.length === 0) return;
@@ -136,10 +150,12 @@ function _activate(context: vscode.ExtensionContext): void {
       DashboardPanel.show(context.extensionUri, sessionTracker.getMetrics(), activeLoops);
     } else if (action === 'ignore') {
       loopEngine.resolveLoop(first.errorHash);
+      editTracker.resolveLoop(first.errorHash);
       editTracker.clearUri(first.fileUri);
+      refreshLoopState();
     }
 
-    statusBar.update(sessionTracker.getMetrics(), loopEngine.getActiveLoops().length);
+    statusBar.update(sessionTracker.getMetrics(), getActiveLoops().length);
   };
 
   /* ── Listeners ────────────────────────────────────────────────── */
@@ -147,13 +163,13 @@ function _activate(context: vscode.ExtensionContext): void {
     onLoopDetected(events).catch((err) =>
       logger.error('Diagnostic loop handler error', { err }),
     );
-  });
+  }, refreshLoopState);
 
   const fileListener = new FileListener(contextEngine, editTracker, (event) => {
     onLoopDetected([event]).catch((err) =>
       logger.error('Edit loop handler error', { err }),
     );
-  });
+  }, refreshLoopState);
 
   /* ── URI handler — receives auth callback from web app ────────── */
   // Handles: vscode://LoopGuard.loopguard/auth?code=CODE&email=user@example.com
@@ -181,7 +197,7 @@ function _activate(context: vscode.ExtensionContext): void {
     DashboardPanel.show(
       context.extensionUri,
       sessionTracker.getMetrics(),
-      loopEngine.getActiveLoops(),
+      getActiveLoops(),
     );
   });
 
@@ -231,8 +247,7 @@ function _activate(context: vscode.ExtensionContext): void {
       const engine = (await contextEngine.isBinaryAvailable()) ? 'Rust engine' : 'TS engine';
 
       sessionTracker.addTokensSaved(saved);
-      statusBar.update(sessionTracker.getMetrics(), loopEngine.getActiveLoops().length);
-      DashboardPanel.update(sessionTracker.getMetrics(), loopEngine.getActiveLoops());
+      refreshLoopState();
 
       vscode.window.showInformationMessage(
         `LoopGuard: Context copied via ${engine} (${snapshot.tokenEstimate} tokens · ${pct}% reduction).`,
@@ -270,6 +285,7 @@ function _activate(context: vscode.ExtensionContext): void {
       { label: '$(github) Claude Code', description: '~/.claude.json', value: 'claude' },
       { label: '$(edit) Cursor', description: '~/.cursor/mcp.json', value: 'cursor' },
       { label: '$(cloud) Windsurf', description: '~/.codeium/windsurf/mcp_config.json', value: 'windsurf' },
+      { label: '$(terminal) Codex CLI', description: '~/.codex/config.toml', value: 'codex' },
       { label: '$(zap) Zed', description: '~/.config/zed/settings.json', value: 'zed' },
       { label: '$(code) VS Code / Copilot', description: 'User mcp.json', value: 'vscode' },
       { label: '$(list-unordered) All detected editors', description: 'Auto-configure everything', value: '' },

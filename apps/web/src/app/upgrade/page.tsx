@@ -3,29 +3,29 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Upgrade to Pro — LoopGuard',
-  description: 'LoopGuard Pro — Rust context engine, MCP server, shell hooks, and 12-month history. $9/month, cancel anytime.',
+  description: 'LoopGuard Pro — Rust context helper, MCP setup, shell helpers, and premium usage surfaces. $9/month, cancel anytime.',
 };
 
 const PRO_FEATURES = [
   {
     title: 'Rust context engine',
-    detail: '89–99% token reduction per clipboard copy. Full AST parse, Shannon entropy scoring, Myers delta. The TypeScript engine gives you ~80% — the Rust engine squeezes out the rest.',
+    detail: 'The local Rust helper can achieve much deeper reductions on some files and MCP workflows. It brings richer read modes, structure-aware extraction, and stronger shell compression than the built-in TypeScript fallback.',
     saving: 'Saves ~$77/month on AI API costs',
   },
   {
     title: 'MCP server — 21 tools',
-    detail: 'Wires LoopGuard\'s context engine directly into Claude Code, Cursor, Windsurf, and GitHub Copilot. Every file read is compressed automatically — no copy-paste needed.',
+    detail: 'Wires LoopGuard into compatible MCP clients including Claude Code, Cursor, Windsurf, Codex CLI, and VS Code / Copilot. The strongest savings come when your agent uses focused MCP reads instead of full-file reads.',
     saving: 'Works with any MCP-compatible AI agent',
   },
   {
     title: 'Shell hooks',
-    detail: 'npm install, git log, docker build — compressed 60–90% before they reach your AI. Paste terminal output directly into any chat without the noise.',
+    detail: 'npm install, git log, docker build — the shell helper trims noise before you paste output into AI tools or route command output through LoopGuard-compatible workflows.',
     saving: 'Supports bash, zsh, fish',
   },
   {
-    title: '12-month session history',
-    detail: 'Free tier keeps 30 days. Pro keeps 12 months — see long-term trends, identify which projects cause the most loops, and track your improvement over time.',
-    saving: 'Full history, exportable as JSON',
+    title: 'Premium history and reporting',
+    detail: 'Longer retention, better summaries, and clearer usage surfaces are part of the paid-tier direction as LoopGuard\'s billing and entitlement wiring rolls out.',
+    saving: 'Premium visibility',
   },
 ];
 
@@ -34,9 +34,9 @@ const COMPARE = [
   { feature: 'Edit-pattern loop detection',       free: true,  pro: true  },
   { feature: 'TypeScript context engine (~80%)',  free: true,  pro: true  },
   { feature: 'VS Code + web dashboard',           free: true,  pro: true  },
-  { feature: 'Session history',                   free: '30 days', pro: '12 months' },
-  { feature: 'Rust context engine (89–99%)',      free: false, pro: true  },
-  { feature: 'MCP server — 21 AI tools',          free: false, pro: true  },
+  { feature: 'Premium history and reporting',     free: 'Basic', pro: 'Expanded' },
+  { feature: 'Rust context helper',               free: false, pro: true  },
+  { feature: 'MCP server integration',            free: false, pro: true  },
   { feature: 'Shell hooks (bash/zsh/fish)',        free: false, pro: true  },
   { feature: 'Priority support',                  free: false, pro: true  },
 ];
@@ -83,7 +83,7 @@ export default function UpgradePage() {
           </div>
           <h1 className="text-5xl font-black text-white mb-4">$9 <span className="text-2xl font-normal text-[#6B7280]">/ month</span></h1>
           <p className="text-[#6B7280] text-lg max-w-lg mx-auto mb-3">
-            Average user saves ~$77/month on AI API costs. Pro pays for itself after 26 context copies.
+            Average user can save meaningful AI spend with smaller context reads. Pro is for the heavier MCP, shell, and Rust-helper workflows.
           </p>
           <p className="text-sm text-[#4B5563]">Cancel any time. No commitment. Billed via Stripe — your card data never touches LoopGuard.</p>
         </div>
@@ -95,7 +95,7 @@ export default function UpgradePage() {
         >
           <div className="text-white font-bold text-xl mb-2">Ready to upgrade?</div>
           <p className="text-[#6B7280] text-sm mb-6">
-            You need a free account first. Sign up, then upgrade instantly from your dashboard.
+            You need a free account first. Sign up, then upgrade from the dashboard as paid-tier wiring rolls out.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
@@ -112,7 +112,7 @@ export default function UpgradePage() {
             </Link>
           </div>
           <p className="text-xs text-[#4B5563] mt-4">
-            After signing in, go to <strong className="text-[#6B7280]">Dashboard → Billing → Upgrade to Pro</strong>
+            After signing in, paid-tier controls will live in the dashboard as billing rollout completes.
           </p>
         </div>
 
@@ -120,7 +120,7 @@ export default function UpgradePage() {
         <div className="mb-16">
           <h2 className="text-2xl font-bold text-white mb-2">What Pro unlocks</h2>
           <p className="text-[#6B7280] text-sm mb-8">
-            Free gives you loop detection + the TypeScript context engine. Pro activates the full pipeline.
+            Free gives you loop detection and focused local context copy. Pro is aimed at the deeper LoopGuard pipeline.
           </p>
 
           <div className="space-y-4">
@@ -188,10 +188,10 @@ export default function UpgradePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             {[
               { q: 'How do I pay?', a: 'Via Stripe. We accept all major cards. LoopGuard never stores your card number — Stripe handles everything.' },
-              { q: 'Can I cancel anytime?', a: 'Yes. Cancel from your dashboard in one click. You keep Pro access until the end of your billing period. No questions asked.' },
+              { q: 'Can I cancel anytime?', a: 'Yes. Once billing is active, cancellation will live in the dashboard and access will continue until the end of the billing period.' },
               { q: 'Is there a free trial?', a: 'No trial — but the Free tier is unlimited and gives you a real sense of the product before you pay.' },
-              { q: 'What happens if I cancel?', a: 'Your account reverts to Free at the end of the billing period. Your data stays. The Rust engine and MCP features stop working.' },
-              { q: 'Do prices change?', a: 'We may adjust pricing with 30 days notice. Your existing subscription stays at the price you signed up at.' },
+              { q: 'What happens if I cancel?', a: 'Your account will revert to the free experience when the paid period ends, while local loop detection and focused context copy remain available.' },
+              { q: 'Do prices change?', a: 'We may adjust pricing with notice as the paid product matures.' },
               { q: 'Refunds?', a: 'No partial-month refunds, except where required by law. If you have a billing issue, email support@loopguard.dev.' },
             ].map((item) => (
               <div key={item.q} className="p-4 rounded-xl bg-[#0d1117] border border-[#1F2937]">
@@ -210,7 +210,7 @@ export default function UpgradePage() {
           >
             Start free — upgrade when ready
           </Link>
-          <p className="text-xs text-[#4B5563] mt-4">No credit card for Free · Upgrade to Pro from your dashboard at any time</p>
+          <p className="text-xs text-[#4B5563] mt-4">No credit card for Free · Paid-tier rollout is being tightened before wider promotion</p>
         </div>
       </main>
 

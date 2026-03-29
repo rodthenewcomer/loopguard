@@ -16,15 +16,18 @@ export class FileListener {
   private readonly contextEngine: ContextEngine;
   private readonly editTracker: EditTracker;
   private readonly onEditLoopDetected: (event: LoopEvent) => void;
+  private readonly onStateChange: () => void;
 
   constructor(
     contextEngine: ContextEngine,
     editTracker: EditTracker,
     onEditLoopDetected: (event: LoopEvent) => void,
+    onStateChange: () => void,
   ) {
     this.contextEngine = contextEngine;
     this.editTracker = editTracker;
     this.onEditLoopDetected = onEditLoopDetected;
+    this.onStateChange = onStateChange;
   }
 
   activate(): vscode.Disposable {
@@ -65,5 +68,7 @@ export class FileListener {
         logger.error('FileListener: edit tracker error', { uri, error });
       }
     }
+
+    this.onStateChange();
   }
 }

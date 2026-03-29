@@ -111,6 +111,14 @@ export class LoopDetector {
   }
 
   /**
+   * Returns all tracked loops, including resolved ones.
+   * Used for session-level metrics that should preserve past loops.
+   */
+  getAllLoops(): LoopEvent[] {
+    return Array.from(this.activeLoops.values());
+  }
+
+  /**
    * Clears all state — call at session reset.
    */
   reset(): void {

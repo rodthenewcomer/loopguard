@@ -9,9 +9,9 @@
 ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝      ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝
 ```
 
-**Stop AI loops. Slash your token bill. Code faster.**
+**Catch repeat-debugging loops. Trim context before it hits AI. Code with less noise.**
 
-[![Version](https://img.shields.io/badge/version-0.1.0-2563EB?style=flat-square)](https://github.com/loopguard/loopguard)
+[![Version](https://img.shields.io/badge/version-0.1.0-2563EB?style=flat-square)](https://github.com/rodthenewcomer/loopguard)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-22D3EE?style=flat-square&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=LoopGuard.loopguard)
 [![Rust Engine](https://img.shields.io/badge/Rust%20engine-89--99%25%20compression-F59E0B?style=flat-square&logo=rust)](packages/context-engine)
 [![License](https://img.shields.io/badge/license-MIT-9CA3AF?style=flat-square)](LICENSE)
@@ -24,9 +24,9 @@
 
 <div align="center">
 
-### LoopGuard is a **2-in-1 AI productivity tool** for developers using Cursor, Copilot, and Claude Code.
-### **1)** Detects when you're stuck in an AI loop and breaks the cycle.
-### **2)** Compresses what you send to AI by 89–99% — so every conversation starts sharp.
+### LoopGuard is a local-first developer tool for VS Code users working with AI assistants.
+### **1)** It detects repeated debugging loops from diagnostics and edit patterns.
+### **2)** It copies a smaller, focused context snapshot for your next AI prompt.
 
 </div>
 
@@ -51,16 +51,18 @@ Same error repeated 4 times · 38 minutes wasted
 </td>
 <td width="50%">
 
-### Context Engine · Rust-powered
-Instead of pasting your entire file into the AI chat, LoopGuard extracts only what matters — AST signatures, high-entropy lines, error context — and strips the rest.
+### Context Engine
+Instead of pasting an entire file into AI chat, LoopGuard extracts a narrower context window around the problem and leaves the rest behind. When the optional Rust helper is available, it can apply deeper compression strategies than the built-in TypeScript fallback.
 
-**The result:**
+**One measured example from the Rust helper:**
 ```
 Without LoopGuard:  12,400 tokens → AI
 With LoopGuard (Rust):  840 tokens → AI
 
-Token reduction: 93%   Cost saved: ~$0.34/session
+Example reduction: 93%   Cost saved: ~$0.34/session
 ```
+
+Actual reduction depends on the file, language, mode, and whether the Rust helper is installed.
 
 </td>
 </tr>
@@ -70,7 +72,7 @@ Token reduction: 93%   Cost saved: ~$0.34/session
 
 ## Why This Exists
 
-Every day, developers using Cursor, Copilot, and Claude Code hit the same wall:
+Every day, developers using Cursor, Copilot, Codex, and Claude Code hit the same wall:
 
 ```
 You:    "Fix this null pointer error"
@@ -94,7 +96,7 @@ LoopGuard puts you back in control.
 
 ## Delivery Modes
 
-LoopGuard ships as three integrated products that share the same Rust compression engine:
+LoopGuard ships as three related surfaces around the same local context tooling:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -107,18 +109,18 @@ LoopGuard ships as three integrated products that share the same Rust compressio
           │  VS Code Extension │  │    MCP Server      │  │   Shell Hooks / CLI  │
           │  Loop detection   │  │  21 tools for      │  │  Compress npm/git/   │
           │  Status bar       │  │  Cursor · Claude   │  │  docker output       │
-          │  Clipboard copy   │  │  Windsurf · Copilot│  │  before it hits AI   │
+          │  Clipboard copy   │  │  Windsurf · Codex  │  │  before it hits AI   │
           └───────────────────┘  └────────────────────┘  └─────────────────────┘
 ```
 
 ### Extension (Zero Config)
-Install → works immediately. Loop detection and clipboard context copy.
+Install → works immediately for diagnostics-based loop detection and local clipboard context copy.
 
 ### MCP Server (Power Mode)
-Run `LoopGuard: Configure MCP Server` from the Command Palette. Gives your AI tool 21 context-compression tools directly — no clipboard needed.
+Run `LoopGuard: Configure MCP Server` from the Command Palette. Supports Claude Code, Cursor, Windsurf, Codex CLI, Zed, and VS Code / Copilot with the local `loopguard-ctx` MCP server.
 
 ### Shell Hooks (Deep Mode)
-Run `LoopGuard: Install Shell Hooks` from the Command Palette. CLI output (`npm install`, `git log`, `docker build`) is compressed before it ever reaches the AI context window.
+Run `LoopGuard: Install Shell Hooks` from the Command Palette. Supported CLI output can be compressed before it reaches an AI context window.
 
 ---
 
@@ -136,7 +138,7 @@ Or search **"LoopGuard"** in the Extensions panel (`Ctrl+Shift+X`).
 
 LoopGuard activates automatically on workspace open. No configuration required. Watch the status bar.
 
-**Optional: unlock Rust-powered 89–99% compression**
+**Optional: enable the Rust helper for deeper compression modes**
 
 ```bash
 # Install the loopguard-ctx binary (requires Rust)
@@ -167,8 +169,8 @@ Click it anytime to see your full session summary.
 | `LoopGuard: Show Dashboard` | Session summary — loops, time wasted, tokens saved |
 | `LoopGuard: Reset Session` | Clear current session and start fresh |
 | `LoopGuard: Toggle Detection` | Pause or resume loop detection |
-| `LoopGuard: Copy Optimized Context` | Copy Rust-compressed context to clipboard (89–99% reduction) |
-| `LoopGuard: Configure MCP Server` | Wire Cursor / Claude Code / Windsurf to use LoopGuard as MCP server |
+| `LoopGuard: Copy Optimized Context` | Copy a smaller local context snapshot to the clipboard |
+| `LoopGuard: Configure MCP Server` | Wire Claude Code / Cursor / Windsurf / Codex CLI / VS Code / Copilot to use LoopGuard as MCP server |
 | `LoopGuard: Install Shell Hooks` | Compress CLI output before it reaches AI context window |
 
 Access via Command Palette (`Ctrl+Shift+P`) or the status bar.
@@ -177,10 +179,10 @@ Access via Command Palette (`Ctrl+Shift+P`) or the status bar.
 
 ## Context Engine — Two Tiers
 
-| Tier | Engine | Reduction | When used |
+| Tier | Engine | Typical behavior | When used |
 |------|--------|-----------|-----------|
-| **Tier 1** | Rust binary (`loopguard-ctx`) | **89–99%** | Binary found in extension bundle or system PATH |
-| **Tier 2** | TypeScript fallback | **~80%** | Binary not available — automatic fallback |
+| **Tier 1** | Rust binary (`loopguard-ctx`) | Can achieve very large reductions on some files and CLI workloads | Binary found in extension bundle or system PATH |
+| **Tier 2** | TypeScript fallback | Narrow line-window selection around the current error | Binary not available — automatic fallback |
 
 The switch is automatic. You never configure it.
 
@@ -190,6 +192,8 @@ The switch is automatic. You never configure it.
 - Myers diff delta — re-reads cost ~13 tokens instead of full file
 - 90+ CLI-specific output compression patterns
 - Cross-session memory (CCP) — prevents re-sending unchanged context
+
+**Important:** the extension's dashboard and toast messages use local token estimates for quick feedback. The Rust CLI/MCP tooling has more exact token accounting than the extension fallback path.
 
 ---
 
@@ -235,12 +239,12 @@ No source code. No file contents. No error messages. No file paths.
 | Loop detection | ✅ Unlimited | ✅ Unlimited |
 | Session time tracking | ✅ | ✅ |
 | Notifications | ✅ | ✅ |
-| Context Engine (TS, ~80%) | ✅ | ✅ |
-| Context Engine (Rust, 89–99%) | ❌ | ✅ |
-| MCP Server integration | ❌ | ✅ |
-| Shell hooks | ❌ | ✅ |
-| Session history | ❌ | ✅ 30 days |
-| Token savings dashboard | ❌ | ✅ |
+| Context Engine (TS fallback) | ✅ | ✅ |
+| Optional Rust helper | ✅ local setup | ✅ |
+| MCP Server integration | Manual setup | ✅ |
+| Shell hooks | Manual setup | ✅ |
+| Expanded history and reporting | ❌ | ✅ |
+| Premium usage surfaces | ❌ | ✅ |
 | Smart suggestions | ❌ | ✅ Coming soon |
 | | Free forever | **$9/month** |
 

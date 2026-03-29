@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Setup — LoopGuard',
-  description: 'Install and configure LoopGuard for VS Code, Cursor, Windsurf, Claude Code terminal, and shell hooks.',
+  description: 'Install and configure LoopGuard for VS Code, Cursor, Windsurf, Codex CLI, Claude Code terminal, and shell helpers.',
 };
 
 function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
@@ -84,20 +84,21 @@ export default function SetupPage() {
             Set up LoopGuard
           </h1>
           <p className="text-[#6B7280] text-lg max-w-xl mx-auto">
-            Works with VS Code, Cursor, Windsurf, Claude Code in terminal, and any shell.
+            Works with VS Code, Cursor, Windsurf, Codex CLI, Claude Code in terminal, and any shell.
             Pick your tool below.
           </p>
         </div>
 
         {/* Tool selector pills */}
         <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {[
-            { label: 'VS Code', anchor: '#vscode' },
-            { label: 'Cursor', anchor: '#cursor' },
-            { label: 'Windsurf', anchor: '#windsurf' },
-            { label: 'Claude Code (terminal)', anchor: '#claude-code' },
-            { label: 'Shell hooks', anchor: '#shell-hooks' },
-          ].map((t) => (
+            {[
+              { label: 'VS Code', anchor: '#vscode' },
+              { label: 'Cursor', anchor: '#cursor' },
+              { label: 'Windsurf', anchor: '#windsurf' },
+              { label: 'Codex CLI', anchor: '#codex' },
+              { label: 'Claude Code (terminal)', anchor: '#claude-code' },
+              { label: 'Shell hooks', anchor: '#shell-hooks' },
+            ].map((t) => (
             <a
               key={t.label}
               href={t.anchor}
@@ -158,7 +159,7 @@ export default function SetupPage() {
                 <Code>cursor --install-extension loopguard-darwin-arm64.vsix</Code>
                 <p className="text-xs text-[#4B5563] mt-2">
                   Download the correct platform VSIX from{' '}
-                  <a href="https://github.com/loopguard/loopguard/releases/latest" className="text-[#6B7280] hover:text-[#9CA3AF] underline underline-offset-2 transition-colors">
+                  <a href="https://github.com/rodthenewcomer/loopguard/releases/latest" className="text-[#6B7280] hover:text-[#9CA3AF] underline underline-offset-2 transition-colors">
                     GitHub Releases
                   </a>.
                 </p>
@@ -174,7 +175,7 @@ export default function SetupPage() {
                   Run from the Command Palette:
                 </p>
                 <Code>LoopGuard: Configure MCP Server → Cursor</Code>
-                <p className="text-xs text-[#4B5563] mt-2">Restart Cursor. All file reads are now compressed automatically.</p>
+                <p className="text-xs text-[#4B5563] mt-2">Restart Cursor so LoopGuard&apos;s MCP tools are available to the agent.</p>
               </Step>
             </SectionCard>
           </div>
@@ -205,7 +206,48 @@ export default function SetupPage() {
               </Step>
               <Step n={3} title="Configure MCP for Windsurf">
                 <Code>LoopGuard: Configure MCP Server → Windsurf</Code>
-                <p className="text-xs text-[#4B5563] mt-2">Restart Windsurf to activate 21 context tools.</p>
+                <p className="text-xs text-[#4B5563] mt-2">Restart Windsurf so LoopGuard&apos;s MCP tools are available.</p>
+              </Step>
+            </SectionCard>
+          </div>
+
+          {/* Codex */}
+          <div id="codex">
+            <SectionCard
+              title="Codex CLI"
+              badge="MCP"
+              icon={
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" />
+                  <path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" />
+                </svg>
+              }
+            >
+              <p className="text-sm text-[#6B7280] mb-5">
+                Codex supports MCP servers. LoopGuard can plug into Codex so focused reads and shell compression are available through the local <code className="text-[#9CA3AF] text-xs">loopguard-ctx</code> binary.
+              </p>
+
+              <Step n={1} title="If you already installed the LoopGuard extension">
+                <p className="text-sm text-[#6B7280] mb-2">
+                  Run this from VS Code, Cursor, or Windsurf:
+                </p>
+                <Code>LoopGuard: Configure MCP Server → Codex CLI</Code>
+                <p className="text-xs text-[#4B5563] mt-2">LoopGuard writes <code className="text-[#9CA3AF] text-xs">~/.codex/config.toml</code> for you using the bundled binary path.</p>
+              </Step>
+
+              <Step n={2} title="Manual Codex config">
+                <p className="text-sm text-[#6B7280] mb-2">
+                  If you are using the standalone binary instead of the extension, add this to <code className="text-[#9CA3AF] text-xs">~/.codex/config.toml</code>:
+                </p>
+                <Code>{`[mcp_servers.loopguard-ctx]
+command = "loopguard-ctx"
+args = []`}</Code>
+              </Step>
+
+              <Step n={3} title="Restart Codex">
+                <p className="text-sm text-[#6B7280]">
+                  Restart Codex after editing the config so it reloads the MCP server list.
+                </p>
               </Step>
             </SectionCard>
           </div>
@@ -222,7 +264,7 @@ export default function SetupPage() {
               }
             >
               <p className="text-sm text-[#6B7280] mb-5">
-                No VS Code required. Claude Code reads files via MCP — LoopGuard compresses every read automatically.
+                No VS Code required. Claude Code can connect to LoopGuard over MCP for focused reads, compact search results, and cleaner shell output.
               </p>
 
               <Step n={1} title="Download the loopguard-ctx binary">
@@ -242,7 +284,7 @@ export default function SetupPage() {
                   ))}
                 </div>
                 <a
-                  href="https://github.com/loopguard/loopguard/releases/latest"
+                  href="https://github.com/rodthenewcomer/loopguard/releases/latest"
                   className="inline-flex items-center gap-1.5 mt-3 text-xs text-[#2563EB] hover:text-[#3B82F6] transition-colors"
                 >
                   Open GitHub Releases
@@ -265,16 +307,15 @@ export default function SetupPage() {
 
               <Step n={4} title="Restart Claude Code">
                 <p className="text-sm text-[#6B7280]">
-                  Close and reopen your terminal session. Claude Code will now use LoopGuard&rsquo;s 21 context tools on every file read — 89–99% token reduction, automatically.
+                  Close and reopen your terminal session. Claude Code will now see LoopGuard&rsquo;s MCP tools and can use them for focused context reads.
                 </p>
                 <div className="mt-3 p-3 rounded-xl bg-[#22D3EE]/5 border border-[#22D3EE]/15">
                   <p className="text-xs text-[#22D3EE] font-semibold mb-1">What you get</p>
                   <ul className="text-xs text-[#6B7280] space-y-1">
-                    <li>· AST-based file compression (89–99% token reduction)</li>
-                    <li>· Shannon entropy filtering — only high-value lines sent</li>
-                    <li>· CLI output compression (npm, git, docker logs)</li>
-                    <li>· Delta reads — unchanged files cost ~13 tokens to re-read</li>
-                    <li>· 21 tools available to Claude Code automatically</li>
+                    <li>· Focused file reads through <code className="text-[#9CA3AF]">ctx_read</code></li>
+                    <li>· Compact code search and directory tools</li>
+                    <li>· Shell output compression through <code className="text-[#9CA3AF]">ctx_shell</code></li>
+                    <li>· A larger MCP toolset exposed by the local binary</li>
                   </ul>
                 </div>
               </Step>
@@ -293,8 +334,7 @@ export default function SetupPage() {
               }
             >
               <p className="text-sm text-[#6B7280] mb-5">
-                Pipe terminal output through the compression engine before it reaches an AI.
-                Works with any AI tool — paste compressed output directly into Claude, ChatGPT, or your AI chat.
+                Install the shell helper so supported command output can be routed through LoopGuard locally before you paste it into an AI tool.
               </p>
 
               <Step n={1} title="Install the binary (if not already done)">
@@ -309,7 +349,7 @@ export default function SetupPage() {
 
               <Step n={3} title="Restart your terminal">
                 <p className="text-sm text-[#6B7280] mb-2">
-                  Open a new terminal session. Long CLI outputs are now compressed automatically:
+                  Open a new terminal session. Supported commands can now use LoopGuard&rsquo;s shell path:
                 </p>
                 <div className="p-3 rounded-xl bg-[#0d1117] border border-[#1F2937]">
                   <p className="text-xs font-mono text-[#6B7280]">$ npm install</p>
@@ -341,7 +381,7 @@ export default function SetupPage() {
               Full Documentation
             </Link>
             <a
-              href="https://github.com/loopguard/loopguard/issues"
+              href="https://github.com/rodthenewcomer/loopguard/issues"
               className="px-5 py-2.5 border border-[#374151] hover:border-[#4B5563] text-[#9CA3AF] hover:text-white font-medium rounded-xl transition-colors text-sm"
             >
               GitHub Issues

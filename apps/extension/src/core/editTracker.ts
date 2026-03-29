@@ -1,20 +1,5 @@
 import type { LoopEvent } from '@loopguard/types';
-import { createId, hashString, formatDuration } from '@loopguard/utils';
-
-/**
- * Detects edit-based loops — the pattern diagnostic detection misses.
- *
- * Real AI loops often look like:
- *   Error A → AI fix → Error B → AI fix → Error A again
- * The error hash changes every time, so the diagnostic detector never fires.
- *
- * This tracker watches WHICH LINES are being repeatedly edited.
- * If the same line range is modified 4+ times in 3 minutes without clearing,
- * it signals a loop regardless of what the errors say.
- *
- * Non-blocking: emits loop events through the same callback as diagnostics.
- * Threshold intentionally higher (4) to avoid false positives from normal editing.
- */
+import { createId, formatDuration, hashString } from '@loopguard/utils';
 
 interface EditRecord {
   lineStart: number;
@@ -23,72 +8,103 @@ interface EditRecord {
 }
 
 const EDIT_LOOP_THRESHOLD = 4;
-const EDIT_TIME_WINDOW_MS = 3 * 60 * 1000; // 3 minutes
-// Lines within this radius are considered the "same region"
+const EDIT_TIME_WINDOW_MS = 3 * 60 * 1000;
 const LINE_PROXIMITY = 5;
 
 export class EditTracker {
   private readonly editHistory: Map<string, EditRecord[]> = new Map();
-  /** Maps region hash → file URI so clearUri() can remove the right entries */
-  private readonly emittedLoopUris: Map<string, string> = new Map();
+  private readonly loops: Map<string, LoopEvent> = new Map();
 
-  /**
-   * Records an edit to a line range in a file.
-   * Returns a LoopEvent if this edit triggers loop detection, null otherwise.
-   */
   record(uri: string, lineStart: number, lineEnd: number): LoopEvent | null {
     const now = Date.now();
     const history = this.editHistory.get(uri) ?? [];
 
     history.push({ lineStart, lineEnd, timestamp: now });
-    // Keep only entries within the time window to avoid unbounded growth
+
     const windowStart = now - EDIT_TIME_WINDOW_MS;
-    const recent = history.filter((e) => e.timestamp >= windowStart);
+    const recent = history.filter((entry) => entry.timestamp >= windowStart);
     this.editHistory.set(uri, recent);
 
-    // Find how many recent edits are in the same region as this one
+    const regionHash = hashString(`edit:${uri}:${lineStart}`);
     const regionEdits = recent.filter(
-      (e) =>
-        Math.abs(e.lineStart - lineStart) <= LINE_PROXIMITY ||
-        Math.abs(e.lineEnd - lineEnd) <= LINE_PROXIMITY,
+      (entry) =>
+        Math.abs(entry.lineStart - lineStart) <= LINE_PROXIMITY ||
+        Math.abs(entry.lineEnd - lineEnd) <= LINE_PROXIMITY,
     );
+
+    const existing = this.loops.get(regionHash);
+    if (existing !== undefined && existing.status === 'active') {
+      this.loops.set(regionHash, {
+        ...existing,
+        occurrences: Math.max(existing.occurrences + 1, regionEdits.length),
+        lastSeen: now,
+        errorMessage: buildMessage(lineStart, lineEnd, Math.max(existing.occurrences + 1, regionEdits.length), now - existing.firstSeen),
+      });
+      return null;
+    }
 
     if (regionEdits.length < EDIT_LOOP_THRESHOLD) return null;
 
-    // Build a stable hash for this region to avoid re-emitting
-    const regionHash = hashString(`edit:${uri}:${lineStart}`);
-    if (this.emittedLoopUris.has(regionHash)) return null;
-
-    this.emittedLoopUris.set(regionHash, uri);
-
     const firstEdit = regionEdits[0];
     const timeWasted = now - (firstEdit?.timestamp ?? now);
-
-    return {
+    const loopEvent: LoopEvent = {
       id: createId(),
       fileUri: uri,
-      errorMessage: `Lines ${lineStart}–${lineEnd} edited ${regionEdits.length}× in ${formatDuration(timeWasted)} — possible edit loop`,
+      errorMessage: buildMessage(lineStart, lineEnd, regionEdits.length, timeWasted),
       errorHash: regionHash,
       occurrences: regionEdits.length,
       firstSeen: firstEdit?.timestamp ?? now,
       lastSeen: now,
       status: 'active',
     };
+
+    this.loops.set(regionHash, loopEvent);
+    return loopEvent;
   }
 
-  /**
-   * Clears edit history for a URI — call when errors clear or session resets.
-   */
+  getActiveLoops(): LoopEvent[] {
+    return Array.from(this.loops.values()).filter((loop) => loop.status === 'active');
+  }
+
+  getAllLoops(): LoopEvent[] {
+    return Array.from(this.loops.values());
+  }
+
+  resolveLoop(hash: string): void {
+    const existing = this.loops.get(hash);
+    if (existing === undefined || existing.status !== 'active') return;
+
+    this.loops.set(hash, {
+      ...existing,
+      status: 'resolved',
+      lastSeen: Date.now(),
+    });
+  }
+
   clearUri(uri: string): void {
     this.editHistory.delete(uri);
-    // Remove all emitted hashes that belong to this URI so it can re-detect
-    for (const [hash, storedUri] of this.emittedLoopUris) {
-      if (storedUri === uri) this.emittedLoopUris.delete(hash);
+
+    for (const [hash, loop] of this.loops) {
+      if (loop.fileUri !== uri || loop.status !== 'active') continue;
+      this.loops.set(hash, {
+        ...loop,
+        status: 'resolved',
+        lastSeen: Date.now(),
+      });
     }
   }
 
   reset(): void {
     this.editHistory.clear();
-    this.emittedLoopUris.clear();
+    this.loops.clear();
   }
+}
+
+function buildMessage(
+  lineStart: number,
+  lineEnd: number,
+  occurrences: number,
+  timeWastedMs: number,
+): string {
+  return `Lines ${lineStart}–${lineEnd} edited ${occurrences}× in ${formatDuration(timeWastedMs)} — possible edit loop`;
 }

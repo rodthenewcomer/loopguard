@@ -8,10 +8,12 @@
  *   error      → shows demo data with error notice
  *   live       → real data from /api/v1/metrics/summary
  */
-import { useEffect, useState } from 'react';
+import type { Session } from '@supabase/supabase-js';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'https://api.loopguard.dev';
+const POLL_INTERVAL_MS = 15_000;
 type DayData   = { date: string; loops: number; tokensSaved: number };
 type LoopEntry = { id: string; errorHash: string; occurrences: number; timeWastedMs: number; fileType: string; status: string; detectedAt: number };
 
@@ -59,8 +61,8 @@ function getDay(offset: number): string {
 type State =
   | { status: 'loading' }
   | { status: 'not-authed' }
-  | { status: 'live'; data: SummaryData }
-  | { status: 'demo'; data: SummaryData; error?: string };
+  | { status: 'live'; data: SummaryData; updatedAt: number }
+  | { status: 'demo'; data: SummaryData; error?: string; updatedAt: number };
 
 async function fetchSummary(token: string): Promise<SummaryData> {
   const res = await fetch(`${API_BASE}/api/v1/metrics/summary?days=7`, {
@@ -73,21 +75,98 @@ async function fetchSummary(token: string): Promise<SummaryData> {
 
 export function useDashboardData(): State {
   const [state, setState] = useState<State>({ status: 'loading' });
+  const sessionRef = useRef<Session | null>(null);
+  const refreshDashboardRef = useRef<(sessionOverride?: Session | null) => Promise<void>>(
+    async () => undefined,
+  );
+
+  refreshDashboardRef.current = async (sessionOverride?: Session | null) => {
+    const session = sessionOverride === undefined ? sessionRef.current : sessionOverride;
+    sessionRef.current = session ?? null;
+
+    if (session === null) {
+      startTransition(() => setState({ status: 'not-authed' }));
+      return;
+    }
+
+    if (session === undefined) return;
+
+    try {
+      const data = await fetchSummary(session.access_token);
+      startTransition(() => setState({ status: 'live', data, updatedAt: Date.now() }));
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'Unknown API error';
+      console.warn('[DashboardData] API fetch failed, using demo data:', error);
+      startTransition(() => setState({
+        status: 'demo',
+        data: DEMO_DATA,
+        error,
+        updatedAt: Date.now(),
+      }));
+    }
+  };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let disposed = false;
+    let pollTimer: ReturnType<typeof setInterval> | undefined;
+
+    const clearPollTimer = (): void => {
+      if (pollTimer !== undefined) {
+        clearInterval(pollTimer);
+        pollTimer = undefined;
+      }
+    };
+
+    const ensurePolling = (): void => {
+      if (pollTimer !== undefined) return;
+      pollTimer = setInterval(() => {
+        if (sessionRef.current === null) return;
+        void refreshDashboardRef.current();
+      }, POLL_INTERVAL_MS);
+    };
+
+    const bootstrap = async (): Promise<void> => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (disposed) return;
+
+      sessionRef.current = session;
       if (session === null) {
-        setState({ status: 'not-authed' });
+        startTransition(() => setState({ status: 'not-authed' }));
         return;
       }
 
-      fetchSummary(session.access_token)
-        .then((data) => setState({ status: 'live', data }))
-        .catch((err: Error) => {
-          console.warn('[DashboardData] API fetch failed, using demo data:', err.message);
-          setState({ status: 'demo', data: DEMO_DATA, error: err.message });
-        });
+      ensurePolling();
+      await refreshDashboardRef.current(session);
+    };
+
+    void bootstrap();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      sessionRef.current = session;
+      if (session === null) {
+        clearPollTimer();
+        startTransition(() => setState({ status: 'not-authed' }));
+        return;
+      }
+
+      ensurePolling();
+      void refreshDashboardRef.current(session);
     });
+
+    const handleVisibilityChange = (): void => {
+      if (document.visibilityState === 'visible' && sessionRef.current !== null) {
+        void refreshDashboardRef.current();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      disposed = true;
+      clearPollTimer();
+      subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   return state;

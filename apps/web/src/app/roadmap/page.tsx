@@ -14,13 +14,13 @@ const PHASES = [
     items: [
       { title: 'Loop detection via VS Code diagnostics API', detail: 'Fires when the same error hash appears 2–5× in a session depending on sensitivity setting.' },
       { title: 'Edit-pattern loop detection', detail: 'Detects when you are editing the same region of code repeatedly with no forward progress.' },
-      { title: 'TypeScript context engine (~80% token reduction)', detail: 'Free tier. Extracts imports, function signatures, and the 20 lines surrounding your current error.' },
+      { title: 'TypeScript context engine (~80% token reduction)', detail: 'Free tier. Extracts imports and a focused window around the current error.' },
       { title: 'Rust context engine (89–99% token reduction)', detail: 'Pro tier. Full AST parse, Shannon entropy scoring, Myers delta, memory cache.' },
-      { title: 'MCP server — 21 context tools', detail: 'Works with Claude Code, Cursor, Windsurf. Configured by the LoopGuard: Configure MCP Server command.' },
+      { title: 'MCP server support', detail: 'Setup path for Claude Code, Cursor, Windsurf, Codex CLI, Zed, and VS Code / Copilot.' },
       { title: 'Shell hooks — CLI output compression', detail: 'bash, zsh, fish on Windows (WSL), macOS, Linux. 60–90% reduction on npm, git, docker output.' },
       { title: 'Multi-IDE auth — VS Code, Cursor, Windsurf', detail: 'URI callback scheme auto-detected from vscode.env.uriScheme.' },
       { title: 'Windows · macOS · Linux platform support', detail: 'x64 and ARM64. Binary distributed inside platform-specific VSIX.' },
-      { title: 'Session sync to web dashboard', detail: 'Metrics sync every 5 minutes and on session end. Loop events sync individually.' },
+      { title: 'Session sync to web dashboard', detail: 'Metrics sync every 5 minutes and on session end. The web dashboard refreshes periodically for signed-in users.' },
     ],
   },
   {
@@ -28,10 +28,10 @@ const PHASES = [
     tag: 'v0.2.0',
     tagColor: '#2563EB',
     items: [
-      { title: 'Web dashboard — live session data', detail: 'Connect the extension and see all your loops, token savings, and time wasted in your browser in real time.' },
-      { title: 'Supabase schema — deploy and run', detail: 'Run apps/api/supabase/schema.sql in the Supabase SQL editor to enable all backend storage.' },
-      { title: 'API deployment on Railway', detail: 'Deploy apps/api to Railway so the extension can sync metrics to a live backend.' },
-      { title: 'VS Code Marketplace submission', detail: 'Submit the extension for review. Requires VSCE_TOKEN and publisher account.' },
+      { title: 'Web dashboard — tighter sync cadence', detail: 'Reduce the gap between local session changes and what appears in the signed-in web dashboard.' },
+      { title: 'Metrics durability', detail: 'Add stronger retry and offline queue behavior so metrics are not dropped when the API is temporarily unreachable.' },
+      { title: 'Marketplace hardening', detail: 'Keep tightening metadata, packaging, and onboarding details for smoother Marketplace review and install success.' },
+      { title: 'Billing and entitlement wiring', detail: 'Turn the existing paid-tier story into explicit product behavior instead of copy-only gating.' },
     ],
   },
   {

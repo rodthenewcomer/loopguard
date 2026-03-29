@@ -77,14 +77,14 @@ const WHAT_WE_DO = [
     n: '01',
     color: '#F59E0B',
     title: 'Cuts the circuit before the bill arrives',
-    body: 'Every turn a stuck AI takes costs real money. LoopGuard watches both your diagnostics and your edit history. The moment it detects a loop — whether you\'re typing or an agent is running — it fires an alert with the exact time and tokens burned.',
+    body: 'Every turn a stuck AI takes costs real money. LoopGuard watches both your diagnostics and your edit history. The moment it detects a loop — whether you\'re typing or an agent is running — it fires an alert with the exact time and token estimate burned.',
     tag: 'Loop Circuit Breaker',
   },
   {
     n: '02',
     color: '#22D3EE',
     title: 'Your AI reads the file. It gets 7% of it.',
-    body: 'LoopGuard sits between your editor and your AI. Every context request — manual copy or automatic agent read — is filtered through the relevance engine. AST signatures, entropy-scored lines, exact error context. The rest is dropped.',
+    body: 'LoopGuard sits between your editor and your AI. Every context request — manual copy or MCP-backed agent read — is filtered through the relevance engine. Focused signatures, exact error context, smaller project maps. The rest is dropped.',
     tag: 'Relevance Engine',
   },
 ];
@@ -97,14 +97,14 @@ const PLATFORMS = [
 ];
 
 const IDES = [
-  'VS Code', 'Cursor', 'Windsurf', 'Claude Code (terminal)', 'GitHub Copilot',
+  'VS Code', 'Cursor', 'Windsurf', 'Codex CLI', 'Claude Code (terminal)', 'GitHub Copilot',
 ];
 
 /* ── Loop detection features ────────────────────────────────────── */
 const LOOP_FEATURES = [
   'Watches VS Code diagnostics in real time — all 14 languages',
   'Detects edit-pattern loops even when the error message changes',
-  'Fires an alert the moment a loop is confirmed — with exact cost in time and tokens',
+  'Fires an alert the moment a loop is confirmed — with exact time wasted and local token estimates',
   'Works with autonomous agents — catches Claude Code and Cursor agents spinning silently',
   'Session dashboard: every loop, every cost, every pattern across your history',
 ];
@@ -132,8 +132,8 @@ const INTEGRATIONS = [
   {
     icon: IC.mcp,
     title: 'AI Gateway',
-    sub: 'Intercepts every file read by Claude Code, Cursor, Windsurf, Copilot',
-    desc: 'Wire LoopGuard once. Every time your AI agent reads a file, the request routes through the relevance engine automatically — no copy-paste, no commands. A 1,800-line component becomes 140 lines. Your agent never knows the difference.',
+    sub: 'Claude Code · Cursor · Windsurf · Codex CLI · VS Code / Copilot',
+    desc: 'Wire LoopGuard once. Compatible agents can call LoopGuard\'s MCP tools for focused reads, compact search results, and cleaner shell output instead of grabbing full files every time.',
     badge: 'Pro',
     badgeColor: '#2563EB',
   },
@@ -149,7 +149,7 @@ const INTEGRATIONS = [
 
 /* ── Stats ──────────────────────────────────────────────────────── */
 const STATS = [
-  { value: '93%',   label: 'Token reduction per context copy',          color: '#22D3EE' },
+  { value: '93%',   label: 'Measured reduction example from the Rust helper', color: '#22D3EE' },
   { value: '~$77',  label: 'Avg saved/month (10 sessions/day)',          color: '#22C55E' },
   { value: '47min', label: 'Avg time saved per day from loop detection', color: '#F59E0B' },
   { value: '8.6×',  label: 'ROI on Pro at $9/mo',                       color: '#A78BFA' },
@@ -167,10 +167,10 @@ const FREE_FEATURES = [
 const PRO_FEATURES = [
   'Everything in Free',
   'Rust engine (89–99% reduction)',
-  'MCP server — 21 AI tools',
+  'MCP server — richer AI tool access',
   'Shell hooks — CLI output compression',
-  '30-day session history',
-  'Token savings dashboard',
+  'Expanded history and reporting',
+  'Premium usage surfaces',
   'Priority support',
 ];
 
@@ -244,7 +244,7 @@ export default function LandingPage() {
             {/* Live badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#1F2937] shimmer-badge mb-6">
               <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-              <span className="text-xs text-[#9CA3AF] font-medium">AI loop circuit breaker · 93% context reduction · works with Claude Code &amp; Cursor agents</span>
+              <span className="text-xs text-[#9CA3AF] font-medium">AI loop circuit breaker · measured 93% Rust-helper example · works with Cursor, Claude Code, and Codex MCP</span>
             </div>
 
             {/* Headline */}
@@ -267,7 +267,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-start gap-3 text-[#9CA3AF] text-base">
                 <span className="text-[#22D3EE] mt-1 flex-shrink-0"><Icon path={IC.zap} size={16} /></span>
-                <span><span className="text-white font-medium">Every AI read, filtered automatically</span> — the relevance engine sits between your code and your AI. Agents get 7% of the file. The 7% that matters.</span>
+                <span><span className="text-white font-medium">Focused reads for AI tools</span> — use clipboard mode in the extension, or wire LoopGuard into MCP-compatible agents like Claude Code, Cursor, Windsurf, Codex, and VS Code / Copilot.</span>
               </div>
             </div>
 
@@ -332,7 +332,7 @@ export default function LandingPage() {
       <section className="max-w-5xl mx-auto px-6 py-20">
         <ScrollReveal className="text-center mb-12">
           <h2 className="text-3xl font-bold text-white mb-3">Up and running in 60 seconds.</h2>
-          <p className="text-[#6B7280]">Three steps. No config. No API keys.</p>
+          <p className="text-[#6B7280]">Three steps for the extension. Codex and other MCP clients get their own guided setup too.</p>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
@@ -573,7 +573,7 @@ export default function LandingPage() {
                   Your AI reads the file.<br/>It gets 7% of it.
                 </h2>
                 <p className="text-[#6B7280] text-base leading-relaxed mb-8">
-                  The Rust engine parses the AST, scores every line by Shannon entropy, and drops everything below the threshold. What remains: the function signatures your AI needs, the high-complexity lines it will use, the exact error context it must see. The rest is noise. It gets dropped — automatically, on every request.
+                  The Rust helper can parse structure, score lines for information density, and produce smaller focused reads for clipboard or MCP workflows. What remains: the signatures and nearby context your AI needs, without making every request drag along the whole file.
                 </p>
                 <ul className="space-y-3 mb-8">
                   {CTX_FEATURES.map((f) => (
@@ -754,7 +754,7 @@ export default function LandingPage() {
               >
                 <div className="text-xs font-bold text-[#F59E0B] uppercase tracking-wide mb-2">The agent problem</div>
                 <p className="text-[#9CA3AF] text-sm leading-relaxed">
-                  When you loop, you notice. When <strong className="text-white">Claude Code or a Cursor agent loops</strong>, it keeps going — burning tokens silently for 20 minutes until you check the terminal. LoopGuard watches autonomous agents too. When the same error pattern appears twice in an agent run, it cuts the circuit.
+                  When you loop, you notice. When <strong className="text-white">Claude Code, Cursor, or Codex workflows</strong> keep revisiting the same problem, token spend can climb quietly in the background. LoopGuard is designed to surface that waste and give you a smaller, more relevant next step.
                 </p>
               </div>
 
@@ -900,7 +900,7 @@ export default function LandingPage() {
                 <span className="font-bold text-white text-lg">LoopGuard</span>
               </div>
               <p className="text-[#4B5563] text-sm leading-relaxed max-w-xs mb-6">
-                Stop AI loops. Cut token spend by 93%. Built for developers on Windows, macOS and Linux who use AI every day.
+                Stop AI loops. Use smaller, more relevant context. Built for developers on Windows, macOS and Linux who use AI every day.
               </p>
               {/* Social icons */}
               <div className="flex items-center gap-3">

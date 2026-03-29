@@ -73,6 +73,10 @@ export class LoopEngine {
     return this.detector.getActiveLoops();
   }
 
+  getAllLoops(): LoopEvent[] {
+    return this.detector.getAllLoops();
+  }
+
   reset(): void {
     this.detector.reset();
     logger.info('Loop engine reset');

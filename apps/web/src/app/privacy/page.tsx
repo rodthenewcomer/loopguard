@@ -46,7 +46,7 @@ export default function PrivacyPage() {
                 { item: 'Number of tokens saved per context copy', detail: 'Calculated locally from the before/after token count. No file content is sent.' },
                 { item: 'File type of the file where the loop occurred', detail: 'For example: "ts", "py", "go". Never the file name or file path.' },
                 { item: 'Extension version', detail: 'Used to correlate data with specific releases.' },
-                { item: 'Error hash (anonymized)', detail: 'A SHA-256 hash of the error message text. The original message is never stored — only the hash, which cannot be reversed.' },
+                { item: 'Error fingerprint (anonymized)', detail: 'A short deterministic fingerprint of the error message text. The original message is never stored in the backend.' },
               ].map(({ item, detail }) => (
                 <li key={item} className="flex items-start gap-3">
                   <span className="text-[#22C55E] mt-0.5 flex-shrink-0">—</span>

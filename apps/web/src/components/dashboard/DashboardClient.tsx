@@ -83,12 +83,28 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
+function formatUpdatedLabel(updatedAt: number): string {
+  const elapsedMs = Date.now() - updatedAt;
+  const elapsedSeconds = Math.max(0, Math.round(elapsedMs / 1000));
+
+  if (elapsedSeconds < 10) return 'Updated just now';
+  if (elapsedSeconds < 60) return `Updated ${elapsedSeconds}s ago`;
+
+  const elapsedMinutes = Math.round(elapsedSeconds / 60);
+  if (elapsedMinutes < 60) return `Updated ${elapsedMinutes}m ago`;
+
+  const elapsedHours = Math.round(elapsedMinutes / 60);
+  return `Updated ${elapsedHours}h ago`;
+}
+
 function DashboardShell({
   children,
-  isLive,
+  mode,
+  updatedAt,
 }: {
   children: ReactNode;
-  isLive: boolean;
+  mode: 'live' | 'demo' | 'static';
+  updatedAt?: number;
 }) {
   return (
     <div className="min-h-screen overflow-hidden bg-[#07111f] text-[#E5E7EB]">
@@ -97,7 +113,7 @@ function DashboardShell({
         <div className="absolute right-[-12%] top-[22%] h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(34,211,238,0.14),transparent_65%)] blur-3xl" />
         <div className="absolute left-[-10%] bottom-[-8%] h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.12),transparent_60%)] blur-3xl" />
       </div>
-      <TopBar isLive={isLive} />
+      <TopBar mode={mode} updatedAt={updatedAt} />
       <main className="relative mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
         {children}
       </main>
@@ -105,7 +121,16 @@ function DashboardShell({
   );
 }
 
-function TopBar({ isLive }: { isLive: boolean }) {
+function TopBar({
+  mode,
+  updatedAt,
+}: {
+  mode: 'live' | 'demo' | 'static';
+  updatedAt?: number;
+}) {
+  const isLive = mode === 'live';
+  const isDemo = mode === 'demo';
+
   return (
     <header className="sticky top-0 z-40 border-b border-white/8 bg-[#07111f]/72 backdrop-blur-2xl">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
@@ -134,14 +159,23 @@ function TopBar({ isLive }: { isLive: boolean }) {
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-medium ${
               isLive
                 ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
-                : 'border-amber-400/20 bg-amber-400/10 text-amber-300'
+                : isDemo
+                  ? 'border-amber-400/20 bg-amber-400/10 text-amber-300'
+                  : 'border-white/10 bg-white/[0.04] text-slate-300'
             }`}
           >
             <span
-              className={`h-2 w-2 rounded-full ${isLive ? 'bg-emerald-300 animate-pulse' : 'bg-amber-300'}`}
+              className={`h-2 w-2 rounded-full ${
+                isLive ? 'bg-emerald-300 animate-pulse' : isDemo ? 'bg-amber-300' : 'bg-slate-400'
+              }`}
             />
-            {isLive ? 'Live metrics' : 'Demo metrics'}
+            {isLive ? 'Live metrics' : isDemo ? 'Demo metrics' : 'Dashboard'}
           </div>
+          {mode !== 'static' && (
+            <div className="hidden rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-slate-300 sm:inline-flex">
+              {isLive && updatedAt !== undefined ? formatUpdatedLabel(updatedAt) : 'Retrying every 15s'}
+            </div>
+          )}
           <Link
             href="/upgrade"
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-slate-200 transition hover:border-sky-400/30 hover:bg-sky-400/10"
@@ -644,7 +678,7 @@ export default function DashboardClient() {
 
   if (state.status === 'loading') {
     return (
-      <DashboardShell isLive={false}>
+      <DashboardShell mode="static">
         <Skeleton />
       </DashboardShell>
     );
@@ -652,7 +686,7 @@ export default function DashboardClient() {
 
   if (state.status === 'not-authed') {
     return (
-      <DashboardShell isLive={false}>
+      <DashboardShell mode="static">
         <StateBanner
           title="Real metrics start after sign-in."
           copy="You can explore the dashboard right now with sample data, then connect the extension whenever you want live session metrics, history, and sync."
@@ -670,7 +704,10 @@ export default function DashboardClient() {
   const error = state.status === 'demo' ? state.error : undefined;
 
   return (
-    <DashboardShell isLive={state.status === 'live'}>
+    <DashboardShell
+      mode={state.status === 'live' ? 'live' : 'demo'}
+      updatedAt={state.updatedAt}
+    >
       <DashboardBody data={data} isDemo={isDemo} error={error} />
       <Footer />
     </DashboardShell>
