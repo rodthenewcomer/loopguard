@@ -14,7 +14,7 @@ const AUTH_BASE_URL = 'https://loopguard.vercel.app/auth/extension';
  *   1. User runs "LoopGuard: Sign In"
  *   2. Browser opens → user authenticates on loopguard.vercel.app
  *   3. Web app creates a one-time code in Supabase (5-min TTL) and redirects to:
- *      {scheme}://loopguard-dev.loopguard/auth?code=RANDOM_CODE&email=user@example.com
+ *      {scheme}://LoopGuard.loopguard/auth?code=RANDOM_CODE&email=user@example.com
  *      where {scheme} = vscode | cursor | windsurf (read from vscode.env.uriScheme)
  *   4. Extension URI handler calls handleCallback(code, email)
  *   5. Extension exchanges the code for a JWT via POST /api/v1/auth/exchange
@@ -71,7 +71,7 @@ export class AuthService {
 
   /**
    * Called by the URI handler when VS Code receives:
-   * vscode://loopguard-dev.loopguard/auth?code=ONE_TIME_CODE&email=user@example.com
+   * vscode://LoopGuard.loopguard/auth?code=ONE_TIME_CODE&email=user@example.com
    *
    * Exchanges the code for a JWT server-side so the raw token never travels
    * through the URL (and thus never lands in browser history or server logs).

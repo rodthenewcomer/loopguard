@@ -123,7 +123,7 @@ export default function SetupPage() {
             >
               <Step n={1} title="Install from Marketplace">
                 <p className="text-sm text-[#6B7280] mb-2">Search for <strong className="text-[#9CA3AF]">LoopGuard</strong> in the Extensions panel, or run:</p>
-                <Code>ext install loopguard-dev.loopguard</Code>
+                <Code>ext install LoopGuard.loopguard</Code>
                 <p className="text-xs text-[#4B5563] mt-2">The Rust binary is bundled. No Cargo or extra install needed.</p>
               </Step>
               <Step n={2} title="Activate automatically">
@@ -200,7 +200,7 @@ export default function SetupPage() {
               <Step n={2} title="Sign in (uses windsurf:// scheme)">
                 <p className="text-sm text-[#6B7280]">
                   Run <code className="text-[#9CA3AF] text-xs">LoopGuard: Sign In</code>.
-                  The auth callback uses <code className="text-[#9CA3AF] text-xs">windsurf://loopguard-dev.loopguard/auth</code> automatically.
+                  The auth callback uses <code className="text-[#9CA3AF] text-xs">windsurf://LoopGuard.loopguard/auth</code> automatically.
                 </p>
               </Step>
               <Step n={3} title="Configure MCP for Windsurf">

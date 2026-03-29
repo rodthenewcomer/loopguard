@@ -7,7 +7,7 @@
  *  2. Google redirects back to this page (redirectTo = current URL)
  *  3. onAuthStateChange fires SIGNED_IN → sendCallbackToExtension() opens IDE
  *
- * Callback URI: {ide}://loopguard-dev.loopguard/auth?code=ONE_TIME_CODE&email=user@example.com
+ * Callback URI: {ide}://LoopGuard.loopguard/auth?code=ONE_TIME_CODE&email=user@example.com
  */
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -60,7 +60,7 @@ export default function ExtensionAuthClient() {
       const { code } = (await res.json()) as { code: string };
 
       const callbackUrl =
-        `${ideScheme}://loopguard-dev.loopguard/auth` +
+        `${ideScheme}://LoopGuard.loopguard/auth` +
         `?code=${encodeURIComponent(code)}&email=${encodeURIComponent(userEmail)}`;
       window.location.href = callbackUrl;
     } catch (err) {

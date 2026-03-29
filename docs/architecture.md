@@ -305,7 +305,7 @@ apps/extension/
 3. User authenticates on /auth/extension (Supabase OAuth / email)
 
 4. After auth, page redirects to:
-   vscode://loopguard-dev.loopguard/auth?token=JWT&email=user@example.com
+   vscode://LoopGuard.loopguard/auth?token=JWT&email=user@example.com
 
 5. VS Code URI handler fires (registered via vscode.window.registerUriHandler):
    a. Parses token + email from URI query params

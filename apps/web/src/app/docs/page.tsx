@@ -225,7 +225,7 @@ export default function DocsPage() {
 
           <H3>From the VS Code Marketplace</H3>
           <P>Open VS Code, press <Code>Ctrl+P</Code> (or <Code>Cmd+P</Code> on macOS), and run:</P>
-          <Pre>ext install loopguard-dev.loopguard</Pre>
+          <Pre>ext install LoopGuard.loopguard</Pre>
           <P>Or search <strong className="text-white">LoopGuard</strong> in the Extensions panel and click Install.</P>
 
           <H3>Works with Cursor and Windsurf</H3>
@@ -520,7 +520,7 @@ export default function DocsPage() {
   "mcpServers": {
     "loopguard": {
       "command": "node",
-      "args": ["~/.vscode/extensions/loopguard-dev.loopguard-*/mcp/server.js"],
+      "args": ["~/.vscode/extensions/LoopGuard.loopguard-*/mcp/server.js"],
       "env": {}
     }
   }
@@ -593,7 +593,7 @@ loopguard hooks install --shell fish`}</Pre>
           </P>
           <P>
             The binary lives at{' '}
-            <Code>~/.vscode/extensions/loopguard-dev.loopguard-*/bin/loopguard-ctx</Code> and is
+            <Code>~/.vscode/extensions/LoopGuard.loopguard-*/bin/loopguard-ctx</Code> and is
             called as a subprocess by the extension. It communicates over stdin/stdout and has no
             network access.
           </P>
@@ -669,9 +669,9 @@ loopguard hooks install --shell fish`}</Pre>
           </P>
           <CheckList items={[
             'Uninstall and reinstall the extension — make sure you install the platform-specific VSIX, not the generic one.',
-            'Check that the binary exists: open a terminal and run: ls ~/.vscode/extensions/loopguard-dev.loopguard-*/bin/',
-            'On macOS, the binary may be quarantined by Gatekeeper. Run: xattr -d com.apple.quarantine ~/.vscode/extensions/loopguard-dev.loopguard-*/bin/loopguard-ctx',
-            'On Linux, the binary may not be executable. Run: chmod +x ~/.vscode/extensions/loopguard-dev.loopguard-*/bin/loopguard-ctx',
+            'Check that the binary exists: open a terminal and run: ls ~/.vscode/extensions/LoopGuard.loopguard-*/bin/',
+            'On macOS, the binary may be quarantined by Gatekeeper. Run: xattr -d com.apple.quarantine ~/.vscode/extensions/LoopGuard.loopguard-*/bin/loopguard-ctx',
+            'On Linux, the binary may not be executable. Run: chmod +x ~/.vscode/extensions/LoopGuard.loopguard-*/bin/loopguard-ctx',
             'If none of the above works, download the binary directly from GitHub Releases and place it in the bin/ directory.',
           ]} />
 
@@ -683,7 +683,7 @@ loopguard hooks install --shell fish`}</Pre>
           </P>
           <CheckList items={[
             'Make sure loopguard-ctx binary is working first — run LoopGuard: Copy Optimized Context to verify the context engine loads.',
-            'Check that the MCP server file exists: ls ~/.vscode/extensions/loopguard-dev.loopguard-*/mcp/server.js',
+            'Check that the MCP server file exists: ls ~/.vscode/extensions/LoopGuard.loopguard-*/mcp/server.js',
             'Restart your AI tool (Cursor, Claude Code, etc.) after running Configure MCP Server — the config is only read on startup.',
             'Check your AI tool\'s MCP log for errors. In Claude Code run: cat ~/.claude/logs/mcp-*.log | tail -50',
             'Make sure Node.js is installed and accessible from your terminal — the MCP server runs as a Node.js process.',
@@ -694,7 +694,7 @@ loopguard hooks install --shell fish`}</Pre>
           <P>
             LoopGuard sign-in uses a browser deep-link callback. The extension opens a browser tab
             and waits for a redirect back to VS Code via the URI scheme (e.g.{' '}
-            <Code>vscode://loopguard-dev.loopguard/auth</Code>).
+            <Code>vscode://LoopGuard.loopguard/auth</Code>).
           </P>
           <CheckList items={[
             'Make sure your browser is set as the default browser — VS Code uses xdg-open (Linux), open (macOS), or start (Windows) to open the URL.',

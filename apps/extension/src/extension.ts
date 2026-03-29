@@ -156,7 +156,7 @@ function _activate(context: vscode.ExtensionContext): void {
   });
 
   /* ── URI handler — receives auth callback from web app ────────── */
-  // Handles: vscode://loopguard-dev.loopguard/auth?code=CODE&email=user@example.com
+  // Handles: vscode://LoopGuard.loopguard/auth?code=CODE&email=user@example.com
   const uriHandler = vscode.window.registerUriHandler({
     handleUri(uri: vscode.Uri) {
       if (uri.path !== '/auth') return;

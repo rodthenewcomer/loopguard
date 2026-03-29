@@ -65,7 +65,7 @@ Token reduction: 93%   Monthly API cost: significantly lower
 Or install from the terminal:
 
 ```bash
-code --install-extension loopguard-dev.loopguard
+code --install-extension LoopGuard.loopguard
 ```
 
 **The Rust binary is bundled inside the extension.** No Cargo, no Rust, no extra install steps. The platform-specific binary is included automatically when VS Code installs the correct VSIX for your platform.

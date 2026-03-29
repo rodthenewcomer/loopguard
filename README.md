@@ -12,7 +12,7 @@
 **Stop AI loops. Slash your token bill. Code faster.**
 
 [![Version](https://img.shields.io/badge/version-0.1.0-2563EB?style=flat-square)](https://github.com/loopguard/loopguard)
-[![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-22D3EE?style=flat-square&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=loopguard-dev.loopguard)
+[![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-22D3EE?style=flat-square&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=LoopGuard.loopguard)
 [![Rust Engine](https://img.shields.io/badge/Rust%20engine-89--99%25%20compression-F59E0B?style=flat-square&logo=rust)](packages/context-engine)
 [![License](https://img.shields.io/badge/license-MIT-9CA3AF?style=flat-square)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-2563EB?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
@@ -127,7 +127,7 @@ Run `LoopGuard: Install Shell Hooks` from the Command Palette. CLI output (`npm 
 ### Install from VS Code Marketplace
 
 ```
-ext install loopguard-dev.loopguard
+ext install LoopGuard.loopguard
 ```
 
 Or search **"LoopGuard"** in the Extensions panel (`Ctrl+Shift+X`).
