@@ -1,10 +1,10 @@
 **
 !dist/**
-!bin/**
 !package.json
 !README.md
 !LICENSE
 !icon.png
+bin
 node_modules
 src
 tsconfig.json
