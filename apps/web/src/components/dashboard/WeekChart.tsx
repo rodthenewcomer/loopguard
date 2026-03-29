@@ -35,73 +35,71 @@ export default function WeekChart({ data }: { data?: WeekDayData[] }) {
 
   return (
     <div ref={ref} className="h-full">
-      <div
-        className="h-full rounded-2xl border border-[#1F2937] p-5"
-        style={{ background: 'linear-gradient(145deg, #111827, #0f172a)' }}
-      >
-        <div className="flex items-center justify-between mb-5">
+      <div className="relative h-full overflow-hidden rounded-[30px] border border-white/8 bg-[linear-gradient(145deg,rgba(11,22,37,0.96),rgba(8,16,29,0.88))] p-5 shadow-[0_28px_80px_rgba(0,0,0,0.22)] sm:p-6">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-y-0 right-0 w-[44%] bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.12),transparent_62%)]" />
+        </div>
+
+        <div className="relative flex items-center justify-between gap-4">
           <div>
-            <div className="text-sm font-semibold text-[#F9FAFB]">This Week</div>
-            <div className="text-xs text-[#6B7280] mt-0.5">Tokens saved per day</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Weekly rhythm</div>
+            <div className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">Token savings by day</div>
+            <div className="mt-1 text-sm text-slate-400">See where the context engine carried the most weight.</div>
           </div>
-          <div className="text-xs text-[#22D3EE] font-bold">
+          <div className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-300">
             {TOKENS.reduce((a, b) => a + b, 0).toLocaleString()} total
           </div>
         </div>
 
-        {/* Bar chart */}
-        <div className="flex items-end gap-2 h-28">
+        <div className="relative mt-8 flex h-40 items-end gap-2 sm:gap-3">
           {DAYS.map((day, i) => {
             const heightPct = maxTokens > 0 ? (TOKENS[i]! / maxTokens) * 100 : 0;
             const isToday = i === todayIdx;
             const loops = LOOPS[i]!;
 
             return (
-              <div key={day} className="flex-1 flex flex-col items-center gap-1.5 group">
-                {/* Tooltip */}
+              <div key={day} className="group flex flex-1 flex-col items-center gap-2">
                 <div className="relative">
                   <div
-                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 bg-[#1F2937] border border-[#374151] rounded-lg text-[10px] text-[#F9FAFB] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"
+                    className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded-xl border border-white/10 bg-[#09111e]/95 px-2.5 py-1 text-[10px] text-slate-100 opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     {TOKENS[i]!.toLocaleString()} tokens · {loops} loops
                   </div>
                 </div>
 
-                {/* Bar */}
-                <div className="w-full relative flex items-end" style={{ height: '96px' }}>
+                <div className="flex w-full items-end rounded-[18px] border border-white/6 bg-white/[0.03] px-1.5 pb-1.5 pt-6" style={{ height: '132px' }}>
                   <div
-                    className="w-full rounded-t-md transition-all duration-700"
+                    className="w-full rounded-[14px] transition-all duration-700"
                     style={{
                       height: visible ? `${heightPct}%` : '0%',
-                      minHeight: TOKENS[i]! > 0 ? '4px' : '0',
+                      minHeight: TOKENS[i]! > 0 ? '8px' : '0',
                       background: isToday
-                        ? 'linear-gradient(180deg, #22D3EE, #2563EB)'
+                        ? 'linear-gradient(180deg, #67E8F9, #2563EB)'
                         : loops > 0
-                        ? 'linear-gradient(180deg, #374151, #1F2937)'
-                        : '#1F2937',
-                      transitionDelay: `${i * 60}ms`,
-                      opacity: TOKENS[i]! === 0 ? 0.3 : 1,
+                          ? 'linear-gradient(180deg, rgba(96,165,250,0.68), rgba(30,41,59,0.95))'
+                          : 'rgba(51,65,85,0.55)',
+                      transitionDelay: `${i * 70}ms`,
+                      opacity: TOKENS[i]! === 0 ? 0.35 : 1,
+                      boxShadow: isToday ? '0 16px 34px rgba(34,211,238,0.18)' : 'none',
                     }}
                   />
                 </div>
 
-                {/* Day label */}
                 <div
-                  className={`text-[10px] ${
-                    isToday ? 'text-[#22D3EE] font-bold' : 'text-[#4B5563]'
+                  className={`text-[10px] uppercase tracking-[0.2em] ${
+                    isToday ? 'font-semibold text-cyan-300' : 'text-slate-500'
                   }`}
                 >
                   {day}
                 </div>
 
-                {/* Loop dots */}
                 {loops > 0 && (
                   <div className="flex gap-0.5">
                     {Array.from({ length: Math.min(loops, 5) }).map((_, j) => (
                       <div
                         key={j}
                         className="w-1 h-1 rounded-full"
-                        style={{ background: loops >= 4 ? '#EF4444' : '#F59E0B' }}
+                        style={{ background: loops >= 4 ? '#FB7185' : '#F59E0B' }}
                       />
                     ))}
                   </div>
@@ -111,17 +109,17 @@ export default function WeekChart({ data }: { data?: WeekDayData[] }) {
           })}
         </div>
 
-        <div className="mt-4 flex items-center gap-4 text-[10px] text-[#4B5563]">
+        <div className="mt-6 flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-[0.18em] text-slate-500">
           <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ background: 'linear-gradient(135deg, #22D3EE, #2563EB)' }} />
+            <div className="h-2.5 w-2.5 rounded-sm" style={{ background: 'linear-gradient(135deg, #67E8F9, #2563EB)' }} />
             Today
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-sm bg-[#374151]" />
+            <div className="h-2.5 w-2.5 rounded-sm bg-slate-500" />
             Tokens saved
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+            <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
             Loops
           </div>
         </div>
