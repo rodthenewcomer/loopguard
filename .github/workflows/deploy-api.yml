@@ -1,28 +1,15 @@
 name: Deploy API to Railway
 
+# Railway auto-deploys on push to main via GitHub App integration.
+# This workflow is intentionally minimal — just a status record.
+# Setup: Railway dashboard → loopguard-api service → Settings → Source → Connect Repo → main
+
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'apps/api/**'
-      - 'packages/types/**'
-      - 'packages/utils/**'
-      - 'railway.json'
-      - '.github/workflows/deploy-api.yml'
-  workflow_dispatch:
+  workflow_dispatch:  # manual trigger only — Railway handles auto-deploy
 
 jobs:
-  deploy:
-    name: Deploy to Railway
+  notify:
+    name: Railway handles deploy automatically
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Deploy to Railway
-        run: railway up --service loopguard-api --detach
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - run: echo "Railway auto-deploys from GitHub. See https://railway.app/project/739d9449-3dc4-422b-ab46-838d3e14d6bc"
