@@ -17,14 +17,12 @@ jobs:
     name: Deploy to Railway
     runs-on: ubuntu-22.04
     steps:
-      - name: Trigger Railway deployment
-        run: |
-          curl -s -X POST https://backboard.railway.app/graphql/v2 \
-            -H "Authorization: Bearer ${{ secrets.RAILWAY_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "query": "mutation { serviceInstanceDeploy(serviceId: \"88b0be0d-8586-4b40-b07d-12775716963a\", environmentId: \"fd368920-ef4a-432c-a1f4-6bf39477d12e\") }"
-            }' | tee /tmp/railway-response.json
-          # Fail if Railway returned an error
-          grep -q '"serviceInstanceDeploy":true' /tmp/railway-response.json || \
-            (echo "Railway deploy failed" && cat /tmp/railway-response.json && exit 1)
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        run: railway up --service loopguard-api --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
