@@ -1,8 +1,8 @@
 {
   "name": "loopguard",
-  "displayName": "LoopGuard — AI Loop Detector & Context Optimizer",
+  "displayName": "LoopGuard \u2014 AI Loop Detector & Context Optimizer",
   "description": "Detects AI coding loops before they waste your time. Cuts token spend by 93% with a Rust-powered context engine that sends only what matters. Free for VS Code and Cursor.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "loopguard-dev",
   "icon": "icon.png",
   "license": "MIT",
@@ -13,9 +13,24 @@
   "engines": {
     "vscode": "^1.90.0"
   },
-  "categories": ["Other", "Debuggers", "Machine Learning"],
-  "keywords": ["AI", "productivity", "loop detection", "cursor", "copilot", "context", "tokens"],
-  "activationEvents": ["onStartupFinished", "onUri"],
+  "categories": [
+    "Other",
+    "Debuggers",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "AI",
+    "productivity",
+    "loop detection",
+    "cursor",
+    "copilot",
+    "context",
+    "tokens"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onUri"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -62,7 +77,11 @@
       "properties": {
         "loopguard.sensitivity": {
           "type": "string",
-          "enum": ["low", "medium", "high"],
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
           "default": "medium",
           "description": "How quickly LoopGuard flags a loop. Low = 5 occurrences, Medium = 3, High = 2."
         },
@@ -99,14 +118,30 @@
         }
       ],
       "commandPalette": [
-        { "command": "loopguard.showDashboard" },
-        { "command": "loopguard.resetSession" },
-        { "command": "loopguard.toggleDetection" },
-        { "command": "loopguard.copyContext" },
-        { "command": "loopguard.setupMCP" },
-        { "command": "loopguard.setupShellHooks" },
-        { "command": "loopguard.signIn" },
-        { "command": "loopguard.signOut" }
+        {
+          "command": "loopguard.showDashboard"
+        },
+        {
+          "command": "loopguard.resetSession"
+        },
+        {
+          "command": "loopguard.toggleDetection"
+        },
+        {
+          "command": "loopguard.copyContext"
+        },
+        {
+          "command": "loopguard.setupMCP"
+        },
+        {
+          "command": "loopguard.setupShellHooks"
+        },
+        {
+          "command": "loopguard.signIn"
+        },
+        {
+          "command": "loopguard.signOut"
+        }
       ]
     }
   },
