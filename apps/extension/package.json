@@ -2,7 +2,7 @@
   "name": "loopguard",
   "displayName": "LoopGuard",
   "description": "Detect repeated diagnostics in VS Code and copy focused local context from the active file.",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "publisher": "LoopGuard",
   "icon": "icon.png",
   "license": "SEE LICENSE IN LICENSE",
@@ -94,7 +94,7 @@
         "loopguard.enableContextEngine": {
           "type": "boolean",
           "default": true,
-          "description": "Filter context before AI calls to reduce token waste. Pro feature."
+          "description": "Filter context before AI calls to reduce token waste."
         },
         "loopguard.enableNotifications": {
           "type": "boolean",
