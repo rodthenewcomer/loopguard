@@ -96,7 +96,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold text-white mb-4">5. Data storage and retention</h2>
             <p className="mb-4">
-              Metrics are stored in a Supabase Postgres database with row-level security. Only you can read your own data. We retain session and loop metrics for 30 days on the free tier and 12 months on Pro. You can delete your account and all associated data at any time by emailing{' '}
+              Metrics are stored in a Supabase Postgres database with row-level security. Only you can read your own data. We retain session and loop metrics for 12 months. You can delete your account and all associated data at any time by emailing{' '}
               <a href="mailto:support@loopguard.dev" className="text-[#6B7280] hover:text-[#9CA3AF] underline underline-offset-2">
                 support@loopguard.dev
               </a>.

@@ -134,44 +134,39 @@ const INTEGRATIONS = [
     title: 'AI Gateway',
     sub: 'Claude Code · Cursor · Windsurf · Codex CLI · VS Code / Copilot',
     desc: 'Wire LoopGuard once. Compatible agents can call LoopGuard\'s MCP tools for focused reads, compact search results, and cleaner shell output instead of grabbing full files every time.',
-    badge: 'Pro',
-    badgeColor: '#2563EB',
+    badge: 'Free',
+    badgeColor: '#22C55E',
   },
   {
     icon: IC.terminal,
     title: 'Terminal Filter',
     sub: 'Surfaces signal. Drops noise. Every CLI command.',
     desc: '`npm install` pumps 3,400 tokens of progress bars and resolved packages into your AI. LoopGuard intercepts it and sends 12 lines: the warning that broke your build, the peer conflict, the final status. Nothing else.',
-    badge: 'Pro',
-    badgeColor: '#2563EB',
+    badge: 'Free',
+    badgeColor: '#22C55E',
   },
 ];
 
 /* ── Stats ──────────────────────────────────────────────────────── */
 const STATS = [
   { value: '93%',   label: 'Measured reduction example from the Rust helper', color: '#22D3EE' },
-  { value: '~$77',  label: 'Avg saved/month (10 sessions/day)',          color: '#22C55E' },
+  { value: '~$77',  label: 'Avg saved/month on AI API costs (10 sessions/day)', color: '#22C55E' },
   { value: '47min', label: 'Avg time saved per day from loop detection', color: '#F59E0B' },
-  { value: '8.6×',  label: 'ROI on Pro at $9/mo',                       color: '#A78BFA' },
+  { value: '100%',  label: 'Free — all features, no credit card required', color: '#A78BFA' },
 ];
 
-/* ── Pricing ────────────────────────────────────────────────────── */
-const FREE_FEATURES = [
+/* ── All features (free) ────────────────────────────────────────── */
+const ALL_FEATURES = [
   'Loop detection — unlimited sessions',
   'Edit-pattern loop detection',
   'Alert notifications with time wasted',
+  'Rust engine (89–99% token reduction)',
+  'MCP server — 21 tools for AI agents',
+  'Shell hooks — CLI output compression',
   'Context Engine — TypeScript (~80% reduction)',
   'Status bar + session dashboard',
+  'Session history and reporting',
   'Works on Windows, macOS, Linux',
-];
-const PRO_FEATURES = [
-  'Everything in Free',
-  'Rust engine (89–99% reduction)',
-  'MCP server — richer AI tool access',
-  'Shell hooks — CLI output compression',
-  'Expanded history and reporting',
-  'Premium usage surfaces',
-  'Priority support',
 ];
 
 /* ── Footer links ───────────────────────────────────────────────── */
@@ -180,7 +175,6 @@ const FOOTER_COLS = [
     heading: 'Product',
     links: [
       { label: 'Features',   href: '#features' },
-      { label: 'Pricing',    href: '#pricing' },
       { label: 'Changelog',  href: '/changelog' },
       { label: 'Roadmap',    href: '/roadmap' },
     ],
@@ -866,72 +860,50 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── PRICING ───────────────────────────────────────────────── */}
+      {/* ── ALL FEATURES FREE ─────────────────────────────────────── */}
       <section id="pricing" className="max-w-5xl mx-auto px-6 py-28">
         <ScrollReveal className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-white mb-4">Simple pricing.</h2>
-          <p className="text-[#6B7280] text-lg">Start free. Upgrade when the ROI is obvious — and it will be.</p>
+          <h2 className="text-4xl font-bold text-white mb-4">Everything free. No catch.</h2>
+          <p className="text-[#6B7280] text-lg">All features — loop detection, Rust engine, MCP, shell hooks — free forever. Just sign up.</p>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          {/* Free */}
-          <ScrollReveal delay={0}>
-            <div className="h-full p-7 rounded-2xl border border-[#1F2937] bg-[#111827]/60">
-              <div className="mb-6">
-                <div className="text-xs text-[#6B7280] uppercase tracking-widest mb-2">Free</div>
+        <ScrollReveal>
+          <div className="max-w-3xl mx-auto p-8 rounded-2xl border border-[#22C55E]/25 bg-[#22C55E]/5">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="text-xs text-[#22C55E] uppercase tracking-widest font-bold mb-1">Free forever</div>
                 <div className="text-5xl font-black text-white">$0</div>
-                <div className="text-sm text-[#6B7280] mt-1">Forever</div>
+                <div className="text-sm text-[#6B7280] mt-1">No credit card · No trial period · No limits</div>
               </div>
-              <ul className="space-y-3 mb-8">
-                {FREE_FEATURES.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#9CA3AF]">
-                    <span className="text-[#22C55E] mt-0.5 flex-shrink-0"><Icon path={IC.check} size={16} /></span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#22C55E]/10 border border-[#22C55E]/25 rounded-full">
+                <div className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
+                <span className="text-sm text-[#22C55E] font-semibold">All features included</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+              {ALL_FEATURES.map((f) => (
+                <div key={f} className="flex items-start gap-2.5 text-sm text-[#9CA3AF]">
+                  <span className="text-[#22C55E] mt-0.5 flex-shrink-0"><Icon path={IC.check} size={16} /></span>
+                  {f}
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/signup"
+                className="flex-1 block text-center py-3.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold rounded-xl transition-all duration-200 text-sm glow-primary shadow-lg shadow-blue-900/40"
+              >
+                Create free account →
+              </Link>
               <a
                 href="/setup"
-                className="block text-center py-3 border border-[#374151] hover:border-[#4B5563] text-[#9CA3AF] hover:text-white font-semibold rounded-xl transition-all duration-200 text-sm"
+                className="flex-1 block text-center py-3.5 border border-[#374151] hover:border-[#4B5563] text-[#9CA3AF] hover:text-white font-semibold rounded-xl transition-all duration-200 text-sm"
               >
-                Get Started Free
+                Install extension
               </a>
             </div>
-          </ScrollReveal>
-
-          {/* Pro */}
-          <ScrollReveal delay={100}>
-            <div className="card-pro h-full p-7 rounded-2xl">
-              <div className="mb-6">
-                <div className="flex items-center justify-between">
-                  <div className="text-xs text-[#22D3EE] uppercase tracking-widest font-bold">Pro</div>
-                  <span className="text-xs bg-[#2563EB]/20 text-[#22D3EE] border border-[#2563EB]/30 px-2.5 py-0.5 rounded-full font-semibold">
-                    Most popular
-                  </span>
-                </div>
-                <div className="text-5xl font-black text-white mt-2">$9</div>
-                <div className="text-sm text-[#6B7280] mt-1">per month · cancel anytime</div>
-                <div className="mt-2 text-xs text-[#22C55E] font-medium">
-                  Pays for itself after 26 context copies. Average user saves ~$77/month.
-                </div>
-              </div>
-              <ul className="space-y-3 mb-8">
-                {PRO_FEATURES.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#C9D1D9]">
-                    <span className="text-[#22D3EE] mt-0.5 flex-shrink-0"><Icon path={IC.check} size={16} /></span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/upgrade"
-                className="block text-center py-3 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold rounded-xl transition-all duration-200 text-sm glow-primary shadow-lg shadow-blue-900/40"
-              >
-                See Pro features →
-              </Link>
-            </div>
-          </ScrollReveal>
-        </div>
+          </div>
+        </ScrollReveal>
       </section>
 
       {/* ── FINAL CTA ─────────────────────────────────────────────── */}

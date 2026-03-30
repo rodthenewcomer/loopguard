@@ -608,7 +608,7 @@ function buildHtml(
             <div class="metric-card">
               <div class="metric-label">Estimated cost saved</div>
               <div class="metric-value c-success">$${escHtml(costSaved)}</div>
-              <div class="metric-detail">This session at current dashboard pricing</div>
+              <div class="metric-detail">This session — estimated AI API cost saved</div>
             </div>
           </div>
         </div>
@@ -684,13 +684,13 @@ function buildHtml(
         <section class="sidebar-card">
           <div class="sidebar-head">
             <div>
-              <div class="eyebrow">Upgrade path</div>
-              <h2 class="section-title">Bring MCP and shell hooks into the same safety rail.</h2>
-              <p class="section-copy">Pro expands the dashboard beyond the IDE session with MCP setup, shell hooks, and longer history.</p>
+              <div class="eyebrow">Web dashboard</div>
+              <h2 class="section-title">See your session history across all devices.</h2>
+              <p class="section-copy">Sign up free to unlock the web dashboard — all features included, no credit card required.</p>
             </div>
           </div>
           <div class="actions">
-            <a class="button" href="https://loopguard.vercel.app/upgrade">Upgrade to Pro</a>
+            <a class="button" href="https://loopguard.vercel.app/signup">Create free account</a>
             <a class="button-secondary" href="https://loopguard.vercel.app/setup">Open setup guide</a>
           </div>
         </section>

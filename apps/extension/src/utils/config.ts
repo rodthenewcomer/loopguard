@@ -5,17 +5,13 @@ import { SENSITIVITY_THRESHOLDS } from '@loopguard/types';
 const CONFIG_SECTION = 'loopguard';
 
 /**
- * Module-level pro status — set by auth layer when ready.
- * Default false for beta: all features unlocked, gate wired but open.
+ * All features are free — proUser is always true.
  */
-let _proUser = false;
+const _proUser = true;
 
-/**
- * Called by auth layer (future) or manually for beta testing.
- * Non-blocking: setting false just defaults everything to free tier behavior.
- */
-export function setProUser(value: boolean): void {
-  _proUser = value;
+/** No-op: kept for compatibility, all users have full access. */
+export function setProUser(_value: boolean): void {
+  // All features are free — no-op
 }
 
 /**

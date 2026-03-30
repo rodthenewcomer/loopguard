@@ -42,28 +42,10 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-white mb-4">3. Free tier</h2>
+            <h2 className="text-xl font-bold text-white mb-4">3. Free access</h2>
             <p>
-              The free tier is available indefinitely. It includes loop detection, the TypeScript context engine (~80% token reduction), the status bar, and the session dashboard. We reserve the right to introduce rate limits on the free tier if infrastructure costs require it, with at least 30 days notice to registered users.
+              LoopGuard is free. All features — including loop detection, the Rust context engine, MCP server, shell hooks, and the web dashboard — are available to all registered users at no cost. We reserve the right to introduce usage limits if infrastructure costs require it, with at least 30 days notice to registered users.
             </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-white mb-4">4. Pro subscription</h2>
-            <ul className="space-y-3">
-              {[
-                'Pro is billed monthly at $9 USD. Prices may change with 30 days notice.',
-                'You can cancel at any time. Access continues until the end of the current billing period.',
-                'No refunds are issued for partial months, except where required by applicable law.',
-                'If payment fails, Pro features are suspended after a 7-day grace period.',
-                'Stripe handles all payment processing. LoopGuard never stores card numbers.',
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-3">
-                  <span className="text-[#374151] mt-0.5 flex-shrink-0">—</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
           </section>
 
           <section>

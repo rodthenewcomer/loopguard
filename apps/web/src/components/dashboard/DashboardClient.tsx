@@ -177,11 +177,10 @@ function TopBar({
             </div>
           )}
           <Link
-            href="/upgrade"
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-slate-200 transition hover:border-sky-400/30 hover:bg-sky-400/10"
+            href="/signup"
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-medium text-emerald-300 transition hover:border-emerald-400/40 hover:bg-emerald-400/15"
           >
-            Free plan
-            <span className="text-sky-300">Upgrade</span>
+            Free · all features
           </Link>
         </div>
       </div>
@@ -417,23 +416,23 @@ function EnginePanel({ data }: { data: SummaryData }) {
         </div>
 
         <div className="rounded-[24px] border border-white/8 bg-white/[0.03] p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Next upgrade</div>
-          <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">Bring the CLI and MCP tools into the same loop guardrail.</h3>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">More tools</div>
+          <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">Wire MCP and shell hooks into the same loop guardrail.</h3>
           <p className="mt-2 text-sm leading-6 text-slate-400">
-            Pro unlocks shell hooks, MCP setup, and longer history so the web dashboard becomes more than a session mirror.
+            Shell hooks, MCP setup, and the full context engine are all free. Follow the setup guide to activate them.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
-              href="/upgrade"
+              href="/setup"
               className="inline-flex items-center justify-center rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400"
             >
-              Upgrade to Pro
+              Setup guide
             </Link>
             <Link
-              href="/setup"
+              href="/signup"
               className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white transition hover:border-cyan-400/25 hover:bg-cyan-400/10"
             >
-              Setup guide
+              Create free account
             </Link>
           </div>
         </div>

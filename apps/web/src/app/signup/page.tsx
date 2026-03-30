@@ -4,7 +4,7 @@ import SignupClient from './SignupClient';
 
 export const metadata: Metadata = {
   title: 'Create free account — LoopGuard',
-  description: 'Create a free LoopGuard account to unlock the web dashboard, session history, and Pro features.',
+  description: 'Create a free LoopGuard account to unlock the web dashboard, session history, and all features.',
 };
 
 const FREE_ACCOUNT_PERKS = [
@@ -69,7 +69,7 @@ export default function SignupPage() {
             <p className="text-[#6B7280] text-sm leading-relaxed mb-8">
               The extension works without an account — loop detection and context compression run 100% locally.
               An account adds the <strong className="text-[#9CA3AF]">web dashboard</strong> so you can see your data
-              outside of VS Code, and unlocks the ability to upgrade to Pro later.
+              outside of VS Code, and keeps your session history across devices.
             </p>
 
             <div className="space-y-5 mb-10">
@@ -86,22 +86,16 @@ export default function SignupPage() {
               ))}
             </div>
 
-            {/* Pro teaser — clear upgrade path */}
-            <div className="rounded-xl border border-[#2563EB]/25 bg-[#2563EB]/5 p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-[#22D3EE] uppercase tracking-wide">Pro — $9/month</span>
-                <span className="text-xs text-[#4B5563]">upgrade any time after signup</span>
+            {/* Everything is free */}
+            <div className="rounded-xl border border-[#22C55E]/25 bg-[#22C55E]/5 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+                <span className="text-xs font-bold text-[#22C55E] uppercase tracking-wide">Everything included — free</span>
               </div>
-              <p className="text-[#6B7280] text-xs leading-relaxed mb-3">
-                Unlocks the Rust context engine (89–99% token reduction), MCP server, shell hooks,
-                and 12-month session history. Average user saves ~$77/month on AI API costs.
+              <p className="text-[#6B7280] text-xs leading-relaxed">
+                Rust engine (89–99% token reduction), MCP server, shell hooks, and full session history
+                are all available from day one. No upgrade required, ever.
               </p>
-              <Link
-                href="/upgrade"
-                className="text-xs text-[#2563EB] hover:text-[#3B82F6] transition-colors font-medium"
-              >
-                See exactly what Pro includes →
-              </Link>
             </div>
           </div>
 
