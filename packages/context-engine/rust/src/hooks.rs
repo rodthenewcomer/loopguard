@@ -133,7 +133,7 @@ case "$TOOL" in
     ;;
 esac
 "#;
-    write_file(&enforce_path, &enforce_script);
+    write_file(&enforce_path, enforce_script);
     make_executable(&enforce_path);
 
     let settings_path = home.join(".claude").join("settings.json");
