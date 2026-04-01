@@ -382,7 +382,8 @@ fn sparkline(values: &[u64]) -> String {
 }
 
 fn usd_estimate(tokens: u64) -> String {
-    let cost = tokens as f64 * 2.50 / 1_000_000.0;
+    let price = crate::core::config::Config::load().effective_input_price();
+    let cost = tokens as f64 * price / 1_000_000.0;
     if cost >= 0.01 {
         format!("${cost:.2}")
     } else {

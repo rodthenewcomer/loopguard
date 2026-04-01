@@ -231,7 +231,7 @@ COMMANDS:
     gain --json                    Raw JSON export of all stats
     cep                            CEP impact report (score trends, cache, modes)
     dashboard [--port=N]           Open web dashboard (default: http://localhost:3333)
-    wrapped [--week|--month|--all] Savings report card (shareable)
+    wrapped [--week|--month|--all] [--plain]  Savings card (shareable; --plain for copy-paste)
     sessions [list|show|cleanup]   Manage CCP sessions (~/.loopguard-ctx/sessions/)
     benchmark run [path] [--json]  Run real benchmark on project files
     benchmark report [path]        Generate shareable Markdown report
@@ -247,6 +247,8 @@ COMMANDS:
     discover                       Find uncompressed commands in shell history
     session                        Show adoption statistics
     config                         Show/edit configuration (~/.loopguard-ctx/config.toml)
+    config set model <name>        Set model for accurate USD estimates (e.g. claude-sonnet-4-6)
+    config models                  List all supported models and their pricing
     tee [list|clear|show <file>]   Manage error log files (~/.loopguard-ctx/tee/)
     slow-log [list|clear]          Show/clear slow command log (~/.loopguard-ctx/slow-commands.log)
     update [--check]               Self-update loopguard-ctx binary from GitHub Releases

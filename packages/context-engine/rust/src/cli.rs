@@ -362,7 +362,12 @@ pub fn cmd_wrapped(args: &[String]) {
     };
 
     let report = crate::core::wrapped::WrappedReport::generate(period);
-    println!("{}", report.format_ascii());
+
+    if args.iter().any(|a| a == "--plain") {
+        println!("{}", report.format_plain());
+    } else {
+        println!("{}", report.format_ascii());
+    }
 }
 
 pub fn cmd_sessions(args: &[String]) {
@@ -489,12 +494,35 @@ pub fn cmd_config(args: &[String]) {
         "set" => {
             if args.len() < 3 {
                 eprintln!("Usage: loopguard-ctx config set <key> <value>");
+                eprintln!("Keys: model, input_price_per_million, output_price_per_million,");
+                eprintln!("      ultra_compact, tee_on_error, checkpoint_interval");
                 std::process::exit(1);
             }
             let mut cfg = cfg;
             let key = &args[1];
             let val = &args[2];
             match key.as_str() {
+                "model" => {
+                    cfg.model = val.to_string();
+                    // Auto-set price from table when switching models (reset overrides)
+                    cfg.input_price_per_million = 0.0;
+                    cfg.output_price_per_million = 0.0;
+                    let price = cfg.effective_input_price();
+                    println!("Model set to: {val}  (input: ${price:.3}/M tokens)");
+                    println!("USD estimates will now use {val} pricing.");
+                    println!("Run 'loopguard-ctx config models' to see all models.");
+                    match cfg.save() {
+                        Ok(()) => {}
+                        Err(e) => eprintln!("Error saving config: {e}"),
+                    }
+                    return;
+                }
+                "input_price_per_million" => {
+                    cfg.input_price_per_million = val.parse().unwrap_or(0.0);
+                }
+                "output_price_per_million" => {
+                    cfg.output_price_per_million = val.parse().unwrap_or(0.0);
+                }
                 "ultra_compact" => cfg.ultra_compact = val == "true",
                 "tee_on_error" => cfg.tee_on_error = val == "true",
                 "checkpoint_interval" => {
@@ -502,6 +530,7 @@ pub fn cmd_config(args: &[String]) {
                 }
                 _ => {
                     eprintln!("Unknown config key: {key}");
+                    eprintln!("Run 'loopguard-ctx config' to see all keys.");
                     std::process::exit(1);
                 }
             }
@@ -510,8 +539,13 @@ pub fn cmd_config(args: &[String]) {
                 Err(e) => eprintln!("Error saving config: {e}"),
             }
         }
+        "models" => {
+            println!("\nSupported models and pricing:\n");
+            println!("{}", config::Config::list_models());
+            println!("\nSet your model: loopguard-ctx config set model <model-name>\n");
+        }
         _ => {
-            eprintln!("Usage: loopguard-ctx config [init|set <key> <value>]");
+            eprintln!("Usage: loopguard-ctx config [init|set <key> <value>|models]");
             std::process::exit(1);
         }
     }

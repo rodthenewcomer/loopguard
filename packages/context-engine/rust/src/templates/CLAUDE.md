@@ -26,4 +26,32 @@ loopguard-ctx -c npm install   # compressed output
 - `aggressive` — syntax stripped
 - `entropy` — Shannon + Jaccard filtering
 
-Write, StrReplace, Delete have no loopguard-ctx equivalent — use them normally.
+Write, Edit, Delete have no loopguard-ctx equivalent — use them normally.
+
+## Session Continuity (CCP)
+
+**At the start of every new session**, run this first:
+
+```
+ctx_session load
+```
+
+This restores context from your previous session: task in progress, files already read, key findings, and architectural decisions. Skipping this means starting cold — re-reading files you already read, losing prior reasoning.
+
+After restoring, record your current task:
+
+```
+ctx_session task "brief description of what you are working on"
+```
+
+Record key findings as you go:
+
+```
+ctx_session finding "src/auth.rs:142 — JWT expiry not validated"
+```
+
+The session auto-saves. At the end of a long session, run:
+
+```
+ctx_session save
+```

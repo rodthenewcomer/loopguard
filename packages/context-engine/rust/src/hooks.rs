@@ -107,6 +107,37 @@ fi
     write_file(&script_path, &script);
     make_executable(&script_path);
 
+    // --- Read/Grep enforcement hook (PreToolUse, exits 2 to block) ---
+    let enforce_path = hooks_dir.join("loopguard-ctx-enforce.sh");
+    let enforce_script = format!(
+        r#"#!/usr/bin/env bash
+# loopguard-ctx Read/Grep enforcement — blocks built-in Read and Grep, redirects to MCP tools
+# Exits 2 to cancel the tool call and surface the error to the model.
+[ "${{LOOPGUARD_BYPASS:-0}}" = "1" ] && exit 0
+
+INPUT=$(cat)
+TOOL=$(echo "$INPUT" | grep -o '"tool_name":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+case "$TOOL" in
+  Read|read)
+    echo "Use ctx_read instead of Read. Example: ctx_read(path='/path/to/file')" >&2
+    echo "ctx_read has session caching — re-reads cost ~13 tokens instead of full file." >&2
+    exit 2
+    ;;
+  Grep|grep)
+    echo "Use ctx_search instead of Grep. Example: ctx_search(pattern='fn main', path='src/')" >&2
+    echo "ctx_search returns compact, token-efficient results." >&2
+    exit 2
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+"#
+    );
+    write_file(&enforce_path, &enforce_script);
+    make_executable(&enforce_path);
+
     let settings_path = home.join(".claude").join("settings.json");
     let settings_content = if settings_path.exists() {
         std::fs::read_to_string(&settings_path).unwrap_or_default()
@@ -153,15 +184,28 @@ date +%s > "$STAMP"
     write_file(&periodic_path, &periodic_script);
     make_executable(&periodic_path);
 
-    // Build the full desired hooks JSON (PreToolUse + PostToolUse + Stop)
+    // Build the full desired hooks JSON
+    // PreToolUse layer 1: Bash rewrite (exit 0 = allow with rewritten command)
+    // PreToolUse layer 2: Read/Grep enforcement (exit 2 = block + show error)
+    // PostToolUse: periodic savings summary (every 15 min)
+    // Stop: end-of-session savings summary
     let full_hooks = serde_json::json!({
-        "PreToolUse": [{
-            "matcher": "Bash|bash",
-            "hooks": [{
-                "type": "command",
-                "command": script_path.to_string_lossy()
-            }]
-        }],
+        "PreToolUse": [
+            {
+                "matcher": "Bash|bash",
+                "hooks": [{
+                    "type": "command",
+                    "command": script_path.to_string_lossy()
+                }]
+            },
+            {
+                "matcher": "Read|Grep",
+                "hooks": [{
+                    "type": "command",
+                    "command": enforce_path.to_string_lossy()
+                }]
+            }
+        ],
         "PostToolUse": [{
             "matcher": ".*",
             "hooks": [{
@@ -180,7 +224,8 @@ date +%s > "$STAMP"
 
     let needs_update = !settings_content.contains("loopguard-ctx-summary")
         || !settings_content.contains("loopguard-ctx-periodic")
-        || !settings_content.contains("loopguard-ctx-rewrite");
+        || !settings_content.contains("loopguard-ctx-rewrite")
+        || !settings_content.contains("loopguard-ctx-enforce");
 
     if !needs_update {
         println!("Claude Code hooks already fully configured.");
@@ -203,11 +248,31 @@ date +%s > "$STAMP"
                 );
             }
         }
-        println!(
-            "Installed Claude Code hooks (rewrite + periodic summary + end-of-session summary)"
-        );
+        println!("Installed Claude Code hooks (Bash rewrite + Read/Grep enforcement + periodic summary + end-of-session summary)");
     }
 
+    // --- Global ~/.claude/CLAUDE.md (layer 4: instruction-level enforcement) ---
+    let global_claude_md = home.join(".claude").join("CLAUDE.md");
+    let global_claude_dir = home.join(".claude");
+    let _ = std::fs::create_dir_all(&global_claude_dir);
+
+    let global_md_content = include_str!("templates/CLAUDE.md");
+    let needs_global_md = if global_claude_md.exists() {
+        !std::fs::read_to_string(&global_claude_md)
+            .unwrap_or_default()
+            .contains("loopguard-ctx")
+    } else {
+        true
+    };
+
+    if needs_global_md {
+        write_file(&global_claude_md, global_md_content);
+        println!("Installed global ~/.claude/CLAUDE.md (instruction-level enforcement).");
+    } else {
+        println!("~/.claude/CLAUDE.md already configured.");
+    }
+
+    // --- Project-local CLAUDE.md (unless global flag) ---
     if !global {
         let claude_md = PathBuf::from("CLAUDE.md");
         if !claude_md.exists()
@@ -221,10 +286,6 @@ date +%s > "$STAMP"
         } else {
             println!("CLAUDE.md already configured.");
         }
-    } else {
-        println!(
-            "Global mode: skipping project-local CLAUDE.md (use without --global in a project)."
-        );
     }
 }
 
