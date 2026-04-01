@@ -479,6 +479,50 @@ Add `.github/copilot/mcp.json` to your project:
 claude mcp add loopguard-ctx loopguard-ctx
 ```
 
+> **Important — enforcement required for Claude Code**
+>
+> Registering the MCP server is not enough. Claude Code's model defaults to its built-in Read and
+> Grep tools and treats MCP server instructions as advisory only. Without two additional enforcement
+> steps the model will ignore loopguard-ctx and all token savings will be lost.
+>
+> **Why this happens:**
+> - Claude Code is trained to reach for Read, Grep, and Bash first.
+> - MCP instructions are injected into the system prompt, but the model can choose to ignore them.
+> - A PreToolUse hook and a CLAUDE.md global rule are required to block the built-in tools.
+>
+> **Required extra steps:**
+>
+> **1. Add a PreToolUse hook** — create `~/.claude/hooks/loopguard-ctx-rewrite.sh` (see full script
+> in the LoopGuard user guide, section 8) and register it in `~/.claude/settings.json`:
+>
+> ```json
+> {
+>   "hooks": {
+>     "PreToolUse": [
+>       {
+>         "matcher": "Bash|bash|Read|read|Grep|grep",
+>         "hooks": [
+>           {
+>             "type": "command",
+>             "command": "~/.claude/hooks/loopguard-ctx-rewrite.sh"
+>           }
+>         ]
+>       }
+>     ]
+>   }
+> }
+> ```
+>
+> **2. Add a global CLAUDE.md rule** — create `~/.claude/CLAUDE.md` with the mandatory substitution
+> table (Read → ctx_read, Grep → ctx_search, Bash file reads → ctx_shell, ls/find → ctx_tree).
+>
+> **3. Verify** — run `mcp__loopguard-ctx__ctx_metrics` at the end of a session to confirm MCP
+> tools are being used and token savings are non-zero.
+>
+> **Emergency bypass:** `LOOPGUARD_BYPASS=1 claude` disables the hook for that session.
+>
+> See the [user guide](../../../../docs/user-guide.md#claude-code--why-the-model-ignores-loopguard-ctx-instructions-by-default) for complete setup instructions.
+
 ### Windsurf
 
 Add to `~/.codeium/windsurf/mcp_config.json`:

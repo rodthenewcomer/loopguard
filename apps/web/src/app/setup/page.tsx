@@ -263,9 +263,23 @@ args = []`}</Code>
                 </svg>
               }
             >
-              <p className="text-sm text-[#6B7280] mb-5">
-                No VS Code required. Claude Code can connect to LoopGuard over MCP for focused reads, compact search results, and cleaner shell output.
+              <p className="text-sm text-[#6B7280] mb-4">
+                No VS Code required. Full token compression for Claude Code via MCP + three enforcement layers.
+                MCP registration alone is <strong className="text-[#9CA3AF]">not enough</strong> — Claude Code&rsquo;s
+                training defaults to its built-in Read/Grep tools. All four steps below are required.
               </p>
+
+              {/* Why 4 steps callout */}
+              <div className="mb-6 p-4 rounded-xl bg-[#F59E0B]/5 border border-[#F59E0B]/20">
+                <p className="text-xs font-semibold text-[#F59E0B] mb-2">Why can&rsquo;t I just register the MCP server?</p>
+                <p className="text-xs text-[#6B7280] leading-5">
+                  MCP server instructions are advisory text in Claude Code&rsquo;s context window. Claude Code&rsquo;s training
+                  strongly favors its built-in <code className="text-[#9CA3AF]">Read</code>, <code className="text-[#9CA3AF]">Grep</code>,
+                  and <code className="text-[#9CA3AF]">Bash</code> tools. Without a <strong className="text-[#9CA3AF]">PreToolUse hook</strong> that
+                  exits non-zero when those tools are called, and a <strong className="text-[#9CA3AF]">CLAUDE.md</strong> rule file that
+                  mandates the substitution, Claude Code will ignore loopguard-ctx entirely even with the MCP server running.
+                </p>
+              </div>
 
               <Step n={1} title="Download the loopguard-ctx binary">
                 <p className="text-sm text-[#6B7280] mb-2">Get the binary for your platform from GitHub Releases:</p>
@@ -294,28 +308,127 @@ args = []`}</Code>
                 </a>
               </Step>
 
-              <Step n={2} title="Install to your PATH">
+              <Step n={2} title="Install to your PATH and register the MCP server">
                 <Code>chmod +x loopguard-ctx && mv loopguard-ctx /usr/local/bin/</Code>
-                <p className="text-sm text-[#6B7280] mt-2">Verify it works:</p>
+                <p className="text-sm text-[#6B7280] mt-3 mb-1">Verify the binary works:</p>
                 <Code>loopguard-ctx --version</Code>
-              </Step>
-
-              <Step n={3} title="Configure MCP for Claude Code">
-                <p className="text-sm text-[#6B7280] mb-2">This writes the MCP server config to <code className="text-[#9CA3AF] text-xs">~/.claude/settings.json</code>:</p>
+                <p className="text-sm text-[#6B7280] mt-3 mb-1">
+                  Register LoopGuard as an MCP server. This writes to <code className="text-[#9CA3AF] text-xs">~/.claude/settings.json</code>:
+                </p>
                 <Code>loopguard-ctx setup --agent=claude</Code>
               </Step>
 
-              <Step n={4} title="Restart Claude Code">
-                <p className="text-sm text-[#6B7280]">
-                  Close and reopen your terminal session. Claude Code will now see LoopGuard&rsquo;s MCP tools and can use them for focused context reads.
+              <Step n={3} title="Install the PreToolUse enforcement hook — required">
+                <p className="text-sm text-[#6B7280] mb-3">
+                  This hook intercepts Claude Code&rsquo;s built-in <code className="text-[#9CA3AF] text-xs">Read</code> and <code className="text-[#9CA3AF] text-xs">Grep</code> calls
+                  and redirects them to loopguard-ctx equivalents. Without it, Claude Code ignores the MCP tools.
                 </p>
-                <div className="mt-3 p-3 rounded-xl bg-[#22D3EE]/5 border border-[#22D3EE]/15">
-                  <p className="text-xs text-[#22D3EE] font-semibold mb-1">What you get</p>
-                  <ul className="text-xs text-[#6B7280] space-y-1">
-                    <li>· Focused file reads through <code className="text-[#9CA3AF]">ctx_read</code></li>
-                    <li>· Compact code search and directory tools</li>
-                    <li>· Shell output compression through <code className="text-[#9CA3AF]">ctx_shell</code></li>
-                    <li>· A larger MCP toolset exposed by the local binary</li>
+                <p className="text-xs text-[#9CA3AF] mb-2 font-medium">1. Create <code className="text-[#22D3EE]">~/.claude/hooks/loopguard-ctx-rewrite.sh</code></p>
+                <div className="mt-1 px-4 py-3 bg-[#0d1117] border border-[#1F2937] rounded-xl overflow-x-auto">
+                  <pre className="text-[#22D3EE] text-xs font-mono leading-5 whitespace-pre">{`#!/usr/bin/env bash
+# LoopGuard PreToolUse hook — blocks Read/Grep, redirects to ctx_read/ctx_search
+# Set LOOPGUARD_BYPASS=1 to skip in emergencies.
+
+[ "\${LOOPGUARD_BYPASS:-0}" = "1" ] && exit 0
+
+TOOL_NAME="\${TOOL_NAME:-}"
+BINARY="loopguard-ctx"
+
+# Fail-open: if binary is missing, allow all tools through
+if ! command -v "$BINARY" &>/dev/null; then
+  exit 0
+fi
+
+case "$TOOL_NAME" in
+  Read|read)
+    echo "loopguard-ctx: use mcp__loopguard-ctx__ctx_read instead of the Read tool."
+    echo "ctx_read compresses file content by 80-99% before it enters the context window."
+    echo "Set LOOPGUARD_BYPASS=1 to bypass this check in emergencies."
+    exit 2
+    ;;
+  Grep|grep)
+    echo "loopguard-ctx: use mcp__loopguard-ctx__ctx_search instead of the Grep tool."
+    echo "ctx_search compresses search results before they enter the context window."
+    echo "Set LOOPGUARD_BYPASS=1 to bypass this check in emergencies."
+    exit 2
+    ;;
+esac`}</pre>
+                </div>
+                <p className="text-xs text-[#9CA3AF] mt-4 mb-2 font-medium">2. Make it executable</p>
+                <Code>mkdir -p ~/.claude/hooks && chmod +x ~/.claude/hooks/loopguard-ctx-rewrite.sh</Code>
+                <p className="text-xs text-[#9CA3AF] mt-4 mb-2 font-medium">3. Add the hook matcher to <code className="text-[#22D3EE]">~/.claude/settings.json</code></p>
+                <p className="text-xs text-[#6B7280] mb-2">Add (or merge) this into your existing <code className="text-[#9CA3AF]">~/.claude/settings.json</code>:</p>
+                <div className="mt-1 px-4 py-3 bg-[#0d1117] border border-[#1F2937] rounded-xl overflow-x-auto">
+                  <pre className="text-[#22D3EE] text-xs font-mono leading-5 whitespace-pre">{`{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|bash|Read|read|Grep|grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/loopguard-ctx-rewrite.sh"
+          }
+        ]
+      }
+    ]
+  }
+}`}</pre>
+                </div>
+              </Step>
+
+              <Step n={4} title="Create ~/.claude/CLAUDE.md — mandatory routing rules">
+                <p className="text-sm text-[#6B7280] mb-3">
+                  This file is loaded into every Claude Code context window automatically. It declares
+                  the substitution table as a hard rule, reinforcing the hook at the instruction level.
+                  Create <code className="text-[#9CA3AF] text-xs">~/.claude/CLAUDE.md</code> with:
+                </p>
+                <div className="mt-1 px-4 py-3 bg-[#0d1117] border border-[#1F2937] rounded-xl overflow-x-auto">
+                  <pre className="text-[#22D3EE] text-xs font-mono leading-5 whitespace-pre">{`# loopguard-ctx — MANDATORY tool routing
+
+The loopguard-ctx MCP server is active. You MUST use its tools instead of built-in equivalents.
+
+## Required substitutions (enforced by PreToolUse hook)
+
+| Built-in (FORBIDDEN)  | loopguard-ctx replacement              |
+|-----------------------|----------------------------------------|
+| Read                  | mcp__loopguard-ctx__ctx_read           |
+| Bash (file reading)   | mcp__loopguard-ctx__ctx_shell          |
+| Grep                  | mcp__loopguard-ctx__ctx_search         |
+| Bash (ls/find)        | mcp__loopguard-ctx__ctx_tree           |
+
+## Tools you CAN still use directly
+
+- Write, Edit — no loopguard replacement
+- Glob — no loopguard replacement
+- Agent, Task — orchestration only
+
+## Why
+
+ctx_read compresses file content by 80-90% before it reaches this context window.
+Using Read instead wastes tokens and defeats the purpose of the tool.`}</pre>
+                </div>
+              </Step>
+
+              <Step n={5} title="Restart Claude Code and verify">
+                <p className="text-sm text-[#6B7280] mb-3">
+                  Close and reopen your terminal session, then start Claude Code in any project.
+                  Run this inside a session to confirm compression is active:
+                </p>
+                <Code>/mcp  ← should show loopguard-ctx listed as connected</Code>
+                <p className="text-sm text-[#6B7280] mt-3 mb-1">
+                  Then try asking Claude to read a file. You should see the hook fire if the built-in
+                  <code className="text-[#9CA3AF] text-xs"> Read</code> is attempted, or see loopguard-ctx compression stats appear when
+                  <code className="text-[#9CA3AF] text-xs"> ctx_read</code> is used.
+                </p>
+                <div className="mt-3 p-4 rounded-xl bg-[#22D3EE]/5 border border-[#22D3EE]/15">
+                  <p className="text-xs text-[#22D3EE] font-semibold mb-2">What you get when all 4 steps are done</p>
+                  <ul className="text-xs text-[#6B7280] space-y-1.5">
+                    <li className="flex items-start gap-2"><span className="text-[#22C55E] flex-shrink-0 mt-0.5">✓</span> File reads compressed 80–99% via <code className="text-[#9CA3AF]">ctx_read</code> before reaching the context window</li>
+                    <li className="flex items-start gap-2"><span className="text-[#22C55E] flex-shrink-0 mt-0.5">✓</span> Search results compressed via <code className="text-[#9CA3AF]">ctx_search</code></li>
+                    <li className="flex items-start gap-2"><span className="text-[#22C55E] flex-shrink-0 mt-0.5">✓</span> Shell output compressed via <code className="text-[#9CA3AF]">ctx_shell</code></li>
+                    <li className="flex items-start gap-2"><span className="text-[#22C55E] flex-shrink-0 mt-0.5">✓</span> PreToolUse hook blocks any accidental use of built-in Read/Grep with a clear redirect message</li>
+                    <li className="flex items-start gap-2"><span className="text-[#F59E0B] flex-shrink-0 mt-0.5">i</span> Set <code className="text-[#9CA3AF]">LOOPGUARD_BYPASS=1</code> in your shell to temporarily disable enforcement</li>
                   </ul>
                 </div>
               </Step>

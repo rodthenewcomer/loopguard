@@ -413,6 +413,170 @@ Which AI tool do you want to configure?
 
 After setup, your AI tool will automatically use LoopGuard's compression on every file read.
 
+---
+
+### Claude Code — Why the model ignores loopguard-ctx instructions by default
+
+When you register loopguard-ctx as an MCP server in Claude Code, the MCP server sends usage instructions to the model. However, Claude Code's training strongly favours built-in tools (Read, Grep, Bash). MCP server instructions are advisory — they do not block built-in tool calls. Without enforcement, the model continues using Read and Grep, bypassing loopguard-ctx entirely.
+
+**Two enforcement mechanisms are required:**
+
+1. A `CLAUDE.md` global rule that explicitly forbids the built-in tools and maps them to MCP equivalents.
+2. A `PreToolUse` hook in `~/.claude/settings.json` that intercepts Read and Grep calls and returns an error, forcing the model to use ctx_read / ctx_search instead.
+
+---
+
+### Required setup steps for Claude Code users
+
+#### Step 1 — Register the MCP server
+
+```bash
+claude mcp add loopguard-ctx loopguard-ctx
+```
+
+Or add to `~/.claude.json` manually:
+
+```json
+{
+  "mcpServers": {
+    "loopguard-ctx": {
+      "command": "loopguard-ctx"
+    }
+  }
+}
+```
+
+#### Step 2 — Add the PreToolUse hook
+
+Create `~/.claude/hooks/loopguard-ctx-rewrite.sh`:
+
+```bash
+#!/usr/bin/env bash
+# loopguard-ctx PreToolUse hook — blocks Read/Grep and rewrites Bash commands
+set -euo pipefail
+
+LOOPGUARD_CTX_BIN="$(which loopguard-ctx 2>/dev/null || echo '')"
+
+# Emergency bypass: LOOPGUARD_BYPASS=1 lets all tools through unchanged.
+if [ "${LOOPGUARD_BYPASS:-0}" = "1" ]; then
+  exit 0
+fi
+
+INPUT=$(cat)
+TOOL=$(echo "$INPUT" | grep -o '"tool_name":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+case "$TOOL" in
+  Read|read)
+    if [ -z "$LOOPGUARD_CTX_BIN" ]; then exit 0; fi
+    echo "loopguard-ctx: use mcp__loopguard-ctx__ctx_read instead of the Read tool. ctx_read compresses file content by 80-99% before it enters the context window. Set LOOPGUARD_BYPASS=1 to bypass this check in emergencies." >&2
+    exit 2
+    ;;
+  Grep|grep)
+    if [ -z "$LOOPGUARD_CTX_BIN" ]; then exit 0; fi
+    echo "loopguard-ctx: use mcp__loopguard-ctx__ctx_search instead of the Grep tool. ctx_search compresses search results by 50-80% before they enter the context window. Set LOOPGUARD_BYPASS=1 to bypass this check in emergencies." >&2
+    exit 2
+    ;;
+esac
+
+if [ "$TOOL" != "Bash" ] && [ "$TOOL" != "bash" ]; then
+  exit 0
+fi
+
+CMD=$(echo "$INPUT" | grep -o '"command":"[^"]*"' | head -1 | cut -d'"' -f4)
+if echo "$CMD" | grep -qE "^(loopguard-ctx )"; then exit 0; fi
+
+REWRITE=""
+case "$CMD" in
+  git\ *|gh\ *|cargo\ *|npm\ *|pnpm\ *|yarn\ *|docker\ *|kubectl\ *)
+    REWRITE="loopguard-ctx -c $CMD" ;;
+  grep\ *|rg\ *|find\ *|cat\ *|head\ *|tail\ *|ls\ *|ls)
+    REWRITE="loopguard-ctx -c $CMD" ;;
+  curl\ *|pip\ *|pip3\ *|ruff\ *|go\ *|aws\ *|helm\ *)
+    REWRITE="loopguard-ctx -c $CMD" ;;
+  *)
+    exit 0 ;;
+esac
+
+if [ -n "$REWRITE" ]; then
+  echo "{\"command\":\"$REWRITE\"}"
+fi
+```
+
+Make it executable:
+
+```bash
+chmod +x ~/.claude/hooks/loopguard-ctx-rewrite.sh
+```
+
+Register the hook in `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|bash|Read|read|Grep|grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/loopguard-ctx-rewrite.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### Step 3 — Add the global CLAUDE.md rule
+
+Create `~/.claude/CLAUDE.md`:
+
+```markdown
+# loopguard-ctx — MANDATORY tool routing
+
+The loopguard-ctx MCP server is active. You MUST use its tools instead of built-in equivalents.
+
+## Required substitutions (enforced by PreToolUse hook)
+
+| Built-in (FORBIDDEN)  | loopguard-ctx replacement              |
+|-----------------------|----------------------------------------|
+| Read                  | mcp__loopguard-ctx__ctx_read           |
+| Bash (file reading)   | mcp__loopguard-ctx__ctx_shell          |
+| Grep                  | mcp__loopguard-ctx__ctx_search         |
+| Bash (ls/find)        | mcp__loopguard-ctx__ctx_tree           |
+
+## Tools you CAN still use directly
+
+- Write, Edit — no loopguard replacement
+- Glob — no loopguard replacement
+- Agent, Task — orchestration only
+
+## Why
+
+ctx_read compresses file content by 80-90% before it reaches this context window.
+Using Read instead wastes tokens and defeats the purpose of the tool.
+```
+
+#### Step 4 — Verify with ctx_metrics
+
+After a session, check that loopguard-ctx is being used:
+
+```bash
+# In a Claude Code session, ask Claude to run:
+mcp__loopguard-ctx__ctx_metrics
+```
+
+You should see non-zero counts for `ctx_read` and `ctx_search` calls and significant token savings. If you see zero MCP calls, check that the hook file is executable and the matcher in settings.json includes `Read|Grep`.
+
+#### Bypass
+
+If you need to temporarily allow native Read/Grep (for debugging or emergencies):
+
+```bash
+LOOPGUARD_BYPASS=1 claude
+```
+
 ### Requirements
 
 The MCP integration requires the `loopguard-ctx` binary. The binary is bundled inside the VSIX — it should be available automatically after installing the extension.

@@ -429,16 +429,17 @@ export default function LandingPage() {
             {
               step: '2',
               color: '#22D3EE',
-              title: 'Wire Claude Code',
-              body: 'Registers LoopGuard as an MCP server and installs a PreToolUse hook. No account needed.',
+              title: 'Register + enforce',
+              body: 'Registers the MCP server, then add the PreToolUse hook + CLAUDE.md — required for Claude Code to actually use ctx_read instead of its built-in tools.',
               code: 'loopguard-ctx setup --agent=claude',
+              cta: { label: 'Full 5-step Claude Code guide →', href: '/setup#claude-code' },
             },
             {
               step: '3',
               color: '#22C55E',
-              title: 'Restart Claude Code',
-              body: 'Close and reopen your terminal. Every file read Claude Code makes is now routed through the context engine automatically.',
-              cta: { label: 'Full Claude Code guide →', href: '/setup#claude-code' },
+              title: 'Restart + verify',
+              body: 'Open a new terminal. Run /mcp inside Claude Code to confirm loopguard-ctx is connected. File reads are now compressed 80–99%.',
+              cta: { label: 'Troubleshoot →', href: '/setup#claude-code' },
             },
           ].map((item, i) => (
             <ScrollReveal key={item.step} delay={i * 100}>
