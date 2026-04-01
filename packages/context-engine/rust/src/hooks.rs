@@ -109,11 +109,10 @@ fi
 
     // --- Read/Grep enforcement hook (PreToolUse, exits 2 to block) ---
     let enforce_path = hooks_dir.join("loopguard-ctx-enforce.sh");
-    let enforce_script = format!(
-        r#"#!/usr/bin/env bash
+    let enforce_script = r#"#!/usr/bin/env bash
 # loopguard-ctx Read/Grep enforcement — blocks built-in Read and Grep, redirects to MCP tools
 # Exits 2 to cancel the tool call and surface the error to the model.
-[ "${{LOOPGUARD_BYPASS:-0}}" = "1" ] && exit 0
+[ "${LOOPGUARD_BYPASS:-0}" = "1" ] && exit 0
 
 INPUT=$(cat)
 TOOL=$(echo "$INPUT" | grep -o '"tool_name":"[^"]*"' | head -1 | cut -d'"' -f4)
@@ -133,8 +132,7 @@ case "$TOOL" in
     exit 0
     ;;
 esac
-"#
-    );
+"#;
     write_file(&enforce_path, &enforce_script);
     make_executable(&enforce_path);
 
