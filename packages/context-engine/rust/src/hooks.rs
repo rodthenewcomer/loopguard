@@ -144,29 +144,51 @@ esac
     };
 
     // --- summary hook (Stop) ---
+    // Also clears .session-restored so the next session gets the restore hint on first call.
     let summary_path = hooks_dir.join("loopguard-ctx-summary.sh");
     let summary_script = format!(
         r#"#!/usr/bin/env bash
 # LoopGuard end-of-session summary — fires when Claude Code session ends
 [ "${{LOOPGUARD_BYPASS:-0}}" = "1" ] && exit 0
 command -v "{binary}" &>/dev/null || exit 0
+# Clear first-call flag so the next session gets the restore hint automatically
+rm -f "${{HOME}}/.loopguard-ctx/.session-restored" 2>/dev/null || true
 "{binary}" notify 2>/dev/null || true
 "#
     );
     write_file(&summary_path, &summary_script);
     make_executable(&summary_path);
 
-    // --- periodic hook (PostToolUse, every 15 min) ---
+    // --- periodic hook (PostToolUse) ---
+    // First call of each session: show session restore hint + token savings.
+    // Subsequent calls: show token savings every 15 minutes.
     let periodic_path = hooks_dir.join("loopguard-ctx-periodic.sh");
     let periodic_script = format!(
         r#"#!/usr/bin/env bash
-# LoopGuard periodic summary — prints token savings every 15 minutes
+# LoopGuard PostToolUse hook — session restore hint on first call + periodic savings summary
 [ "${{LOOPGUARD_BYPASS:-0}}" = "1" ] && exit 0
 command -v "{binary}" &>/dev/null || exit 0
 
-STAMP="${{HOME}}/.loopguard-ctx/.last-notify"
+DIR="${{HOME}}/.loopguard-ctx"
+RESTORED="$DIR/.session-restored"
+STAMP="$DIR/.last-notify"
 INTERVAL=900
 
+# ── First call of session: show restore hint ─────────────────────────────────
+if [ ! -f "$RESTORED" ]; then
+    touch "$RESTORED"
+    SESSION=$("{binary}" sessions show 2>/dev/null || true)
+    if [ -n "$SESSION" ] && ! echo "$SESSION" | grep -q "not found\|No session"; then
+        printf '\n  \033[1m\033[35m◆ LoopGuard\033[0m  \033[2mPrevious session found — run \033[0m\033[36mctx_session load\033[0m\033[2m to restore context\033[0m\n'
+        echo "$SESSION" | head -8 | sed 's/^/  /'
+        printf '\n'
+    fi
+    "{binary}" notify 2>/dev/null || true
+    date +%s > "$STAMP"
+    exit 0
+fi
+
+# ── Subsequent calls: periodic summary every 15 min ──────────────────────────
 if [ -f "$STAMP" ]; then
     LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
     NOW=$(date +%s)

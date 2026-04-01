@@ -1,21 +1,31 @@
-# loopguard-ctx — Token Optimization
+> **MANDATORY — run this before anything else at the start of every session:**
+> ```
+> ctx_session load
+> ```
+> This restores your previous context: task in progress, files already read, key findings.
+> **Skipping this means re-reading files you already read and losing prior reasoning.**
+> After loading, acknowledge what was restored before proceeding.
 
-loopguard-ctx is configured as an MCP server. Use loopguard-ctx MCP tools instead of built-in tools:
+# loopguard-ctx — MANDATORY Tool Routing
 
-| Built-in | Use instead | Why |
-|----------|-------------|-----|
-| Read / cat / head | `ctx_read` | Session caching, 6 compression modes, re-reads cost ~13 tokens |
-| Bash (shell commands) | `ctx_shell` | Pattern-based compression for git, npm, cargo, docker, tsc |
-| Grep / rg | `ctx_search` | Compact context, token-efficient results |
-| ls / find | `ctx_tree` | Compact directory maps with file counts |
+loopguard-ctx is active as an MCP server. Built-in Read and Grep are **blocked** — use the loopguard-ctx equivalents at all times:
 
-For shell commands that don't have MCP equivalents, prefix with `loopguard-ctx -c`:
+| Built-in (BLOCKED) | Use instead | Why |
+|--------------------|-------------|-----|
+| Read / cat / head  | `ctx_read`  | Session caching — re-reads cost ~13 tokens, not the full file |
+| Grep / rg          | `ctx_search`| Compact, token-efficient search results |
+| Bash (shell)       | `ctx_shell` | Pattern-based compression for git, npm, cargo, docker, tsc |
+| ls / find          | `ctx_tree`  | Compact directory maps with file counts |
+
+For shell commands without MCP equivalents, prefix with `loopguard-ctx -c`:
 
 ```bash
-loopguard-ctx -c git status    # compressed output
-loopguard-ctx -c cargo test    # compressed output
-loopguard-ctx -c npm install   # compressed output
+loopguard-ctx -c git status
+loopguard-ctx -c cargo test
+loopguard-ctx -c npm install
 ```
+
+Write, Edit, Delete have no loopguard-ctx equivalent — use them normally.
 
 ## ctx_read Modes
 
@@ -26,31 +36,21 @@ loopguard-ctx -c npm install   # compressed output
 - `aggressive` — syntax stripped
 - `entropy` — Shannon + Jaccard filtering
 
-Write, Edit, Delete have no loopguard-ctx equivalent — use them normally.
-
 ## Session Continuity (CCP)
 
-**At the start of every new session**, run this first:
-
-```
-ctx_session load
-```
-
-This restores context from your previous session: task in progress, files already read, key findings, and architectural decisions. Skipping this means starting cold — re-reading files you already read, losing prior reasoning.
-
-After restoring, record your current task:
+Record your task after loading:
 
 ```
 ctx_session task "brief description of what you are working on"
 ```
 
-Record key findings as you go:
+Record key findings as you discover them:
 
 ```
 ctx_session finding "src/auth.rs:142 — JWT expiry not validated"
 ```
 
-The session auto-saves. At the end of a long session, run:
+The session auto-saves continuously. Force-save before ending a long session:
 
 ```
 ctx_session save
