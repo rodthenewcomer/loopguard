@@ -202,6 +202,67 @@ pub fn load_stats() -> GainSummary {
     }
 }
 
+fn load_session_saved() -> Option<u64> {
+    let path = dirs::home_dir()?
+        .join(".loopguard-ctx")
+        .join("sessions")
+        .join("latest.json");
+    let content = std::fs::read_to_string(path).ok()?;
+    let json: serde_json::Value = serde_json::from_str(&content).ok()?;
+    json["stats"]["total_tokens_saved"].as_u64()
+}
+
+/// Compact one-line summary: session + today + all-time token savings with USD estimates.
+/// Returns None if there are no savings to report yet.
+pub fn format_notify_line() -> Option<String> {
+    let store = load();
+    let session_saved = load_session_saved();
+    let today = chrono::Local::now().format("%Y-%m-%d").to_string();
+
+    let today_saved = store.daily.last()
+        .filter(|d| d.date == today)
+        .map(|d| d.input_tokens.saturating_sub(d.output_tokens))
+        .unwrap_or(0);
+
+    let all_time = store.total_input_tokens.saturating_sub(store.total_output_tokens);
+
+    let mut parts: Vec<String> = Vec::new();
+
+    if let Some(sess) = session_saved {
+        if sess > 0 {
+            parts.push(format!(
+                "{}session: {} (≈{}){}",
+                GREEN, format_big(sess), usd_estimate(sess), RST
+            ));
+        }
+    }
+
+    if today_saved > 0 {
+        parts.push(format!(
+            "{}today: {} (≈{}){}",
+            CYAN, format_big(today_saved), usd_estimate(today_saved), RST
+        ));
+    }
+
+    if all_time > 0 {
+        parts.push(format!(
+            "{}all-time: {} (≈{}){}",
+            MAGENTA, format_big(all_time), usd_estimate(all_time), RST
+        ));
+    }
+
+    if parts.is_empty() {
+        return None;
+    }
+
+    Some(format!(
+        "  {}◆ LoopGuard{}  {}",
+        BOLD,
+        RST,
+        parts.join(&format!("  {}·{}  ", DIM, RST))
+    ))
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn record_cep_session(
     score: u32,

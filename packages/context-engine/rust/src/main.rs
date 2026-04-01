@@ -20,6 +20,12 @@ fn main() {
                 shell::interactive();
                 return;
             }
+            "notify" => {
+                if let Some(line) = core::stats::format_notify_line() {
+                    println!("{line}");
+                }
+                return;
+            }
             "gain" => {
                 if rest.iter().any(|a| a == "--live" || a == "--watch") {
                     core::stats::gain_live();
@@ -217,6 +223,7 @@ USAGE:
     loopguard-ctx shell                 Interactive shell with compression
 
 COMMANDS:
+    notify                         One-line token savings summary (session + today + all-time)
     gain                           Visual dashboard (colors, bars, sparklines, USD)
     gain --live                    Live mode: auto-refreshes every 2s in-place
     gain --graph                   30-day savings chart

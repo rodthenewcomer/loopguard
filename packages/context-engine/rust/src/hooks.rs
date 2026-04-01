@@ -114,20 +114,78 @@ fi
         String::new()
     };
 
-    if settings_content.contains("loopguard-ctx-rewrite") {
-        println!("Claude Code hook already configured.");
+    // --- summary hook (Stop) ---
+    let summary_path = hooks_dir.join("loopguard-ctx-summary.sh");
+    let summary_script = format!(
+        r#"#!/usr/bin/env bash
+# LoopGuard end-of-session summary — fires when Claude Code session ends
+[ "${{LOOPGUARD_BYPASS:-0}}" = "1" ] && exit 0
+command -v "{binary}" &>/dev/null || exit 0
+"{binary}" notify 2>/dev/null || true
+"#
+    );
+    write_file(&summary_path, &summary_script);
+    make_executable(&summary_path);
+
+    // --- periodic hook (PostToolUse, every 15 min) ---
+    let periodic_path = hooks_dir.join("loopguard-ctx-periodic.sh");
+    let periodic_script = format!(
+        r#"#!/usr/bin/env bash
+# LoopGuard periodic summary — prints token savings every 15 minutes
+[ "${{LOOPGUARD_BYPASS:-0}}" = "1" ] && exit 0
+command -v "{binary}" &>/dev/null || exit 0
+
+STAMP="${{HOME}}/.loopguard-ctx/.last-notify"
+INTERVAL=900
+
+if [ -f "$STAMP" ]; then
+    LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
+    NOW=$(date +%s)
+    if [ $((NOW - LAST)) -lt $INTERVAL ]; then
+        exit 0
+    fi
+fi
+
+date +%s > "$STAMP"
+"{binary}" notify 2>/dev/null || true
+"#
+    );
+    write_file(&periodic_path, &periodic_script);
+    make_executable(&periodic_path);
+
+    // Build the full desired hooks JSON (PreToolUse + PostToolUse + Stop)
+    let full_hooks = serde_json::json!({
+        "PreToolUse": [{
+            "matcher": "Bash|bash",
+            "hooks": [{
+                "type": "command",
+                "command": script_path.to_string_lossy()
+            }]
+        }],
+        "PostToolUse": [{
+            "matcher": ".*",
+            "hooks": [{
+                "type": "command",
+                "command": periodic_path.to_string_lossy()
+            }]
+        }],
+        "Stop": [{
+            "matcher": ".*",
+            "hooks": [{
+                "type": "command",
+                "command": summary_path.to_string_lossy()
+            }]
+        }]
+    });
+
+    let needs_update = !settings_content.contains("loopguard-ctx-summary")
+        || !settings_content.contains("loopguard-ctx-periodic")
+        || !settings_content.contains("loopguard-ctx-rewrite");
+
+    if !needs_update {
+        println!("Claude Code hooks already fully configured.");
     } else {
-        let hook_entry = serde_json::json!({
-            "hooks": {
-                "PreToolUse": [{
-                    "matcher": "Bash|bash",
-                    "hooks": [{
-                        "type": "command",
-                        "command": script_path.to_string_lossy()
-                    }]
-                }]
-            }
-        });
+        let hook_entry = serde_json::json!({ "hooks": full_hooks });
 
         if settings_content.is_empty() {
             write_file(
@@ -146,8 +204,7 @@ fi
             }
         }
         println!(
-            "Installed Claude Code PreToolUse hook at {}",
-            script_path.display()
+            "Installed Claude Code hooks (rewrite + periodic summary + end-of-session summary)"
         );
     }
 
