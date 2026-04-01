@@ -233,7 +233,17 @@ impl SessionState {
         self.stats.commands_run += 1;
     }
 
+    /// Compact session summary shown by the PostToolUse hook on session start.
+    /// Output passes through `head -8` in the hook — max 8 visible lines.
+    /// Budget: 1 header + 1 task + up to 3 findings + 1 files + 1 CTA = 7 lines max.
     pub fn format_compact(&self) -> String {
+        const BOLD: &str = "\x1b[1m";
+        const DIM: &str = "\x1b[2m";
+        const RST: &str = "\x1b[0m";
+        const CYAN: &str = "\x1b[36m";
+        const YELLOW: &str = "\x1b[33m";
+        const MAGENTA: &str = "\x1b[35m";
+
         let duration = self.updated_at - self.started_at;
         let hours = duration.num_hours();
         let mins = duration.num_minutes() % 60;
@@ -242,90 +252,84 @@ impl SessionState {
         } else {
             format!("{mins}m")
         };
+        let tok_str = if self.stats.total_tokens_saved >= 1_000_000 {
+            format!(
+                "{:.1}M tok saved",
+                self.stats.total_tokens_saved as f64 / 1_000_000.0
+            )
+        } else if self.stats.total_tokens_saved >= 1_000 {
+            format!(
+                "{:.0}K tok saved",
+                self.stats.total_tokens_saved as f64 / 1_000.0
+            )
+        } else {
+            format!("{} tok saved", self.stats.total_tokens_saved)
+        };
 
         let mut lines = Vec::new();
+
+        // Line 1: header — always present
         lines.push(format!(
-            "SESSION v{} | {} | {} calls | {} tok saved",
-            self.version, duration_str, self.stats.total_tool_calls, self.stats.total_tokens_saved
+            "{BOLD}{MAGENTA}◆ Session{RST}  {DIM}v{} · {} · {} calls · {tok_str}{RST}",
+            self.version, duration_str, self.stats.total_tool_calls
         ));
 
+        // Line 2: task — if set
         if let Some(ref task) = self.task {
             let pct = task
                 .progress_pct
-                .map_or(String::new(), |p| format!(" [{p}%]"));
-            lines.push(format!("Task: {}{pct}", task.description));
+                .map_or(String::new(), |p| format!(" {DIM}[{p}%]{RST}"));
+            let desc: String = task.description.chars().take(70).collect();
+            lines.push(format!("{BOLD}{YELLOW}TASK{RST}  {desc}{pct}"));
         }
 
-        if let Some(ref root) = self.project_root {
-            lines.push(format!("Root: {}", shorten_path(root)));
+        // Lines 3–5: up to 3 most-recent findings (one per line)
+        let finding_count = self.findings.len();
+        for (i, f) in self.findings.iter().rev().take(3).enumerate() {
+            let loc = match (&f.file, f.line) {
+                (Some(file), Some(line)) => format!("{}:{line}", shorten_path(file)),
+                (Some(file), None) => shorten_path(file),
+                _ => String::new(),
+            };
+            let summary: String = f.summary.chars().take(60).collect();
+            let text = if loc.is_empty() {
+                summary
+            } else {
+                format!("{loc} \u{2014} {summary}")
+            };
+            let label = if i == 0 && finding_count > 3 {
+                format!("{CYAN}FIND ({finding_count}){RST}")
+            } else {
+                format!("{CYAN}FIND{RST}     ")
+            };
+            lines.push(format!("{label}  {text}"));
         }
 
-        if !self.findings.is_empty() {
-            let items: Vec<String> = self
-                .findings
+        // Next line: files read
+        if !self.files_touched.is_empty() {
+            let names: Vec<String> = self
+                .files_touched
                 .iter()
                 .rev()
                 .take(5)
                 .map(|f| {
-                    let loc = match (&f.file, f.line) {
-                        (Some(file), Some(line)) => format!("{}:{line}", shorten_path(file)),
-                        (Some(file), None) => shorten_path(file),
-                        _ => String::new(),
-                    };
-                    if loc.is_empty() {
-                        f.summary.clone()
-                    } else {
-                        format!("{loc} \u{2014} {}", f.summary)
-                    }
-                })
-                .collect();
-            lines.push(format!(
-                "Findings ({}): {}",
-                self.findings.len(),
-                items.join(" | ")
-            ));
-        }
-
-        if !self.decisions.is_empty() {
-            let items: Vec<&str> = self
-                .decisions
-                .iter()
-                .rev()
-                .take(3)
-                .map(|d| d.summary.as_str())
-                .collect();
-            lines.push(format!("Decisions: {}", items.join(" | ")));
-        }
-
-        if !self.files_touched.is_empty() {
-            let items: Vec<String> = self
-                .files_touched
-                .iter()
-                .rev()
-                .take(10)
-                .map(|f| {
-                    let status = if f.modified { "mod" } else { &f.last_mode };
                     let r = f.file_ref.as_deref().unwrap_or("?");
-                    format!("[{r} {} {status}]", shorten_path(&f.path))
+                    let name = f.path.split('/').next_back().unwrap_or(&f.path);
+                    let modified = if f.modified { "*" } else { "" };
+                    format!("{r}:{name}{modified}")
                 })
                 .collect();
+            let count = self.files_touched.len();
+            let preview = names.join(" · ");
             lines.push(format!(
-                "Files ({}): {}",
-                self.files_touched.len(),
-                items.join(" ")
+                "{DIM}FILES{RST}   {count} read  {DIM}{preview}{RST}"
             ));
         }
 
-        if let Some(ref tests) = self.test_results {
-            lines.push(format!(
-                "Tests: {}/{} pass ({})",
-                tests.passed, tests.total, tests.command
-            ));
-        }
-
-        if !self.next_steps.is_empty() {
-            lines.push(format!("Next: {}", self.next_steps.join(" | ")));
-        }
+        // Final line: call-to-action
+        lines.push(format!(
+            "{DIM}run {RST}{CYAN}ctx_session load{RST}{DIM} to restore →{RST}"
+        ));
 
         lines.join("\n")
     }

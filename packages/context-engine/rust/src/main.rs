@@ -24,6 +24,9 @@ fn main() {
                 if let Some(line) = core::stats::format_notify_line() {
                     println!("{line}");
                 }
+                if let Some(warn) = core::stats::stale_hooks_warning() {
+                    eprintln!("{warn}");
+                }
                 return;
             }
             "gain" => {

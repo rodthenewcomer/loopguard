@@ -212,6 +212,32 @@ fn load_session_saved() -> Option<u64> {
     json["stats"]["total_tokens_saved"].as_u64()
 }
 
+/// Returns a one-line warning if any Claude Code enforcement layer is missing.
+/// Called from the `notify` handler so existing users see the prompt after updating.
+pub fn stale_hooks_warning() -> Option<String> {
+    let home = dirs::home_dir()?;
+    let enforce = home
+        .join(".claude")
+        .join("hooks")
+        .join("loopguard-ctx-enforce.sh");
+    let claude_md = home.join(".claude").join("CLAUDE.md");
+
+    let enforce_missing = !enforce.exists();
+    let ccp_missing = !std::fs::read_to_string(&claude_md)
+        .unwrap_or_default()
+        .contains("ctx_session load");
+
+    if enforce_missing || ccp_missing {
+        Some(format!(
+            "  \x1b[1m\x1b[33m⚠ LoopGuard\x1b[0m  \
+             \x1b[2mHooks outdated — run \x1b[0m\x1b[36mloopguard-ctx setup --agent=claude\x1b[0m\
+             \x1b[2m to update\x1b[0m"
+        ))
+    } else {
+        None
+    }
+}
+
 /// Compact one-line summary: session + today + all-time token savings with USD estimates.
 /// Returns None if there are no savings to report yet.
 pub fn format_notify_line() -> Option<String> {
