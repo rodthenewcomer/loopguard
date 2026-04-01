@@ -390,7 +390,7 @@ fn port_3333_outcome() -> Outcome {
 /// Run diagnostic checks and print colored results to stdout.
 pub fn run() {
     let mut passed = 0u32;
-    let total = 8u32;
+    let total = 13u32;
 
     println!("{BOLD}{WHITE}loopguard-ctx doctor{RST}  {DIM}diagnostics{RST}\n");
 
@@ -553,7 +553,88 @@ pub fn run() {
     }
     print_check(&port);
 
+    // ── Claude Code enforcement layers ────────────────────────────────
+    println!();
+    println!("  {BOLD}{WHITE}Claude Code enforcement{RST}  {DIM}(setup --agent=claude){RST}");
+
+    let claude_home = dirs::home_dir().map(|h| h.join(".claude"));
+
+    // 9) Bash rewrite hook
+    let rewrite_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-rewrite.sh"));
+    let rewrite_ok = rewrite_hook.as_ref().map_or(false, |p| p.is_file());
+    if rewrite_ok { passed += 1; }
+    print_check(&Outcome {
+        ok: rewrite_ok,
+        line: if rewrite_ok {
+            format!("{BOLD}Bash rewrite hook{RST}  {GREEN}installed{RST}  {DIM}~/.claude/hooks/loopguard-ctx-rewrite.sh{RST}")
+        } else {
+            format!("{BOLD}Bash rewrite hook{RST}  {RED}missing{RST}  {DIM}run: loopguard-ctx setup --agent=claude{RST}")
+        },
+    });
+
+    // 10) Read/Grep enforcement hook
+    let enforce_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-enforce.sh"));
+    let enforce_ok = enforce_hook.as_ref().map_or(false, |p| p.is_file());
+    if enforce_ok { passed += 1; }
+    print_check(&Outcome {
+        ok: enforce_ok,
+        line: if enforce_ok {
+            format!("{BOLD}Read/Grep enforce hook{RST}  {GREEN}installed{RST}  {DIM}~/.claude/hooks/loopguard-ctx-enforce.sh{RST}")
+        } else {
+            format!("{BOLD}Read/Grep enforce hook{RST}  {RED}missing{RST}  {DIM}run: loopguard-ctx setup --agent=claude{RST}")
+        },
+    });
+
+    // 11) settings.json has Read|Grep matcher
+    let settings_path = claude_home.as_ref().map(|d| d.join("settings.json"));
+    let settings_content = settings_path.as_ref()
+        .and_then(|p| std::fs::read_to_string(p).ok())
+        .unwrap_or_default();
+    let settings_ok = settings_content.contains("loopguard-ctx-enforce")
+        && settings_content.contains("Read|Grep");
+    if settings_ok { passed += 1; }
+    print_check(&Outcome {
+        ok: settings_ok,
+        line: if settings_ok {
+            format!("{BOLD}settings.json Read|Grep matcher{RST}  {GREEN}configured{RST}  {DIM}~/.claude/settings.json{RST}")
+        } else {
+            format!("{BOLD}settings.json Read|Grep matcher{RST}  {RED}missing{RST}  {DIM}run: loopguard-ctx setup --agent=claude{RST}")
+        },
+    });
+
+    // 12) Global ~/.claude/CLAUDE.md
+    let global_claude_md = claude_home.as_ref().map(|d| d.join("CLAUDE.md"));
+    let global_md_ok = global_claude_md.as_ref()
+        .map_or(false, |p| p.is_file() && rc_contains_loopguard_ctx(p));
+    if global_md_ok { passed += 1; }
+    print_check(&Outcome {
+        ok: global_md_ok,
+        line: if global_md_ok {
+            format!("{BOLD}~/.claude/CLAUDE.md{RST}  {GREEN}installed{RST}  {DIM}global instruction-level enforcement{RST}")
+        } else {
+            format!("{BOLD}~/.claude/CLAUDE.md{RST}  {RED}missing or incomplete{RST}  {DIM}run: loopguard-ctx setup --agent=claude{RST}")
+        },
+    });
+
+    // 13) Stop + PostToolUse hooks (summary + periodic)
+    let summary_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-summary.sh"));
+    let periodic_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-periodic.sh"));
+    let session_hooks_ok = summary_hook.as_ref().map_or(false, |p| p.is_file())
+        && periodic_hook.as_ref().map_or(false, |p| p.is_file());
+    if session_hooks_ok { passed += 1; }
+    print_check(&Outcome {
+        ok: session_hooks_ok,
+        line: if session_hooks_ok {
+            format!("{BOLD}Session hooks (Stop + PostToolUse){RST}  {GREEN}installed{RST}  {DIM}token summary + session restore{RST}")
+        } else {
+            format!("{BOLD}Session hooks (Stop + PostToolUse){RST}  {RED}missing{RST}  {DIM}run: loopguard-ctx setup --agent=claude{RST}")
+        },
+    });
+
     println!();
     println!("  {BOLD}{WHITE}Summary:{RST}  {GREEN}{passed}{RST}{DIM}/{total}{RST} checks passed");
+    if passed < total {
+        println!("  {YELLOW}Fix missing Claude Code layers:{RST}  {DIM}loopguard-ctx setup --agent=claude{RST}");
+    }
     println!("  {DIM}This binary: loopguard-ctx {VERSION} (Cargo package version){RST}");
 }

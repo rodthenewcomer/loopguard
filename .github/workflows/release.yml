@@ -154,7 +154,7 @@ jobs:
           path: apps/extension/loopguard-${{ matrix.vscode-platform }}.vsix
           retention-days: 7
 
-  # ── Create GitHub Release with all VSIXs ─────────────────────────
+  # ── Create GitHub Release with VSIXs + standalone tarballs ──────────
   release:
     name: Create GitHub Release
     needs: package-extension
@@ -162,6 +162,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all VSIX artifacts
         uses: actions/download-artifact@v4
@@ -170,33 +173,127 @@ jobs:
           path: /tmp/vsix/
           merge-multiple: true
 
+      - name: Download all binary artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: binary-*
+          path: /tmp/binaries/
+          merge-multiple: false
+
+      - name: Create standalone tarballs and SHA256SUMS
+        run: |
+          mkdir -p /tmp/assets
+
+          # macOS arm64
+          tar -czf /tmp/assets/loopguard-ctx-aarch64-apple-darwin.tar.gz \
+            -C /tmp/binaries/binary-darwin-arm64 loopguard-ctx
+
+          # macOS x86_64
+          tar -czf /tmp/assets/loopguard-ctx-x86_64-apple-darwin.tar.gz \
+            -C /tmp/binaries/binary-darwin-x64 loopguard-ctx
+
+          # Linux x86_64 musl (static)
+          tar -czf /tmp/assets/loopguard-ctx-x86_64-unknown-linux-musl.tar.gz \
+            -C /tmp/binaries/binary-linux-x64 loopguard-ctx
+
+          # Linux arm64 gnu
+          tar -czf /tmp/assets/loopguard-ctx-aarch64-unknown-linux-gnu.tar.gz \
+            -C /tmp/binaries/binary-linux-arm64 loopguard-ctx
+
+          # Windows x64 (zip)
+          cd /tmp/binaries/binary-win32-x64
+          zip /tmp/assets/loopguard-ctx-x86_64-pc-windows-msvc.zip loopguard-ctx.exe
+          cd /tmp/assets
+
+          # Generate SHA256SUMS
+          sha256sum *.tar.gz *.zip > SHA256SUMS
+          echo "── SHA256SUMS ──"
+          cat SHA256SUMS
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: /tmp/vsix/*.vsix
+          files: |
+            /tmp/assets/*.tar.gz
+            /tmp/assets/*.zip
+            /tmp/assets/SHA256SUMS
+            /tmp/vsix/*.vsix
           generate_release_notes: true
           body: |
             ## LoopGuard ${{ github.ref_name }}
 
-            ### Installation
+            ### Install CLI (no Rust required)
 
-            Install from the VS Code Marketplace (platform binary included automatically):
+            **Homebrew (macOS / Linux):**
+            ```bash
+            brew tap rodthenewcomer/loopguard https://github.com/rodthenewcomer/loopguard
+            brew install loopguard-ctx
+            ```
+
+            **One-liner:**
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/rodthenewcomer/loopguard/main/packages/context-engine/install.sh | sh -s -- --download
+            ```
+
+            **Then set up your AI agent:**
+            ```bash
+            loopguard-ctx setup --agent=claude   # Claude Code
+            loopguard-ctx setup --agent=cursor   # Cursor
+            loopguard-ctx setup                  # all agents + shell aliases
+            ```
+
+            ### VS Code Extension
+
+            Install from the Marketplace (binary bundled, no separate install needed):
             ```
             ext install LoopGuard.loopguard
             ```
 
-            Or manually install the VSIX for your platform from the assets below.
+            ### Standalone binary tarballs
 
-            ### Platform binaries
-            Each VSIX includes a bundled `loopguard-ctx` binary — no manual installation required.
-
-            | VSIX | Platform |
+            | File | Platform |
             |------|---------|
-            | `loopguard-darwin-arm64.vsix` | macOS Apple Silicon (M1/M2/M3) |
-            | `loopguard-darwin-x64.vsix` | macOS Intel |
-            | `loopguard-win32-x64.vsix` | Windows x64 |
-            | `loopguard-linux-x64.vsix` | Linux x64 |
-            | `loopguard-linux-arm64.vsix` | Linux ARM64 |
+            | `loopguard-ctx-aarch64-apple-darwin.tar.gz` | macOS Apple Silicon |
+            | `loopguard-ctx-x86_64-apple-darwin.tar.gz` | macOS Intel |
+            | `loopguard-ctx-x86_64-unknown-linux-musl.tar.gz` | Linux x64 (static) |
+            | `loopguard-ctx-aarch64-unknown-linux-gnu.tar.gz` | Linux ARM64 |
+            | `loopguard-ctx-x86_64-pc-windows-msvc.zip` | Windows x64 |
+
+      - name: Update Homebrew formula with real SHA256s
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION_NUM="${VERSION#v}"
+          BASE_URL="https://github.com/rodthenewcomer/loopguard/releases/download/${VERSION}"
+
+          SHA_AARCH64_DARWIN=$(grep "aarch64-apple-darwin.tar.gz" /tmp/assets/SHA256SUMS | cut -d' ' -f1)
+          SHA_X86_64_DARWIN=$(grep  "x86_64-apple-darwin.tar.gz"  /tmp/assets/SHA256SUMS | cut -d' ' -f1)
+          SHA_X86_64_LINUX=$(grep   "x86_64-unknown-linux-musl"   /tmp/assets/SHA256SUMS | cut -d' ' -f1)
+          SHA_AARCH64_LINUX=$(grep  "aarch64-unknown-linux-gnu"   /tmp/assets/SHA256SUMS | cut -d' ' -f1)
+
+          # Replace version
+          sed -i "s/version \".*\"/version \"${VERSION_NUM}\"/" Formula/loopguard-ctx.rb
+
+          # Replace URL version placeholders (#{version} in formula already handles this)
+          # Replace SHA256 placeholders
+          sed -i "s|PLACEHOLDER_AARCH64_APPLE_DARWIN_SHA256|${SHA_AARCH64_DARWIN}|" Formula/loopguard-ctx.rb
+          sed -i "s|PLACEHOLDER_X86_64_APPLE_DARWIN_SHA256|${SHA_X86_64_DARWIN}|"   Formula/loopguard-ctx.rb
+          sed -i "s|PLACEHOLDER_X86_64_LINUX_SHA256|${SHA_X86_64_LINUX}|"           Formula/loopguard-ctx.rb
+          sed -i "s|PLACEHOLDER_AARCH64_LINUX_SHA256|${SHA_AARCH64_LINUX}|"         Formula/loopguard-ctx.rb
+
+          echo "── Updated formula ──"
+          cat Formula/loopguard-ctx.rb
+
+      - name: Commit formula update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/loopguard-ctx.rb
+          if git diff --staged --quiet; then
+            echo "Formula already up to date."
+          else
+            git commit -m "chore: update Homebrew formula for ${{ github.ref_name }}"
+            git push origin main
+          fi
 
   # ── Publish to VS Code Marketplace ───────────────────────────────
   publish:

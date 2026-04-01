@@ -10,7 +10,7 @@
 #   curl -fsSL https://loopguardctx.com/install.sh | sh
 set -euo pipefail
 
-REPO="yvgude/loopguard-ctx"
+REPO="rodthenewcomer/loopguard"
 INSTALL_DIR="${LEAN_CTX_INSTALL_DIR:-$HOME/.local/bin}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-install.sh}")" 2>/dev/null && pwd || pwd)"
 RUST_DIR="$SCRIPT_DIR/rust"
