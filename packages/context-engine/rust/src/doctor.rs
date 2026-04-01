@@ -561,7 +561,7 @@ pub fn run() {
 
     // 9) Bash rewrite hook
     let rewrite_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-rewrite.sh"));
-    let rewrite_ok = rewrite_hook.as_ref().map_or(false, |p| p.is_file());
+    let rewrite_ok = rewrite_hook.as_ref().is_some_and(|p| p.is_file());
     if rewrite_ok { passed += 1; }
     print_check(&Outcome {
         ok: rewrite_ok,
@@ -574,7 +574,7 @@ pub fn run() {
 
     // 10) Read/Grep enforcement hook
     let enforce_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-enforce.sh"));
-    let enforce_ok = enforce_hook.as_ref().map_or(false, |p| p.is_file());
+    let enforce_ok = enforce_hook.as_ref().is_some_and(|p| p.is_file());
     if enforce_ok { passed += 1; }
     print_check(&Outcome {
         ok: enforce_ok,
@@ -605,7 +605,7 @@ pub fn run() {
     // 12) Global ~/.claude/CLAUDE.md
     let global_claude_md = claude_home.as_ref().map(|d| d.join("CLAUDE.md"));
     let global_md_ok = global_claude_md.as_ref()
-        .map_or(false, |p| p.is_file() && rc_contains_loopguard_ctx(p));
+        .is_some_and(|p| p.is_file() && rc_contains_loopguard_ctx(p));
     if global_md_ok { passed += 1; }
     print_check(&Outcome {
         ok: global_md_ok,
@@ -619,8 +619,8 @@ pub fn run() {
     // 13) Stop + PostToolUse hooks (summary + periodic)
     let summary_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-summary.sh"));
     let periodic_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-periodic.sh"));
-    let session_hooks_ok = summary_hook.as_ref().map_or(false, |p| p.is_file())
-        && periodic_hook.as_ref().map_or(false, |p| p.is_file());
+    let session_hooks_ok = summary_hook.as_ref().is_some_and(|p| p.is_file())
+        && periodic_hook.as_ref().is_some_and(|p| p.is_file());
     if session_hooks_ok { passed += 1; }
     print_check(&Outcome {
         ok: session_hooks_ok,

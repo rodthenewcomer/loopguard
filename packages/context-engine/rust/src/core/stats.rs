@@ -228,11 +228,12 @@ pub fn stale_hooks_warning() -> Option<String> {
         .contains("ctx_session load");
 
     if enforce_missing || ccp_missing {
-        Some(format!(
+        Some(
             "  \x1b[1m\x1b[33m⚠ LoopGuard\x1b[0m  \
              \x1b[2mHooks outdated — run \x1b[0m\x1b[36mloopguard-ctx setup --agent=claude\x1b[0m\
              \x1b[2m to update\x1b[0m"
-        ))
+                .to_string(),
+        )
     } else {
         None
     }
