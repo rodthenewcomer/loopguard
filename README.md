@@ -117,7 +117,7 @@ LoopGuard ships as three related surfaces around the same local context tooling:
 Install → works immediately for diagnostics-based loop detection and local clipboard context copy.
 
 ### MCP Server (Power Mode)
-Run `LoopGuard: Configure MCP Server` from the Command Palette. Supports Claude Code, Cursor, Windsurf, Codex CLI, Zed, and VS Code / Copilot with the local `loopguard-ctx` MCP server.
+Run `LoopGuard: Configure MCP Server` from the Command Palette, or `loopguard-ctx setup --agent=<tool>`. Supports Claude Code (4-layer enforcement: MCP + hooks + CLAUDE.md + CCP), Cursor, Windsurf, Codex CLI, Zed, and VS Code / Copilot.
 
 ### Shell Hooks (Deep Mode)
 Run `LoopGuard: Install Shell Hooks` from the Command Palette. Supported CLI output can be compressed before it reaches an AI context window.
@@ -138,15 +138,29 @@ Or search **"LoopGuard"** in the Extensions panel (`Ctrl+Shift+X`).
 
 LoopGuard activates automatically on workspace open. No configuration required. Watch the status bar.
 
-**Optional: enable the Rust helper for deeper compression modes**
+**Optional: enable loopguard-ctx for MCP + shell compression + CCP**
 
 ```bash
-# Install the loopguard-ctx binary (requires Rust)
-cargo install loopguard-ctx
+# Homebrew (recommended)
+brew install rodthenewcomer/tap/loopguard-ctx
 
-# Or use the bundled binary shipped with the extension (no Rust needed)
-# — LoopGuard detects it automatically
+# Or one-liner curl (auto-detects platform)
+curl -fsSL https://loopguard.vercel.app/install.sh | sh
+
+# Wire Claude Code — installs all 4 enforcement layers
+loopguard-ctx setup --agent=claude
+
+# Wire Cursor
+loopguard-ctx setup --agent=cursor
+
+# Wire Windsurf
+loopguard-ctx setup --agent=windsurf
+
+# Verify
+loopguard-ctx doctor
 ```
+
+The bundled binary inside the VS Code extension is detected automatically — no manual install needed for basic extension use.
 
 ---
 

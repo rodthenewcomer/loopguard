@@ -244,31 +244,41 @@ export default function DocsPage() {
             If you use Claude Code in the terminal without VS Code, install the standalone binary instead.
             No account, no extension, no sign-in needed — everything runs locally.
           </P>
-          <Pre>{`# 1. Download the binary for your platform from GitHub Releases
-# macOS Apple Silicon
-curl -L https://github.com/rodthenewcomer/loopguard/releases/latest/download/loopguard-ctx-darwin-arm64 -o loopguard-ctx
+          <H3>Step 1 — Install loopguard-ctx</H3>
+          <Pre>{`# Homebrew (recommended)
+brew install rodthenewcomer/tap/loopguard-ctx
 
-# macOS Intel
-curl -L https://github.com/rodthenewcomer/loopguard/releases/latest/download/loopguard-ctx-darwin-x64 -o loopguard-ctx
+# Or one-liner curl (auto-detects platform)
+curl -fsSL https://loopguard.vercel.app/install.sh | sh
 
-# Linux x64
-curl -L https://github.com/rodthenewcomer/loopguard/releases/latest/download/loopguard-ctx-linux-x64 -o loopguard-ctx
-
-# 2. Install it
-chmod +x loopguard-ctx && mv loopguard-ctx /usr/local/bin/
-
-# 3. Verify
-loopguard-ctx --version
-
-# 4. Wire Claude Code (registers MCP server + installs PreToolUse hook)
-loopguard-ctx setup --agent=claude
-
-# 5. Restart Claude Code — done`}</Pre>
+# Verify
+loopguard-ctx --version`}</Pre>
+          <H3>Step 2 — Wire Claude Code (installs all 4 enforcement layers)</H3>
+          <Pre>{`loopguard-ctx setup --agent=claude`}</Pre>
           <P>
-            After restart, Claude Code routes every file read through the context engine automatically
-            via the PreToolUse hook. You can also call <Code>ctx_read</Code>, <Code>ctx_search</Code>,{' '}
-            <Code>ctx_shell</Code>, and other MCP tools directly from within a Claude Code session.
-            Run <Code>loopguard-ctx gain</Code> at any time to see your token savings.
+            This single command installs:
+          </P>
+          <CheckList items={[
+            'MCP server registration in ~/.claude.json',
+            'Bash rewrite PreToolUse hook (routes all shell commands through loopguard-ctx)',
+            'Enforce PreToolUse hook (blocks native Read/Grep, enforces ctx_read)',
+            'Global ~/.claude/CLAUDE.md with mandatory tool routing + CCP session restore header',
+          ]} />
+          <H3>Step 3 — Session continuity (CCP)</H3>
+          <P>
+            After setup, every new Claude Code session starts with this instruction at the top of CLAUDE.md:
+          </P>
+          <Pre>{`ctx_session load`}</Pre>
+          <P>
+            This restores the previous session state — task, files read, key findings — in ~400 tokens
+            instead of the 50K+ tokens a cold start costs. Run <Code>ctx_session status</Code> at any
+            time to see what was restored.
+          </P>
+          <H3>Step 4 — Verify</H3>
+          <Pre>{`loopguard-ctx doctor`}</Pre>
+          <P>
+            Checks all 4 layers: MCP registration, Bash rewrite hook, enforce hook, and CLAUDE.md.
+            Run <Code>loopguard-ctx gain</Code> at any time to see token savings.
           </P>
           <Warning>
             Loop detection is not available in terminal-only mode. If you want loop detection alerts,
@@ -579,6 +589,34 @@ args = []`}</Pre>
               ['Additional tools', 'The binary exposes more MCP tools; use setup or the binary docs to inspect the full list'],
             ]}
           />
+
+          <H3>Cursor setup</H3>
+          <P>
+            Run <Code>loopguard-ctx setup --agent=cursor</Code> or use{' '}
+            <Code>LoopGuard: Configure MCP Server</Code> from Cursor&rsquo;s Command Palette.
+            This writes the MCP config to <Code>~/.cursor/mcp.json</Code> and installs a{' '}
+            <Code>loopguard-ctx.mdc</Code> Cursor rule with mandatory tool routing and CCP session header.
+          </P>
+          <Pre>{`loopguard-ctx setup --agent=cursor`}</Pre>
+          <P>
+            After setup, add <Code>ctx_session load</Code> at the top of your Cursor AI chat when starting
+            a new session. Cursor rules enforce <Code>ctx_read</Code> over built-in Read via the always-on
+            <Code>.mdc</Code> rule.
+          </P>
+
+          <H3>Windsurf setup</H3>
+          <P>
+            Run <Code>loopguard-ctx setup --agent=windsurf</Code> or use{' '}
+            <Code>LoopGuard: Configure MCP Server</Code>. This writes the MCP config to{' '}
+            <Code>~/.codeium/windsurf/mcp_config.json</Code> and installs a <Code>windsurfrules.txt</Code>
+            with mandatory tool routing and CCP session header.
+          </P>
+          <Pre>{`loopguard-ctx setup --agent=windsurf`}</Pre>
+          <Note>
+            Windsurf does not support PreToolUse hooks. The <Code>windsurfrules.txt</Code> instructs
+            the model to use <Code>ctx_read</Code>, but enforcement is model-level only — not enforced
+            by a hook like in Claude Code. For strongest enforcement, use Claude Code.
+          </Note>
 
           {/* ─────────────────────────────────────────────────────── */}
           <H2 id="shell-hooks">Shell helper</H2>

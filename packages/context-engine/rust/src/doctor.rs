@@ -390,7 +390,7 @@ fn port_3333_outcome() -> Outcome {
 /// Run diagnostic checks and print colored results to stdout.
 pub fn run() {
     let mut passed = 0u32;
-    let total = 13u32;
+    let total = 15u32;
 
     println!("{BOLD}{WHITE}loopguard-ctx doctor{RST}  {DIM}diagnostics{RST}\n");
 
@@ -631,10 +631,44 @@ pub fn run() {
         },
     });
 
+    // ── Per-agent rules files ─────────────────────────────────────────
+    println!();
+    println!("  {BOLD}{WHITE}Agent rules files{RST}  {DIM}(project-local — run doctor from your project root){RST}");
+
+    // 14) Cursor .mdc rule (project-local)
+    let cursor_mdc = PathBuf::from(".cursor").join("rules").join("loopguard-ctx.mdc");
+    let cursor_mdc_ok = cursor_mdc.is_file();
+    if cursor_mdc_ok { passed += 1; }
+    print_check(&Outcome {
+        ok: cursor_mdc_ok,
+        line: if cursor_mdc_ok {
+            format!("{BOLD}Cursor .mdc rule{RST}  {GREEN}installed{RST}  {DIM}.cursor/rules/loopguard-ctx.mdc{RST}")
+        } else {
+            format!("{BOLD}Cursor .mdc rule{RST}  {YELLOW}not found in CWD{RST}  {DIM}run from project root: loopguard-ctx setup --agent=cursor{RST}")
+        },
+    });
+
+    // 15) Windsurf .windsurfrules (project-local)
+    let windsurf_rules = PathBuf::from(".windsurfrules");
+    let windsurf_ok = windsurf_rules.is_file()
+        && std::fs::read_to_string(&windsurf_rules)
+            .unwrap_or_default()
+            .contains("loopguard-ctx");
+    if windsurf_ok { passed += 1; }
+    print_check(&Outcome {
+        ok: windsurf_ok,
+        line: if windsurf_ok {
+            format!("{BOLD}Windsurf .windsurfrules{RST}  {GREEN}installed{RST}  {DIM}.windsurfrules{RST}")
+        } else {
+            format!("{BOLD}Windsurf .windsurfrules{RST}  {YELLOW}not found in CWD{RST}  {DIM}run from project root: loopguard-ctx setup --agent=windsurf{RST}")
+        },
+    });
+
     println!();
     println!("  {BOLD}{WHITE}Summary:{RST}  {GREEN}{passed}{RST}{DIM}/{total}{RST} checks passed");
     if passed < total {
         println!("  {YELLOW}Fix missing Claude Code layers:{RST}  {DIM}loopguard-ctx setup --agent=claude{RST}");
+        println!("  {YELLOW}Fix missing agent rules:{RST}  {DIM}run loopguard-ctx setup --agent=<cursor|windsurf> from your project root{RST}");
     }
     println!("  {DIM}This binary: loopguard-ctx {VERSION} (Cargo package version){RST}");
 }

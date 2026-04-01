@@ -144,39 +144,73 @@ export default function SetupPage() {
           <div id="cursor">
             <SectionCard
               title="Cursor"
-              badge="extension"
+              badge="MCP + rules"
               icon={
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M4 4l6 18 3-7 7-3L4 4z" />
                 </svg>
               }
             >
-              <Step n={1} title="Install the VS Code extension in Cursor">
+              <p className="text-sm text-[#6B7280] mb-4">
+                Cursor gets MCP registration + an always-on <code className="text-[#9CA3AF] text-xs">.cursor/rules/loopguard-ctx.mdc</code> rule
+                that mandates ctx_read and CCP session restore. One command installs both.
+              </p>
+
+              <Step n={1} title="Install the loopguard-ctx binary">
                 <p className="text-sm text-[#6B7280] mb-2">
-                  Cursor is compatible with VS Code extensions. Open Cursor&rsquo;s Extensions panel
-                  and search <strong className="text-[#9CA3AF]">LoopGuard</strong>, or install the VSIX manually:
+                  <strong className="text-[#9CA3AF]">Homebrew</strong> (recommended):
                 </p>
-                <Code>cursor --install-extension loopguard-darwin-arm64.vsix</Code>
+                <Code>brew install rodthenewcomer/tap/loopguard-ctx</Code>
+                <p className="text-sm text-[#6B7280] mt-3 mb-2">
+                  <strong className="text-[#9CA3AF]">One-liner curl:</strong>
+                </p>
+                <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh</Code>
+              </Step>
+
+              <Step n={2} title="Run setup from your project root">
+                <p className="text-sm text-[#6B7280] mb-2">
+                  Run this from the root of the project you work in with Cursor:
+                </p>
+                <Code>loopguard-ctx setup --agent=cursor</Code>
+                <div className="mt-3 p-3 bg-[#0d1117] border border-[#1F2937] rounded-xl space-y-2">
+                  {[
+                    { path: '~/.cursor/mcp.json', desc: 'MCP server registration' },
+                    { path: '.cursor/rules/loopguard-ctx.mdc', desc: 'Always-on rule: ctx_read + CCP session header' },
+                  ].map((f) => (
+                    <div key={f.path} className="flex items-start gap-3">
+                      <code className="text-[#22D3EE] text-xs font-mono flex-shrink-0 mt-0.5">{f.path}</code>
+                      <span className="text-xs text-[#4B5563]">{f.desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </Step>
+
+              <Step n={3} title="Session continuity — restore context at session start">
+                <p className="text-sm text-[#6B7280] mb-2">
+                  The installed rule tells Cursor&rsquo;s agent to run this at the top of every session:
+                </p>
+                <Code>ctx_session load</Code>
                 <p className="text-xs text-[#4B5563] mt-2">
-                  Download the correct platform VSIX from{' '}
-                  <a href="https://github.com/rodthenewcomer/loopguard/releases/latest" className="text-[#6B7280] hover:text-[#9CA3AF] underline underline-offset-2 transition-colors">
-                    GitHub Releases
-                  </a>.
+                  Restores task, files, and findings in ~400 tokens. Without this, every new chat
+                  re-reads all files from scratch.
                 </p>
               </Step>
-              <Step n={2} title="Sign in (works with cursor:// scheme)">
-                <p className="text-sm text-[#6B7280] mb-2">
-                  Run <code className="text-[#9CA3AF] text-xs">LoopGuard: Sign In</code> from the Command Palette.
-                  The auth callback automatically uses <code className="text-[#9CA3AF] text-xs">cursor://</code> — not <code className="text-[#9CA3AF] text-xs">vscode://</code>.
+
+              <Step n={4} title="Restart Cursor">
+                <p className="text-sm text-[#6B7280]">
+                  Restart Cursor so it picks up the MCP config. The <code className="text-[#9CA3AF] text-xs">.mdc</code> rule
+                  activates automatically for AI requests in that project.
                 </p>
               </Step>
-              <Step n={3} title="Wire MCP for inline compression (recommended)">
-                <p className="text-sm text-[#6B7280] mb-2">
-                  Run from the Command Palette:
+
+              <div className="mt-2 p-3 rounded-xl bg-[#F59E0B]/5 border border-[#F59E0B]/20">
+                <p className="text-xs text-[#F59E0B] font-semibold mb-1">Enforcement note</p>
+                <p className="text-xs text-[#6B7280] leading-5">
+                  Cursor does not support PreToolUse hooks. The <code className="text-[#9CA3AF]">.mdc</code> rule
+                  instructs the model to use ctx_read, but cannot <em>block</em> native Read calls the way
+                  Claude Code&rsquo;s enforce hook does. For maximum enforcement, use Claude Code.
                 </p>
-                <Code>LoopGuard: Configure MCP Server → Cursor</Code>
-                <p className="text-xs text-[#4B5563] mt-2">Restart Cursor so LoopGuard&apos;s MCP tools are available to the agent.</p>
-              </Step>
+              </div>
             </SectionCard>
           </div>
 
@@ -184,30 +218,71 @@ export default function SetupPage() {
           <div id="windsurf">
             <SectionCard
               title="Windsurf"
-              badge="extension"
+              badge="MCP + rules"
               icon={
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3M9 21h10a2 2 0 002-2v-7a2 2 0 00-2-2H9a2 2 0 00-2 2v7a2 2 0 002 2z" />
                 </svg>
               }
             >
-              <Step n={1} title="Install the VS Code extension in Windsurf">
+              <p className="text-sm text-[#6B7280] mb-4">
+                Windsurf gets MCP registration + a project-local <code className="text-[#9CA3AF] text-xs">.windsurfrules</code> file
+                with mandatory tool routing and CCP session restore header. One command installs both.
+              </p>
+
+              <Step n={1} title="Install the loopguard-ctx binary">
                 <p className="text-sm text-[#6B7280] mb-2">
-                  Windsurf supports VS Code extensions. Install via the Extensions panel
-                  or manually with the VSIX for your platform.
+                  <strong className="text-[#9CA3AF]">Homebrew</strong> (recommended):
                 </p>
-                <Code>windsurf --install-extension loopguard-darwin-arm64.vsix</Code>
+                <Code>brew install rodthenewcomer/tap/loopguard-ctx</Code>
+                <p className="text-sm text-[#6B7280] mt-3 mb-2">
+                  <strong className="text-[#9CA3AF]">One-liner curl:</strong>
+                </p>
+                <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh</Code>
               </Step>
-              <Step n={2} title="Sign in (uses windsurf:// scheme)">
+
+              <Step n={2} title="Run setup from your project root">
+                <p className="text-sm text-[#6B7280] mb-2">
+                  Run this from the root of the project you work in with Windsurf:
+                </p>
+                <Code>loopguard-ctx setup --agent=windsurf</Code>
+                <div className="mt-3 p-3 bg-[#0d1117] border border-[#1F2937] rounded-xl space-y-2">
+                  {[
+                    { path: '~/.codeium/windsurf/mcp_config.json', desc: 'MCP server registration' },
+                    { path: '.windsurfrules', desc: 'Project rules: ctx_read + CCP session header' },
+                  ].map((f) => (
+                    <div key={f.path} className="flex items-start gap-3">
+                      <code className="text-[#22D3EE] text-xs font-mono flex-shrink-0 mt-0.5">{f.path}</code>
+                      <span className="text-xs text-[#4B5563]">{f.desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </Step>
+
+              <Step n={3} title="Session continuity — restore context at session start">
+                <p className="text-sm text-[#6B7280] mb-2">
+                  The installed rules tell Windsurf&rsquo;s agent to run this at the top of every session:
+                </p>
+                <Code>ctx_session load</Code>
+                <p className="text-xs text-[#4B5563] mt-2">
+                  Restores task, files, and findings in ~400 tokens.
+                </p>
+              </Step>
+
+              <Step n={4} title="Restart Windsurf">
                 <p className="text-sm text-[#6B7280]">
-                  Run <code className="text-[#9CA3AF] text-xs">LoopGuard: Sign In</code>.
-                  The auth callback uses <code className="text-[#9CA3AF] text-xs">windsurf://LoopGuard.loopguard/auth</code> automatically.
+                  Restart Windsurf so it picks up the MCP config. The <code className="text-[#9CA3AF] text-xs">.windsurfrules</code> file
+                  is read automatically by Windsurf for AI requests in that project.
                 </p>
               </Step>
-              <Step n={3} title="Configure MCP for Windsurf">
-                <Code>LoopGuard: Configure MCP Server → Windsurf</Code>
-                <p className="text-xs text-[#4B5563] mt-2">Restart Windsurf so LoopGuard&apos;s MCP tools are available.</p>
-              </Step>
+
+              <div className="mt-2 p-3 rounded-xl bg-[#F59E0B]/5 border border-[#F59E0B]/20">
+                <p className="text-xs text-[#F59E0B] font-semibold mb-1">Enforcement note</p>
+                <p className="text-xs text-[#6B7280] leading-5">
+                  Windsurf does not support PreToolUse hooks. The rules file instructs the model to
+                  use ctx_read but cannot block native calls. For maximum enforcement, use Claude Code.
+                </p>
+              </div>
             </SectionCard>
           </div>
 

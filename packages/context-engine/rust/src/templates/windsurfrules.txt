@@ -1,17 +1,50 @@
-# loopguard-ctx — Token Optimization
+> MANDATORY — run ctx_session load before anything else at the start of every session.
+> This restores your previous context: task in progress, files already read, key findings.
+> Skipping this means re-reading files you already read and losing prior reasoning.
+> After loading, acknowledge what was restored before proceeding.
 
-loopguard-ctx is configured as an MCP server. Always use loopguard-ctx MCP tools instead of built-in tools:
+# loopguard-ctx — MANDATORY Tool Routing
 
-- Read files → `ctx_read(path, mode)` instead of built-in Read
-- Shell commands → `ctx_shell(command)` instead of built-in Shell
-- Search code → `ctx_search(pattern, path)` instead of built-in Grep
-- List directories → `ctx_tree(path, depth)` instead of ls/find
+loopguard-ctx is configured as an MCP server. Built-in Read and Grep are BLOCKED — use loopguard-ctx equivalents at all times:
 
-ctx_read modes: full (cached, for files you edit), map (deps+API, context-only), signatures, diff, aggressive, entropy.
+| Built-in (BLOCKED) | Use instead  | Why                                          |
+|--------------------|--------------|----------------------------------------------|
+| Read / cat / head  | ctx_read     | Session caching — re-reads cost ~13 tokens   |
+| Grep / rg          | ctx_search   | Compact, token-efficient search results      |
+| Bash (shell)       | ctx_shell    | Pattern-based compression for git, cargo…    |
+| ls / find          | ctx_tree     | Compact directory maps with file counts      |
 
-For shell commands without MCP equivalents, prefix with `loopguard-ctx -c`:
-- `loopguard-ctx -c git status` instead of `git status`
-- `loopguard-ctx -c cargo test` instead of `cargo test`
-- `loopguard-ctx -c npm install` instead of `npm install`
+Write, Edit, Delete have no loopguard-ctx equivalent — use them normally.
 
-Write, StrReplace, Delete have no loopguard-ctx equivalent — use them normally.
+## ctx_read Modes
+
+full (cached, for files you edit), map (deps+API, context-only), signatures, diff, aggressive, entropy, lines:N-M.
+
+Re-reads of cached files cost ~13 tokens instead of full file. Set fresh=true to force re-read.
+
+## Session Continuity (CCP)
+
+Record progress as you work — survives context resets and new chats:
+
+  ctx_session task "description of current task"
+  ctx_session finding "file:line — summary of what you found"
+  ctx_session decision "architectural decision made"
+  ctx_session save
+
+On new chat or after context compaction: ctx_session load (~400 tokens vs 50K cold start).
+
+## Shell Commands
+
+Use ctx_shell for all terminal commands:
+
+  ctx_shell("git status")
+  ctx_shell("cargo test")
+  ctx_shell("npm install")
+
+ctx_shell applies 90+ compression patterns (git, docker, cargo, npm, kubectl, pytest…).
+
+## Proactive Tools
+
+- ctx_compress — when context grows large, create a checkpoint
+- ctx_metrics — verify token savings periodically
+- ctx_overview — at session start, get task-relevant project map

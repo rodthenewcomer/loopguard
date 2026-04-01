@@ -382,210 +382,126 @@ Every loop detected and every session is synced to the backend in real time (whe
 
 ### What you get
 
-When configured as an MCP server, LoopGuard gives your AI tool **21 context tools**:
+When configured as an MCP server, loopguard-ctx gives your AI tool 21 context tools:
 
 | Tool | What it does |
 |------|-------------|
-| `read_file` | Read file with Rust-powered compression |
-| `read_signatures` | Return only function/class signatures |
-| `read_map` | Return dependency map (imports/exports) |
-| `read_entropy` | Return high-information-density sections |
-| `compress_output` | Compress CLI output (npm, git, docker…) |
-| `get_delta` | Return only what changed since last read |
-| … | 16 more context and compression tools |
-
-### How to set it up
-
-1. Press `Ctrl+Shift+P`
-2. Type **LoopGuard: Configure MCP Server**
-3. Select your AI tool:
-
-```
-Which AI tool do you want to configure?
-> Cursor
-  Claude Code
-  Windsurf
-  GitHub Copilot
-```
-
-4. LoopGuard runs `loopguard-ctx setup --agent=cursor` (or your chosen tool)
-5. **Restart your AI tool** — MCP is now active
-
-After setup, your AI tool will automatically use LoopGuard's compression on every file read.
+| `ctx_read` | Focused file reads with session caching — re-reads cost ~13 tokens |
+| `ctx_search` | Token-efficient code search results |
+| `ctx_tree` | Compact directory listings and project maps |
+| `ctx_shell` | Compressed shell output (git, cargo, npm, docker, kubectl…) |
+| `ctx_session` | Context Continuity Protocol — save and restore session state |
+| `ctx_compress` | Checkpoint when context grows large |
+| `ctx_metrics` | Token savings report |
+| … | 14 more context and compression tools |
 
 ---
 
-### Claude Code — Why the model ignores loopguard-ctx instructions by default
+### Claude Code (terminal) — Recommended
 
-When you register loopguard-ctx as an MCP server in Claude Code, the MCP server sends usage instructions to the model. However, Claude Code's training strongly favours built-in tools (Read, Grep, Bash). MCP server instructions are advisory — they do not block built-in tool calls. Without enforcement, the model continues using Read and Grep, bypassing loopguard-ctx entirely.
+Claude Code gets the strongest enforcement: **4 independent layers** that together guarantee ctx_read is used instead of native Read/Grep.
 
-**Two enforcement mechanisms are required:**
-
-1. A `CLAUDE.md` global rule that explicitly forbids the built-in tools and maps them to MCP equivalents.
-2. A `PreToolUse` hook in `~/.claude/settings.json` that intercepts Read and Grep calls and returns an error, forcing the model to use ctx_read / ctx_search instead.
-
----
-
-### Required setup steps for Claude Code users
-
-#### Step 1 — Register the MCP server
+#### One-command setup
 
 ```bash
-claude mcp add loopguard-ctx loopguard-ctx
+loopguard-ctx setup --agent=claude
 ```
 
-Or add to `~/.claude.json` manually:
+This installs all 4 layers automatically:
 
-```json
-{
-  "mcpServers": {
-    "loopguard-ctx": {
-      "command": "loopguard-ctx"
-    }
-  }
-}
-```
+1. **MCP registration** — `~/.claude.json` gets the `loopguard-ctx` server entry
+2. **Bash rewrite hook** — rewrites git, cargo, npm, docker, etc. through `loopguard-ctx -c`
+3. **Enforce hook** — blocks native Read and Grep with exit 2, forcing ctx_read/ctx_search
+4. **Global CLAUDE.md** — `~/.claude/CLAUDE.md` with mandatory tool routing table + CCP header
 
-#### Step 2 — Add the PreToolUse hook
+After setup, open Claude Code. The CLAUDE.md instructions tell it to run `ctx_session load` at the start of every session, restoring the previous task, files, and findings in ~400 tokens instead of the 50K+ a cold start costs.
 
-Create `~/.claude/hooks/loopguard-ctx-rewrite.sh`:
+#### Verify
 
 ```bash
-#!/usr/bin/env bash
-# loopguard-ctx PreToolUse hook — blocks Read/Grep and rewrites Bash commands
-set -euo pipefail
-
-LOOPGUARD_CTX_BIN="$(which loopguard-ctx 2>/dev/null || echo '')"
-
-# Emergency bypass: LOOPGUARD_BYPASS=1 lets all tools through unchanged.
-if [ "${LOOPGUARD_BYPASS:-0}" = "1" ]; then
-  exit 0
-fi
-
-INPUT=$(cat)
-TOOL=$(echo "$INPUT" | grep -o '"tool_name":"[^"]*"' | head -1 | cut -d'"' -f4)
-
-case "$TOOL" in
-  Read|read)
-    if [ -z "$LOOPGUARD_CTX_BIN" ]; then exit 0; fi
-    echo "loopguard-ctx: use mcp__loopguard-ctx__ctx_read instead of the Read tool. ctx_read compresses file content by 80-99% before it enters the context window. Set LOOPGUARD_BYPASS=1 to bypass this check in emergencies." >&2
-    exit 2
-    ;;
-  Grep|grep)
-    if [ -z "$LOOPGUARD_CTX_BIN" ]; then exit 0; fi
-    echo "loopguard-ctx: use mcp__loopguard-ctx__ctx_search instead of the Grep tool. ctx_search compresses search results by 50-80% before they enter the context window. Set LOOPGUARD_BYPASS=1 to bypass this check in emergencies." >&2
-    exit 2
-    ;;
-esac
-
-if [ "$TOOL" != "Bash" ] && [ "$TOOL" != "bash" ]; then
-  exit 0
-fi
-
-CMD=$(echo "$INPUT" | grep -o '"command":"[^"]*"' | head -1 | cut -d'"' -f4)
-if echo "$CMD" | grep -qE "^(loopguard-ctx )"; then exit 0; fi
-
-REWRITE=""
-case "$CMD" in
-  git\ *|gh\ *|cargo\ *|npm\ *|pnpm\ *|yarn\ *|docker\ *|kubectl\ *)
-    REWRITE="loopguard-ctx -c $CMD" ;;
-  grep\ *|rg\ *|find\ *|cat\ *|head\ *|tail\ *|ls\ *|ls)
-    REWRITE="loopguard-ctx -c $CMD" ;;
-  curl\ *|pip\ *|pip3\ *|ruff\ *|go\ *|aws\ *|helm\ *)
-    REWRITE="loopguard-ctx -c $CMD" ;;
-  *)
-    exit 0 ;;
-esac
-
-if [ -n "$REWRITE" ]; then
-  echo "{\"command\":\"$REWRITE\"}"
-fi
+loopguard-ctx doctor
 ```
 
-Make it executable:
+Checks all 4 layers and reports what's active, what's missing, and how to fix gaps.
 
-```bash
-chmod +x ~/.claude/hooks/loopguard-ctx-rewrite.sh
+#### Context Continuity Protocol (CCP)
+
+Record session state as you work — it survives context resets and new chats:
+
+```
+ctx_session task "description of current task"
+ctx_session finding "src/auth.rs:142 — JWT expiry not validated"
+ctx_session decision "use optimistic locking instead of transactions"
+ctx_session save
 ```
 
-Register the hook in `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash|bash|Read|read|Grep|grep",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/loopguard-ctx-rewrite.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-#### Step 3 — Add the global CLAUDE.md rule
-
-Create `~/.claude/CLAUDE.md`:
-
-```markdown
-# loopguard-ctx — MANDATORY tool routing
-
-The loopguard-ctx MCP server is active. You MUST use its tools instead of built-in equivalents.
-
-## Required substitutions (enforced by PreToolUse hook)
-
-| Built-in (FORBIDDEN)  | loopguard-ctx replacement              |
-|-----------------------|----------------------------------------|
-| Read                  | mcp__loopguard-ctx__ctx_read           |
-| Bash (file reading)   | mcp__loopguard-ctx__ctx_shell          |
-| Grep                  | mcp__loopguard-ctx__ctx_search         |
-| Bash (ls/find)        | mcp__loopguard-ctx__ctx_tree           |
-
-## Tools you CAN still use directly
-
-- Write, Edit — no loopguard replacement
-- Glob — no loopguard replacement
-- Agent, Task — orchestration only
-
-## Why
-
-ctx_read compresses file content by 80-90% before it reaches this context window.
-Using Read instead wastes tokens and defeats the purpose of the tool.
-```
-
-#### Step 4 — Verify with ctx_metrics
-
-After a session, check that loopguard-ctx is being used:
-
-```bash
-# In a Claude Code session, ask Claude to run:
-mcp__loopguard-ctx__ctx_metrics
-```
-
-You should see non-zero counts for `ctx_read` and `ctx_search` calls and significant token savings. If you see zero MCP calls, check that the hook file is executable and the matcher in settings.json includes `Read|Grep`.
+On new chat or after context compaction, `ctx_session load` restores everything in ~400 tokens.
 
 #### Bypass
-
-If you need to temporarily allow native Read/Grep (for debugging or emergencies):
 
 ```bash
 LOOPGUARD_BYPASS=1 claude
 ```
 
-### Requirements
+---
 
-The MCP integration requires the `loopguard-ctx` binary. The binary is bundled inside the VSIX — it should be available automatically after installing the extension.
+### Cursor
 
-If LoopGuard shows an error message:
+Cursor gets MCP registration + a `.mdc` rule file (always-on Cursor rule) that enforces ctx_read and sets the CCP session restore header.
 
-> LoopGuard: The loopguard-ctx binary is required for MCP setup.
+```bash
+loopguard-ctx setup --agent=cursor
+```
 
-Click **"Download from GitHub"** in the error dialog to get the binary directly from the GitHub releases page.
+This writes:
+- MCP config to `~/.cursor/mcp.json`
+- `loopguard-ctx.mdc` Cursor rule with mandatory tool routing + `ctx_session load` header
+
+After setup, add `ctx_session load` at the top of your Cursor AI chat when starting a new session. The `.mdc` rule ensures the model uses ctx_read over its built-in Read tool.
+
+> **Note:** Cursor does not support PreToolUse hooks. Enforcement is model-level via the rule file — not hook-enforced like in Claude Code.
+
+---
+
+### Windsurf
+
+Windsurf gets MCP registration + a `windsurfrules.txt` rules file with the same mandatory routing table and CCP header.
+
+```bash
+loopguard-ctx setup --agent=windsurf
+```
+
+This writes:
+- MCP config to `~/.codeium/windsurf/mcp_config.json`
+- `windsurfrules.txt` with mandatory tool routing + `ctx_session load` header
+
+> **Note:** Windsurf does not support PreToolUse hooks. Enforcement is model-level only via the rules file.
+
+---
+
+### Other agents (VS Code Copilot, Codex CLI, Zed)
+
+```bash
+loopguard-ctx setup
+# or via VS Code:
+# Command Palette → LoopGuard: Configure MCP Server
+```
+
+These agents receive MCP registration only — no hook or rules file enforcement.
+
+---
+
+### Per-agent enforcement summary
+
+| Agent | MCP | Bash rewrite hook | Enforce hook | Rules / CLAUDE.md | CCP support |
+|-------|-----|-------------------|--------------|-------------------|-------------|
+| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ Full |
+| Cursor | ✅ | ❌ | ❌ | ✅ (.mdc) | ✅ Model-level |
+| Windsurf | ✅ | ❌ | ❌ | ✅ (rules.txt) | ✅ Model-level |
+| VS Code / Copilot | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Codex CLI | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+For the highest savings and enforcement, use Claude Code.
 
 ---
 

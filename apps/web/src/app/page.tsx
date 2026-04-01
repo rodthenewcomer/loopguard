@@ -117,6 +117,7 @@ const CTX_FEATURES = [
   'Session memory: if your agent read auth.ts 3 times, the 4th costs 13 tokens',
   'Myers delta: only what changed since the last request — not the whole file again',
   '14 languages: TypeScript, Python, Rust, Go, Java, C++, and more',
+  'Context Continuity Protocol: ctx_session load restores task + files in ~400 tokens after any reset',
 ];
 
 /* ── Integrations ───────────────────────────────────────────────── */
@@ -421,10 +422,10 @@ export default function LandingPage() {
             {
               step: '1',
               color: '#22D3EE',
-              title: 'Download the binary',
-              body: 'Grab loopguard-ctx for your platform from GitHub Releases, then:',
-              code: 'chmod +x loopguard-ctx && mv loopguard-ctx /usr/local/bin/',
-              cta: { label: 'GitHub Releases →', href: 'https://github.com/rodthenewcomer/loopguard/releases/latest' },
+              title: 'Install loopguard-ctx',
+              body: 'Via Homebrew (recommended), or one-liner curl:',
+              code: 'brew install rodthenewcomer/tap/loopguard-ctx',
+              cta: { label: 'Other install options →', href: '/setup#install' },
             },
             {
               step: '2',
@@ -438,7 +439,8 @@ export default function LandingPage() {
               step: '3',
               color: '#22C55E',
               title: 'Restart + verify',
-              body: 'Open a new terminal. Run /mcp inside Claude Code to confirm loopguard-ctx is connected. File reads are now compressed 80–99%.',
+              body: 'Open a new terminal. Run the doctor command to confirm all 4 layers are active.',
+              code: 'loopguard-ctx doctor',
               cta: { label: 'Troubleshoot →', href: '/setup#claude-code' },
             },
           ].map((item, i) => (

@@ -2,6 +2,40 @@
 
 All notable changes to loopguard-ctx are documented here.
 
+## [2.7.0] — 2026-04-01
+
+### Added
+
+- **Per-agent enforcement parity** — Cursor and Windsurf now receive meaningful rules files on `setup --agent=<cursor|windsurf>`, not just MCP registration. Cursor gets `.cursor/rules/loopguard-ctx.mdc` (always-on rule); Windsurf gets `.windsurfrules`. Both include the mandatory BLOCKED tool routing table and CCP session restore header.
+- **`loopguard-ctx.mdc` overhauled** — Cursor rule now uses correct "loopguard-ctx Token Optimization" description (was "lean-ctx"), leading CCP blockquote, full BLOCKED table with correct header, ctx_read modes, and CCP recording commands.
+- **`windsurfrules.txt` expanded** — Grew from 17 lines to 50: leading CCP blockquote, BLOCKED table, modes reference, session continuity commands, and ctx_shell prefix examples.
+- **`loopguard-ctx doctor` checks agent rules files** — Two new checks (total: 15): `.cursor/rules/loopguard-ctx.mdc` and `.windsurfrules` in CWD. Run doctor from your project root to verify per-agent rules are in place.
+- **`stale_hooks_warning()`** — `loopguard-ctx notify` now emits a yellow upgrade hint to existing users when the enforce hook or CCP header is missing from CLAUDE.md, without requiring re-running setup.
+- **CCP `format_compact()` rewrite** — `ctx_session load` now displays a structured ANSI session card (bold magenta header, task, up to 3 findings, files read, CTA) within an 8-line budget instead of flat pipe-separated text.
+
+### Changed
+
+- **All documentation updated for multi-agent coverage** — `docs/user-guide.md` Section 8 rewritten with per-agent setup, enforcement summary table, and CCP details. `apps/web/src/app/docs/page.tsx` install section updated with Homebrew + one-liner, 4-step Claude Code setup, and Cursor/Windsurf subsections. `apps/web/src/app/setup/page.tsx` Cursor and Windsurf sections updated to show full `setup --agent=<tool>` flow. `README.md` Quick Start updated with Homebrew install and per-agent commands.
+- **Landing page** (`apps/web/src/app/page.tsx`) — Claude Code "Path B" steps updated: Step 1 uses Homebrew/one-liner instead of manual GitHub Releases download; Step 3 uses `loopguard-ctx doctor` instead of `/mcp` verification. CTX_FEATURES gains a CCP entry.
+- **Doctor total increased** — 13 → 15 checks (adds Cursor .mdc and Windsurf rules).
+
+### Fixed
+
+- **`clippy::useless_format`** — `stale_hooks_warning()` used `format!("...")` with no arguments; changed to `.to_string()`.
+- **`clippy::unnecessary_map_or`** — Four occurrences in `doctor.rs` using `.map_or(false, |p| ...)` replaced with `.is_some_and(|p| ...)`.
+
+### Per-agent enforcement summary
+
+| Agent | MCP | Bash rewrite | Enforce hook | Rules / CLAUDE.md | CCP |
+|-------|-----|--------------|--------------|-------------------|-----|
+| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ Full |
+| Cursor | ✅ | ❌ | ❌ | ✅ (.mdc) | ✅ Model-level |
+| Windsurf | ✅ | ❌ | ❌ | ✅ (.windsurfrules) | ✅ Model-level |
+| VS Code / Copilot | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Codex CLI | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+---
+
 ## [2.6.0] — 2026-03-27
 
 ### Added
