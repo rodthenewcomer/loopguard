@@ -7,7 +7,7 @@ All notable changes to loopguard-ctx are documented here.
 ### Added
 
 - **Per-agent enforcement parity** — Cursor and Windsurf now receive meaningful rules files on `setup --agent=<cursor|windsurf>`, not just MCP registration. Cursor gets `.cursor/rules/loopguard-ctx.mdc` (always-on rule); Windsurf gets `.windsurfrules`. Both include the mandatory BLOCKED tool routing table and CCP session restore header.
-- **`loopguard-ctx.mdc` overhauled** — Cursor rule now uses correct "loopguard-ctx Token Optimization" description (was "lean-ctx"), leading CCP blockquote, full BLOCKED table with correct header, ctx_read modes, and CCP recording commands.
+- **`loopguard-ctx.mdc` overhauled** — Cursor rule now uses the correct "loopguard-ctx Token Optimization" description, leading CCP blockquote, full BLOCKED table with correct header, ctx_read modes, and CCP recording commands.
 - **`windsurfrules.txt` expanded** — Grew from 17 lines to 50: leading CCP blockquote, BLOCKED table, modes reference, session continuity commands, and ctx_shell prefix examples.
 - **`loopguard-ctx doctor` checks agent rules files** — Two new checks (total: 15): `.cursor/rules/loopguard-ctx.mdc` and `.windsurfrules` in CWD. Run doctor from your project root to verify per-agent rules are in place.
 - **`stale_hooks_warning()`** — `loopguard-ctx notify` now emits a yellow upgrade hint to existing users when the enforce hook or CCP header is missing from CLAUDE.md, without requiring re-running setup.

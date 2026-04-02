@@ -89,7 +89,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold text-white mb-4">4. Local processing</h2>
             <p>
-              All context compression, loop detection, AST parsing, and entropy scoring runs entirely on your local machine inside the VS Code extension process. The Rust binary (loopguard-ctx) runs as a subprocess on your machine and communicates with the extension over stdin/stdout. It has no network access. No code is ever sent to our servers for processing.
+              All focused context selection and loop detection runs entirely on your local machine inside the VS Code extension process. The native helper (<code className="font-mono text-xs">loopguard-ctx</code>) runs as a local subprocess over stdin/stdout when available and has no network access. No code is ever sent to our servers for processing.
             </p>
           </section>
 

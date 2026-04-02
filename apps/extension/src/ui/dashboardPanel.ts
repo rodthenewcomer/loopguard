@@ -711,8 +711,8 @@ function buildHtml(
               <div class="detail-value ${engineTier === 'rust' ? 'c-cyan' : 'c-amber'}">${engineTier === 'rust' ? 'Native' : 'Fallback'}</div>
             </div>
             <div class="detail-cell">
-              <div class="detail-label">Typical reduction</div>
-              <div class="detail-value ${engineTier === 'rust' ? 'c-green' : 'c-amber'}">${engineTier === 'rust' ? '89-99%' : '~80%'}</div>
+              <div class="detail-label">Expected result</div>
+              <div class="detail-value ${engineTier === 'rust' ? 'c-green' : 'c-amber'}">${engineTier === 'rust' ? 'Deeper focused reads' : 'Built-in focused reads'}</div>
             </div>
           </div>
           <div class="actions">

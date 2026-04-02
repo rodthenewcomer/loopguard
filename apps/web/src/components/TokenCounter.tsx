@@ -46,7 +46,7 @@ export default function TokenCounter() {
         style={{ background: 'linear-gradient(145deg, #111827, #0f172a)' }}
       >
         <div className="text-xs text-[#6B7280] uppercase tracking-widest mb-5 font-medium">
-          Context window — live compression
+          Focused read example
         </div>
 
         {/* Before */}
@@ -101,17 +101,17 @@ export default function TokenCounter() {
         <div className="flex items-center gap-2 mt-4 pt-4 border-t border-[#1F2937]">
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#F59E0B]/10 border border-[#F59E0B]/30 rounded-full">
             <span className="text-[#F59E0B] text-[10px] font-bold uppercase tracking-wide">
-              Rust engine
+              Native helper
             </span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#22D3EE]/10 border border-[#22D3EE]/20 rounded-full">
             <span className="text-[#22D3EE] text-[10px] font-bold uppercase tracking-wide">
-              AST + Entropy
+              Focused read
             </span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-full">
             <span className="text-[#22C55E] text-[10px] font-bold uppercase tracking-wide">
-              14 languages
+              Common code + config
             </span>
           </div>
         </div>

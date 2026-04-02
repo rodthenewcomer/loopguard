@@ -4,7 +4,7 @@ import SignupClient from './SignupClient';
 
 export const metadata: Metadata = {
   title: 'Create free account — LoopGuard',
-  description: 'Create a free LoopGuard account to unlock the web dashboard, session history, and all features.',
+  description: 'Create a free LoopGuard account to sync session metrics to the web dashboard and keep your session history.',
 };
 
 const FREE_ACCOUNT_PERKS = [
@@ -93,8 +93,8 @@ export default function SignupPage() {
                 <span className="text-xs font-bold text-[#22C55E] uppercase tracking-wide">Everything included — free</span>
               </div>
               <p className="text-[#6B7280] text-xs leading-relaxed">
-                Rust engine (89–99% token reduction), MCP server, shell hooks, and full session history
-                are all available from day one. No upgrade required, ever.
+                The native helper, MCP setup, shell hooks, and full session history are all available from
+                day one. No upgrade step required.
               </p>
             </div>
           </div>

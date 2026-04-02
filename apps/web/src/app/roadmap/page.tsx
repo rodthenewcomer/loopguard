@@ -14,8 +14,8 @@ const PHASES = [
     items: [
       { title: 'Loop detection via VS Code diagnostics API', detail: 'Fires when the same error hash appears 2–5× in a session depending on sensitivity setting.' },
       { title: 'Edit-pattern loop detection', detail: 'Detects when you are editing the same region of code repeatedly with no forward progress.' },
-      { title: 'TypeScript context engine (~80% token reduction)', detail: 'Free tier. Extracts imports and a focused window around the current error.' },
-      { title: 'Rust context engine (89–99% token reduction)', detail: 'Local helper path. Full AST parse, Shannon entropy scoring, Myers delta, memory cache.' },
+      { title: 'Built-in focused context copy', detail: 'Extracts imports and a focused window around the current error with no extra setup.' },
+      { title: 'Native helper for deeper local reads', detail: 'Adds stronger focused reads, MCP support, and better shell coverage through the local loopguard-ctx binary.' },
       { title: 'MCP server support', detail: 'Setup path for Claude Code, Cursor, Windsurf, Codex CLI, Zed, and VS Code / Copilot.' },
       { title: 'Shell hooks — CLI output compression', detail: 'bash, zsh, fish on Windows (WSL), macOS, Linux. 60–90% reduction on npm, git, docker output.' },
       { title: 'Multi-IDE auth — VS Code, Cursor, Windsurf', detail: 'URI callback scheme auto-detected from vscode.env.uriScheme.' },
@@ -54,7 +54,7 @@ const PHASES = [
       { title: 'Team plan — shared dashboards', detail: 'Org-level view of loop rates, token spend, and time wasted across all developers. Identify which parts of the codebase create the most AI friction.' },
       { title: 'Token budget enforcement', detail: 'Set a daily token budget per developer. LoopGuard warns when 80% is consumed and blocks context copies when the limit is hit.' },
       { title: 'Multi-model routing', detail: 'Route cheap queries (boilerplate, formatting) to smaller models and only send complex loop-breaking queries to GPT-4 / Claude Opus.' },
-      { title: 'Context quality scoring', detail: 'After each AI response, score how relevant it was. Feed this back into the entropy model to improve future context selection.' },
+      { title: 'Context quality scoring', detail: 'After each AI response, score how relevant it was and use that feedback to keep future context selections tighter.' },
     ],
   },
   {

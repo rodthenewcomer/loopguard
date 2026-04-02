@@ -222,7 +222,7 @@ function _activate(context: vscode.ExtensionContext): void {
     );
   });
 
-  // Copy Optimized Context — Rust engine (89–99%) or TypeScript fallback (~80%)
+  // Copy Optimized Context — native helper when available, built-in mode otherwise
   const copyContext = vscode.commands.registerCommand('loopguard.copyContext', async () => {
     const editor = vscode.window.activeTextEditor;
     if (editor === undefined) {
@@ -244,13 +244,13 @@ function _activate(context: vscode.ExtensionContext): void {
       const fullTokens = estimateTokens(editor.document.getText());
       const saved = Math.max(0, fullTokens - snapshot.tokenEstimate);
       const pct = fullTokens > 0 ? Math.round((saved / fullTokens) * 100) : 0;
-      const engine = (await contextEngine.isBinaryAvailable()) ? 'Rust engine' : 'TS engine';
+      const engine = (await contextEngine.isBinaryAvailable()) ? 'native helper' : 'built-in mode';
 
       sessionTracker.addTokensSaved(saved);
       refreshLoopState();
 
       vscode.window.showInformationMessage(
-        `LoopGuard: Context copied via ${engine} (${snapshot.tokenEstimate} tokens · ${pct}% reduction).`,
+        `LoopGuard: Focused context copied via ${engine} (${snapshot.tokenEstimate} tokens · ${pct}% smaller).`,
       );
     } catch (err) {
       logger.error('copyContext failed', { err });

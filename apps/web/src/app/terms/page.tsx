@@ -70,10 +70,10 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-bold text-white mb-4">6. Open source components</h2>
             <p>
-              Parts of LoopGuard are MIT licensed and available on{' '}
+              The code published in the LoopGuard repository is MIT licensed and available on{' '}
               <a href="https://github.com/rodthenewcomer/loopguard" className="text-[#6B7280] hover:text-[#9CA3AF] underline underline-offset-2">
                 GitHub
-              </a>. The proprietary Rust binary (loopguard-ctx) and the backend API are not open source. Using open source components of LoopGuard is subject to the MIT License terms in the repository.
+              </a>. Third-party dependencies keep their own licenses, and the hosted LoopGuard service is still governed by these terms.
             </p>
           </section>
 

@@ -60,8 +60,8 @@ const SURFACES = [
 
 const METRICS = [
   { value: '93%', label: 'Measured helper reduction example', tone: '#22D3EE' },
-  { value: '47min', label: 'Average time recovered per day', tone: '#F59E0B' },
-  { value: '~$77', label: 'Estimated monthly API waste avoided', tone: '#22C55E' },
+  { value: '2 signals', label: 'Diagnostics + edit patterns catch loops earlier', tone: '#F59E0B' },
+  { value: '1 setup', label: 'Extension, MCP, and shell flow can share the same guardrail', tone: '#22C55E' },
   { value: 'Local', label: 'Code stays on your machine', tone: '#A78BFA' },
 ];
 

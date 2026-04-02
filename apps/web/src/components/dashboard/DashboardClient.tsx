@@ -393,7 +393,7 @@ function EnginePanel({ data }: { data: SummaryData }) {
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300">Engine mode</div>
-              <div className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">Rust engine 89–99%</div>
+              <div className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">Native helper active</div>
             </div>
             <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-300">
               Optimal

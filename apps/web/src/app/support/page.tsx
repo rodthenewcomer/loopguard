@@ -16,8 +16,8 @@ const FAQ = [
     a: 'LoopGuard requires 3 occurrences of the same error hash within a session before triggering. Make sure VS Code diagnostics are working for your language (check the Problems panel). The extension reads from the VS Code diagnostics API — it does not parse terminal output.',
   },
   {
-    q: 'The context engine shows "TypeScript fallback (~80%)" instead of "Rust engine (89–99%)".',
-    a: 'The Rust binary (loopguard-ctx) ships inside the platform-specific VSIX. If you installed from the Marketplace, the correct binary should be bundled. If you installed a generic VSIX manually, download the platform-specific one from the GitHub Releases page. The TypeScript fallback still works — Rust just saves more tokens.',
+    q: 'The dashboard shows built-in mode instead of the native helper.',
+    a: 'The native helper (loopguard-ctx) ships inside the platform-specific VSIX. If you installed from the Marketplace, the correct binary should be bundled. If you installed a generic VSIX manually, download the platform-specific one from the GitHub Releases page. Built-in mode still works — the native helper just gives you stronger focused reads and better MCP or shell coverage.',
   },
   {
     q: 'I get "loopguard-ctx not found" in the Output panel.',
@@ -29,7 +29,7 @@ const FAQ = [
   },
   {
     q: 'How do I delete my account and all my data?',
-    a: 'Email support@loopguard.app with the subject "Delete my account" from the email address you signed up with. We will delete all your data within 72 hours and confirm by email.',
+    a: 'Email support@loopguard.dev with the subject "Delete my account" from the email address you signed up with. We will delete all your data within 72 hours and confirm by email.',
   },
   {
     q: 'Does LoopGuard send my code to any server?',
@@ -62,8 +62,8 @@ const CONTACT = [
     ),
     label: 'Email Support',
     description: 'Account issues, billing, data requests',
-    href: 'mailto:support@loopguard.app',
-    cta: 'support@loopguard.app',
+    href: 'mailto:support@loopguard.dev',
+    cta: 'support@loopguard.dev',
   },
   {
     icon: (

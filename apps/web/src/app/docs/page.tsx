@@ -262,17 +262,17 @@ loopguard-ctx --version`}</Pre>
             'MCP server registration in ~/.claude.json',
             'Bash rewrite PreToolUse hook (routes all shell commands through loopguard-ctx)',
             'Enforce PreToolUse hook (blocks native Read/Grep, enforces ctx_read)',
-            'Global ~/.claude/CLAUDE.md with mandatory tool routing + CCP session restore header',
+            'Global ~/.claude/CLAUDE.md with tool-routing guidance and a session-restore hint',
           ]} />
-          <H3>Step 3 — Session continuity (CCP)</H3>
+          <H3>Step 3 — Session restore</H3>
           <P>
             After setup, every new Claude Code session starts with this instruction at the top of CLAUDE.md:
           </P>
           <Pre>{`ctx_session load`}</Pre>
           <P>
-            This restores the previous session state — task, files read, key findings — in ~400 tokens
-            instead of the 50K+ tokens a cold start costs. Run <Code>ctx_session status</Code> at any
-            time to see what was restored.
+            This restores the previous session state — task, files read, and key findings — so you do not
+            have to manually paste the same background into every new session. Run <Code>ctx_session status</Code>{' '}
+            at any time to see what was restored.
           </P>
           <H3>Step 4 — Verify</H3>
           <Pre>{`loopguard-ctx doctor`}</Pre>
@@ -448,9 +448,9 @@ loopguard-ctx --version`}</Pre>
           <H3>What gets extracted</H3>
           <CheckList items={[
             'Import and dependency lines near the top of the file when they can be identified',
-            'A focused window around the first active error in the current document (about 30 lines on each side in the TypeScript fallback)',
+            'A focused window around the first active error in the current document (about 30 lines on each side in built-in mode)',
             'A local token estimate so LoopGuard can report approximate savings after the copy',
-            'When the bundled loopguard-ctx binary is available, a richer entropy-based read path instead of the plain TypeScript fallback',
+            'When the bundled loopguard-ctx binary is available, a stronger local read path instead of the built-in fallback',
           ]} />
 
           <H3>Keyboard shortcut</H3>
@@ -463,18 +463,18 @@ loopguard-ctx --version`}</Pre>
 }`}</Pre>
 
           {/* ─────────────────────────────────────────────────────── */}
-          <H2 id="engines">Rust engine vs TypeScript engine</H2>
+          <H2 id="engines">Built-in mode vs native helper</H2>
           <P>
             LoopGuard ships two context engine implementations. The TypeScript engine runs on every
             install. When the bundled <Code>loopguard-ctx</Code> binary is available, LoopGuard can
             use that richer local read path automatically.
           </P>
           <Table
-            headers={['', 'TypeScript fallback', 'Bundled loopguard-ctx binary']}
+            headers={['', 'Built-in mode', 'Bundled loopguard-ctx binary']}
             rows={[
-              ['Typical behavior', 'Imports + focused nearby lines', 'Entropy-based focused read via the local binary'],
+              ['Typical behavior', 'Imports + focused nearby lines', 'Deeper focused reads and better MCP/shell coverage'],
               ['Availability', 'Always available', 'Used when the bundled binary loads correctly'],
-              ['Token savings', 'Often substantial, but estimate-based', 'Often higher, but still workload-dependent'],
+              ['Token savings', 'Smaller prompts for common editor fixes', 'Often smaller again, especially on larger files and agent workflows'],
               ['Network access', 'None', 'None'],
               ['Fallback', 'N/A', 'Falls back to TypeScript automatically on failure'],
             ]}
@@ -490,7 +490,7 @@ loopguard-ctx --version`}</Pre>
           <P>
             Loop detection itself is language-agnostic because it listens to IDE diagnostics. Context
             copy works best on common code and config files, and the binary path has broader language-aware
-            support than the TypeScript fallback.
+            support than the built-in mode.
           </P>
           <Table
             headers={['Language family', 'Typical file types', 'Support level']}
@@ -595,7 +595,7 @@ args = []`}</Pre>
             Run <Code>loopguard-ctx setup --agent=cursor</Code> or use{' '}
             <Code>LoopGuard: Configure MCP Server</Code> from Cursor&rsquo;s Command Palette.
             This writes the MCP config to <Code>~/.cursor/mcp.json</Code> and installs a{' '}
-            <Code>loopguard-ctx.mdc</Code> Cursor rule with mandatory tool routing and CCP session header.
+            <Code>loopguard-ctx.mdc</Code> Cursor rule with tool-routing guidance and a session-restore hint.
           </P>
           <Pre>{`loopguard-ctx setup --agent=cursor`}</Pre>
           <P>
@@ -609,7 +609,7 @@ args = []`}</Pre>
             Run <Code>loopguard-ctx setup --agent=windsurf</Code> or use{' '}
             <Code>LoopGuard: Configure MCP Server</Code>. This writes the MCP config to{' '}
             <Code>~/.codeium/windsurf/mcp_config.json</Code> and installs a <Code>windsurfrules.txt</Code>
-            with mandatory tool routing and CCP session header.
+            with tool-routing guidance and a session-restore hint.
           </P>
           <Pre>{`loopguard-ctx setup --agent=windsurf`}</Pre>
           <Note>

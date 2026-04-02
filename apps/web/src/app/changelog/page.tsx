@@ -12,7 +12,7 @@ const RELEASES = [
     date: 'March 2026',
     tag: 'Initial Release',
     tagColor: '#22C55E',
-    summary: 'First public release of LoopGuard. Loop detection and the TypeScript context engine ship in the free tier. Rust engine, MCP server, and shell hooks ship in Pro.',
+    summary: 'First public release of LoopGuard. Loop detection, focused context copy, MCP support, and shell hooks are all part of the local-first product story.',
     sections: [
       {
         label: 'Loop Detection',
@@ -32,10 +32,10 @@ const RELEASES = [
         label: 'Context Engine',
         color: '#22D3EE',
         items: [
-          'TypeScript context engine (~80% reduction) — ships in the free tier, no binary required',
-          'Rust context helper can reach 89–99% reduction on some files and MCP workflows',
+          'Built-in focused context copy works out of the box with no binary setup',
+          'The native helper can make prompts much smaller on some files and MCP workflows',
           'Focused context copy from the current file using imports plus nearby error context',
-          'AST- and entropy-based modes are available through the local loopguard-ctx binary',
+          'A stronger local read path is available through the loopguard-ctx helper',
           'The extension UI reports quick local token estimates after each copy',
           'Copy Optimized Context command (Ctrl+Shift+P) — copies compressed context to clipboard',
           'Measured reductions vary by file, language, and mode rather than staying fixed at one percentage',
@@ -43,7 +43,7 @@ const RELEASES = [
         ],
       },
       {
-        label: 'MCP Server (Pro)',
+        label: 'MCP Server',
         color: '#A78BFA',
         items: [
           'loopguard-ctx exposes a larger MCP toolset for compatible AI clients',
@@ -57,7 +57,7 @@ const RELEASES = [
         ],
       },
       {
-        label: 'Shell Hooks (Pro)',
+        label: 'Shell Hooks',
         color: '#F59E0B',
         items: [
           'Shell helper path for reducing noisy CLI output before you paste it into AI tools',
