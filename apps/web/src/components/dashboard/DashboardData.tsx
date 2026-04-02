@@ -12,7 +12,8 @@ import type { Session } from '@supabase/supabase-js';
 import { startTransition, useEffect, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? 'https://api.loopguard.dev';
+const API_BASE =
+  process.env['NEXT_PUBLIC_API_URL'] ?? 'https://loopguardapi-production.up.railway.app';
 const POLL_INTERVAL_MS = 15_000;
 type DayData   = { date: string; loops: number; tokensSaved: number };
 type LoopEntry = { id: string; errorHash: string; occurrences: number; timeWastedMs: number; fileType: string; status: string; detectedAt: number };
@@ -20,6 +21,7 @@ type LoopEntry = { id: string; errorHash: string; occurrences: number; timeWaste
 export interface SummaryData {
   thisWeek:  { loops: number; timeWastedMs: number; tokensSaved: number; costSaved: number };
   today:     { loops: number; timeWastedMs: number; tokensSaved: number; costSaved: number };
+  allTime:   { loops: number; timeWastedMs: number; tokensSaved: number; costSaved: number };
   weeklyBreakdown: DayData[];
   recentLoops: LoopEntry[];
   topErrorHashes: { hash: string; count: number }[];
@@ -29,6 +31,7 @@ export interface SummaryData {
 export const DEMO_DATA: SummaryData = {
   thisWeek: { loops: 22, timeWastedMs: 312 * 60 * 1000, tokensSaved: 35_200, costSaved: 1.06 },
   today:    { loops: 3,  timeWastedMs: 47 * 60 * 1000,  tokensSaved: 8_400, costSaved: 0.25 },
+  allTime:  { loops: 148, timeWastedMs: 1287 * 60 * 1000, tokensSaved: 412_000, costSaved: 12.36 },
   weeklyBreakdown: [
     { date: getDay(-6), loops: 2, tokensSaved: 3200 },
     { date: getDay(-5), loops: 5, tokensSaved: 8100 },
@@ -97,12 +100,17 @@ export function useDashboardData(): State {
     } catch (err) {
       const error = err instanceof Error ? err.message : 'Unknown API error';
       console.warn('[DashboardData] API fetch failed, using demo data:', error);
-      startTransition(() => setState({
-        status: 'demo',
-        data: DEMO_DATA,
-        error,
-        updatedAt: Date.now(),
-      }));
+      startTransition(() =>
+        setState((current) => {
+          if (current.status === 'live') return current;
+          return {
+            status: 'demo',
+            data: DEMO_DATA,
+            error,
+            updatedAt: Date.now(),
+          };
+        }),
+      );
     }
   };
 

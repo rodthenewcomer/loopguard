@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import LoopGuardLogo from '../LoopGuardLogo';
 import { DEMO_DATA, fmtMs, type SummaryData, useDashboardData } from './DashboardData';
 import WeekChart from './WeekChart';
 
@@ -136,20 +137,15 @@ function TopBar({
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl border border-sky-400/20 bg-sky-400/10 shadow-[0_0_24px_rgba(34,211,238,0.12)]">
-              <svg width="24" height="24" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-                <path d="M17 2L3 8v10c0 8.3 5.8 15.8 14 17.7C25.2 33.8 31 26.3 31 18V8L17 2z" fill="url(#topbarShield)" />
-                <defs>
-                  <linearGradient id="topbarShield" x1="3" y1="2" x2="31" y2="35" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#3B82F6" />
-                    <stop offset="100%" stopColor="#22D3EE" />
-                  </linearGradient>
-                </defs>
-              </svg>
+            <div className="flex h-10 items-center rounded-2xl border border-sky-400/20 bg-sky-400/10 px-3 shadow-[0_0_24px_rgba(34,211,238,0.12)]">
+              <LoopGuardLogo
+                size={24}
+                showWordmark
+                wordmarkClassName="text-sm font-semibold tracking-tight text-white"
+              />
             </div>
-            <div>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">LoopGuard</div>
-              <div className="text-sm font-semibold text-white">Dashboard</div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+              Dashboard
             </div>
           </Link>
         </div>
@@ -625,16 +621,16 @@ function DashboardBody({
           icon="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10zm0-10V7"
         />
         <UtilityCard
-          label="Tokens saved this week"
-          value={data.thisWeek.tokensSaved.toLocaleString()}
-          detail="Context trimmed away before it became prompt noise."
+          label="Tokens saved all time"
+          value={data.allTime.tokensSaved.toLocaleString()}
+          detail="Everything LoopGuard has trimmed away across your signed-in history."
           accentClass="text-cyan-300"
           icon="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 6v4l3 3"
         />
         <UtilityCard
-          label="Cost saved this week"
-          value={`$${data.thisWeek.costSaved.toFixed(2)}`}
-          detail="Estimated using the dashboard’s current token-cost model."
+          label="Cost saved all time"
+          value={`$${data.allTime.costSaved.toFixed(2)}`}
+          detail="Estimated total API spend LoopGuard helped avoid across your account."
           accentClass="text-emerald-300"
           icon="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"
         />

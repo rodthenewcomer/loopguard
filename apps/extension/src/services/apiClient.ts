@@ -33,6 +33,32 @@ export interface LoopPayload {
   status: 'active' | 'resolved' | 'ignored';
 }
 
+export interface SummaryPeriod {
+  loops: number;
+  timeWastedMs: number;
+  tokensSaved: number;
+  costSaved: number;
+}
+
+export interface SummaryLoopEntry {
+  id: string;
+  errorHash: string;
+  occurrences: number;
+  timeWastedMs: number;
+  fileType: string;
+  status: string;
+  detectedAt: number;
+}
+
+export interface DashboardSummary {
+  thisWeek: SummaryPeriod;
+  today: SummaryPeriod;
+  allTime: SummaryPeriod;
+  weeklyBreakdown: Array<{ date: string; loops: number; tokensSaved: number }>;
+  recentLoops: SummaryLoopEntry[];
+  topErrorHashes: Array<{ hash: string; count: number }>;
+}
+
 /**
  * Thin HTTP client for the LoopGuard API.
  *
@@ -84,6 +110,34 @@ export class ApiClient {
   async sendLoop(payload: LoopPayload): Promise<void> {
     if (this._token === null) return;
     await this._post('/api/v1/metrics/loop', payload);
+  }
+
+  async getSummary(days: number = 7): Promise<DashboardSummary | null> {
+    if (this._token === null) return null;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/metrics/summary?days=${days}`, {
+        headers: {
+          Authorization: `Bearer ${this._token}`,
+        },
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        logger.warn(`[ApiClient] /api/v1/metrics/summary → ${res.status}`);
+        return null;
+      }
+
+      return (await res.json()) as DashboardSummary;
+    } catch (err) {
+      logger.warn('[ApiClient] /api/v1/metrics/summary failed (network or timeout)', { err });
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   private async _post(path: string, body: unknown): Promise<void> {

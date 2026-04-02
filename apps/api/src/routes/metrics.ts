@@ -127,7 +127,7 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
   const todayStart = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
 
-  const [sessionsResult, loopsResult, todayResult] = await Promise.all([
+  const [sessionsResult, loopsResult, todayResult, allTimeResult] = await Promise.all([
     supabase
       .from('sessions')
       .select('loops_detected, time_wasted_ms, tokens_saved, started_at')
@@ -148,6 +148,11 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
       .select('loops_detected, time_wasted_ms, tokens_saved')
       .eq('user_id', req.userId)
       .gte('started_at', todayStart),
+
+    supabase
+      .from('sessions')
+      .select('loops_detected, time_wasted_ms, tokens_saved')
+      .eq('user_id', req.userId),
   ]);
 
   // Aggregate week totals
@@ -164,6 +169,17 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
   // Today totals
   const todaySessions = todayResult.data ?? [];
   const today = todaySessions.reduce(
+    (acc, s) => ({
+      loops: acc.loops + (s.loops_detected as number),
+      timeWastedMs: acc.timeWastedMs + (s.time_wasted_ms as number),
+      tokensSaved: acc.tokensSaved + (s.tokens_saved as number),
+    }),
+    { loops: 0, timeWastedMs: 0, tokensSaved: 0 },
+  );
+
+  // All-time totals
+  const allTimeSessions = allTimeResult.data ?? [];
+  const allTime = allTimeSessions.reduce(
     (acc, s) => ({
       loops: acc.loops + (s.loops_detected as number),
       timeWastedMs: acc.timeWastedMs + (s.time_wasted_ms as number),
@@ -204,6 +220,10 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
     today: {
       ...today,
       costSaved: Number((today.tokensSaved * costPerToken).toFixed(2)),
+    },
+    allTime: {
+      ...allTime,
+      costSaved: Number((allTime.tokensSaved * costPerToken).toFixed(2)),
     },
     weeklyBreakdown: Object.entries(byDay).map(([date, v]) => ({ date, ...v })),
     recentLoops: loops.slice(0, 20).map((l) => ({

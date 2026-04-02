@@ -26,11 +26,17 @@ const AUTH_BASE_URL = 'https://loopguard.vercel.app/auth/extension';
 export class AuthService {
   private readonly _secrets: vscode.SecretStorage;
   private readonly _apiClient: ApiClient;
+  private readonly _onAuthStateChanged?: (signedIn: boolean) => void;
   private _email: string | null = null;
 
-  constructor(secrets: vscode.SecretStorage, apiClient: ApiClient) {
+  constructor(
+    secrets: vscode.SecretStorage,
+    apiClient: ApiClient,
+    onAuthStateChanged?: (signedIn: boolean) => void,
+  ) {
     this._secrets = secrets;
     this._apiClient = apiClient;
+    this._onAuthStateChanged = onAuthStateChanged;
   }
 
   /**
@@ -43,6 +49,7 @@ export class AuthService {
       this._apiClient.setToken(jwt);
       this._email = email ?? null;
       logger.info('Auth: token restored', { email: this._email ?? 'unknown' });
+      this._onAuthStateChanged?.(true);
     }
   }
 
@@ -93,6 +100,7 @@ export class AuthService {
     this._email = result.email;
 
     logger.info('Auth: signed in', { email: result.email });
+    this._onAuthStateChanged?.(true);
     vscode.window.showInformationMessage(
       `LoopGuard: Signed in as ${result.email}. Session metrics will now sync to your dashboard.`,
     );
@@ -105,6 +113,7 @@ export class AuthService {
     this._email = null;
 
     logger.info('Auth: signed out');
+    this._onAuthStateChanged?.(false);
     vscode.window.showInformationMessage(
       'LoopGuard: Signed out. Session data will no longer sync.',
     );

@@ -183,7 +183,7 @@ fn run_mcp_server() -> Result<()> {
             .with_writer(std::io::stderr)
             .init();
 
-        tracing::info!("loopguard-ctx v2.6.0 MCP server starting");
+        tracing::info!("loopguard-ctx v{} MCP server starting", env!("CARGO_PKG_VERSION"));
 
         let server = tools::create_server();
         let transport = rmcp::transport::io::stdio();

@@ -13,7 +13,7 @@ import { FileListener } from './listeners/fileListener';
 import { StatusBar } from './ui/statusBar';
 import { AlertPanel } from './ui/alertPanel';
 import { DashboardPanel } from './ui/dashboardPanel';
-import { ApiClient } from './services/apiClient';
+import { ApiClient, type DashboardSummary } from './services/apiClient';
 import { AuthService } from './services/authService';
 import { estimateTokens } from '@loopguard/utils';
 import type { LoopEvent } from '@loopguard/types';
@@ -59,7 +59,18 @@ function _activate(context: vscode.ExtensionContext): void {
 
   // API sync (no-ops when not authenticated)
   const apiClient = new ApiClient();
-  const authService = new AuthService(context.secrets, apiClient);
+  let accountSummary: DashboardSummary | null = null;
+  let pendingSyncTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const authService = new AuthService(context.secrets, apiClient, (signedIn) => {
+    if (!signedIn) {
+      accountSummary = null;
+      refreshLoopState();
+      return;
+    }
+
+    void syncSession();
+  });
 
   sessionTracker.startSession();
 
@@ -84,13 +95,25 @@ function _activate(context: vscode.ExtensionContext): void {
     }
   }
 
+  async function refreshAccountSummary(): Promise<void> {
+    if (!apiClient.isAuthenticated) {
+      accountSummary = null;
+      return;
+    }
+
+    const summary = await apiClient.getSummary(7);
+    if (summary !== null) {
+      accountSummary = summary;
+    }
+  }
+
   /** Sync current session metrics to the API. Best-effort, never throws. */
-  function syncSession(endedAt?: number): void {
+  async function syncSession(endedAt?: number): Promise<void> {
     const metrics = sessionTracker.getMetrics();
-    const loops = getActiveLoops();
+    const loops = getAllLoops();
     const fileTypes = [...new Set(loops.map((l) => getFileType(l.fileUri)))];
 
-    void apiClient.sendSession({
+    await apiClient.sendSession({
       sessionId: metrics.sessionId,
       startedAt: metrics.startTime,
       endedAt,
@@ -99,7 +122,21 @@ function _activate(context: vscode.ExtensionContext): void {
       tokensSaved: metrics.tokensSaved,
       fileTypes,
       extensionVersion: context.extension.packageJSON.version as string,
-    }); // errors already handled inside ApiClient
+    });
+
+    await refreshAccountSummary();
+    refreshLoopState();
+  }
+
+  function scheduleSessionSync(delayMs: number = 1500): void {
+    if (pendingSyncTimer !== undefined) {
+      clearTimeout(pendingSyncTimer);
+    }
+
+    pendingSyncTimer = setTimeout(() => {
+      pendingSyncTimer = undefined;
+      void syncSession();
+    }, delayMs);
   }
 
   function getAllLoops(): LoopEvent[] {
@@ -116,7 +153,7 @@ function _activate(context: vscode.ExtensionContext): void {
     sessionTracker.syncLoops(allLoops);
     const metrics = sessionTracker.getMetrics();
     statusBar.update(metrics, activeLoops.length);
-    DashboardPanel.update(metrics, activeLoops);
+    DashboardPanel.update(metrics, activeLoops, accountSummary);
   }
 
   /* ── Loop handler ─────────────────────────────────────────────── */
@@ -135,6 +172,7 @@ function _activate(context: vscode.ExtensionContext): void {
     }
 
     refreshLoopState();
+    scheduleSessionSync();
     const metrics = sessionTracker.getMetrics();
     const activeLoops = getActiveLoops();
 
@@ -147,7 +185,13 @@ function _activate(context: vscode.ExtensionContext): void {
     const action = await alertPanel.showLoopAlert(first, metrics);
 
     if (action === 'view-details') {
-      DashboardPanel.show(context.extensionUri, sessionTracker.getMetrics(), activeLoops);
+      await refreshAccountSummary();
+      DashboardPanel.show(
+        context.extensionUri,
+        sessionTracker.getMetrics(),
+        activeLoops,
+        accountSummary,
+      );
     } else if (action === 'ignore') {
       loopEngine.resolveLoop(first.errorHash);
       editTracker.resolveLoop(first.errorHash);
@@ -193,11 +237,13 @@ function _activate(context: vscode.ExtensionContext): void {
 
   /* ── Commands ─────────────────────────────────────────────────── */
 
-  const showDashboard = vscode.commands.registerCommand('loopguard.showDashboard', () => {
+  const showDashboard = vscode.commands.registerCommand('loopguard.showDashboard', async () => {
+    await refreshAccountSummary();
     DashboardPanel.show(
       context.extensionUri,
       sessionTracker.getMetrics(),
       getActiveLoops(),
+      accountSummary,
     );
   });
 
@@ -208,7 +254,7 @@ function _activate(context: vscode.ExtensionContext): void {
     editTracker.reset();
     sessionTracker.startSession();
     statusBar.update(sessionTracker.getMetrics(), 0);
-    DashboardPanel.update(sessionTracker.getMetrics(), []);
+    DashboardPanel.update(sessionTracker.getMetrics(), [], accountSummary);
     vscode.window.showInformationMessage('LoopGuard: Session reset.');
   });
 
@@ -248,6 +294,7 @@ function _activate(context: vscode.ExtensionContext): void {
 
       sessionTracker.addTokensSaved(saved);
       refreshLoopState();
+      scheduleSessionSync();
 
       vscode.window.showInformationMessage(
         `LoopGuard: Focused context copied via ${engine} (${snapshot.tokenEstimate} tokens · ${pct}% smaller).`,
@@ -379,15 +426,22 @@ function _activate(context: vscode.ExtensionContext): void {
   _syncFinalSession = (endedAt: number) => syncSession(endedAt);
 
   // Periodic session sync — sends latest metrics every 5 minutes
-  const syncTimer = setInterval(() => syncSession(), SYNC_INTERVAL_MS);
+  const syncTimer = setInterval(() => { void syncSession(); }, SYNC_INTERVAL_MS);
 
   // Dashboard UI refresh — ticks the session timer and metrics every 30s
   // Only re-renders if the panel is open (DashboardPanel.update is a no-op otherwise)
   const UI_REFRESH_MS = 30_000;
-  const uiRefreshTimer = setInterval(() => refreshLoopState(), UI_REFRESH_MS);
+  const uiRefreshTimer = setInterval(() => {
+    if (apiClient.isAuthenticated) {
+      void refreshAccountSummary().finally(() => refreshLoopState());
+      return;
+    }
+
+    refreshLoopState();
+  }, UI_REFRESH_MS);
 
   // Immediate session sync after auth initializes (gives web dashboard data right away)
-  setTimeout(() => syncSession(), 3_000);
+  setTimeout(() => { void syncSession(); }, 3_000);
 
   /* ── Subscriptions ────────────────────────────────────────────── */
   context.subscriptions.push(
@@ -406,6 +460,7 @@ function _activate(context: vscode.ExtensionContext): void {
     configWatcher,
     { dispose: () => { clearInterval(syncTimer); } },
     { dispose: () => { clearInterval(uiRefreshTimer); } },
+    { dispose: () => { if (pendingSyncTimer !== undefined) clearTimeout(pendingSyncTimer); } },
     { dispose: () => DashboardPanel.dispose() },
     { dispose: () => logger.dispose() },
   );

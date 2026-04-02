@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import type { LoopEvent, SessionMetrics } from '@loopguard/types';
 import { formatDuration } from '@loopguard/utils';
+import type { DashboardSummary } from '../services/apiClient';
 
 const SUPPORT_URL = 'https://buymeacoffee.com/rodthenewcomer';
 
@@ -33,21 +34,26 @@ export class DashboardPanel {
     extensionUri: vscode.Uri,
     metrics: SessionMetrics,
     activeLoops: LoopEvent[],
+    accountSummary: DashboardSummary | null = null,
   ): void {
     if (DashboardPanel._instance !== undefined && !DashboardPanel._instance._disposed) {
       DashboardPanel._instance._panel.reveal(vscode.ViewColumn.Beside, true);
-      DashboardPanel._instance._render(metrics, activeLoops);
+      DashboardPanel._instance._render(metrics, activeLoops, accountSummary);
       return;
     }
 
     const panel = new DashboardPanel(extensionUri);
     DashboardPanel._instance = panel;
-    panel._render(metrics, activeLoops);
+    panel._render(metrics, activeLoops, accountSummary);
   }
 
-  static update(metrics: SessionMetrics, activeLoops: LoopEvent[]): void {
+  static update(
+    metrics: SessionMetrics,
+    activeLoops: LoopEvent[],
+    accountSummary: DashboardSummary | null = null,
+  ): void {
     if (DashboardPanel._instance !== undefined && !DashboardPanel._instance._disposed) {
-      DashboardPanel._instance._render(metrics, activeLoops);
+      DashboardPanel._instance._render(metrics, activeLoops, accountSummary);
     }
   }
 
@@ -59,11 +65,16 @@ export class DashboardPanel {
     DashboardPanel._instance?._panel.dispose();
   }
 
-  private _render(metrics: SessionMetrics, activeLoops: LoopEvent[]): void {
+  private _render(
+    metrics: SessionMetrics,
+    activeLoops: LoopEvent[],
+    accountSummary: DashboardSummary | null,
+  ): void {
     this._panel.webview.html = buildHtml(
       this._panel.webview,
       metrics,
       activeLoops,
+      accountSummary,
       DashboardPanel._engineTier,
     );
   }
@@ -73,6 +84,7 @@ function buildHtml(
   webview: vscode.Webview,
   metrics: SessionMetrics,
   activeLoops: LoopEvent[],
+  accountSummary: DashboardSummary | null,
   engineTier: 'rust' | 'ts',
 ): string {
   const sessionDuration = formatDuration(Date.now() - metrics.startTime);
@@ -81,6 +93,46 @@ function buildHtml(
   const costSaved = ((metrics.tokensSaved / 1000) * 0.03).toFixed(2);
   const activeCount = activeLoops.filter((loop) => loop.status === 'active').length;
   const headline = getHeadline(activeLoops, metrics);
+  const accountSnapshot = accountSummary !== null
+    ? `
+        <section class="rail-block">
+          <div class="eyebrow">Account totals</div>
+          <h2 class="rail-title">Your signed-in history is synced.</h2>
+          <p class="rail-copy">These totals come from your LoopGuard account, so you can see everything saved beyond the current editor session.</p>
+          <div class="detail-grid">
+            <div class="detail-cell">
+              <div class="detail-label">All-time tokens</div>
+              <div class="detail-value c-cyan">${escHtml(formatCompactNumber(accountSummary.allTime.tokensSaved))}</div>
+            </div>
+            <div class="detail-cell">
+              <div class="detail-label">All-time cost</div>
+              <div class="detail-value c-green">$${escHtml(accountSummary.allTime.costSaved.toFixed(2))}</div>
+            </div>
+            <div class="detail-cell">
+              <div class="detail-label">Stuck time tracked</div>
+              <div class="detail-value c-amber">${escHtml(formatDuration(accountSummary.allTime.timeWastedMs))}</div>
+            </div>
+            <div class="detail-cell">
+              <div class="detail-label">Loops interrupted</div>
+              <div class="detail-value c-red">${accountSummary.allTime.loops}</div>
+            </div>
+          </div>
+          <div class="actions">
+            <a class="button-secondary" href="https://loopguard.vercel.app/dashboard">Open account dashboard</a>
+            <a class="button-ghost" href="${SUPPORT_URL}">Buy me a coffee</a>
+          </div>
+        </section>`
+    : `
+        <section class="rail-block">
+          <div class="eyebrow">History and support</div>
+          <h2 class="rail-title">Sync if you want history. Support if it helped.</h2>
+          <p class="rail-copy">Core protection runs locally without an account. Sign in when you want the web dashboard, or back the project if it already saved you a late-night loop.</p>
+          <div class="actions">
+            <a class="button" href="command:loopguard.signIn">Sign in for sync</a>
+            <a class="button-secondary" href="https://loopguard.vercel.app/dashboard">Open web dashboard</a>
+            <a class="button-ghost" href="${SUPPORT_URL}">Buy me a coffee</a>
+          </div>
+        </section>`;
   const csp = [
     `default-src 'none'`,
     `style-src 'unsafe-inline'`,
@@ -744,16 +796,7 @@ function buildHtml(
           </div>
         </section>
 
-        <section class="rail-block">
-          <div class="eyebrow">History and support</div>
-          <h2 class="rail-title">Sync if you want history. Support if it helped.</h2>
-          <p class="rail-copy">Core protection runs locally without an account. Sign in when you want the web dashboard, or back the project if it already saved you a late-night loop.</p>
-          <div class="actions">
-            <a class="button" href="command:loopguard.signIn">Sign in for sync</a>
-            <a class="button-secondary" href="https://loopguard.vercel.app/dashboard">Open web dashboard</a>
-            <a class="button-ghost" href="${SUPPORT_URL}">Buy me a coffee</a>
-          </div>
-        </section>
+        ${accountSnapshot}
       </aside>
     </div>
 
