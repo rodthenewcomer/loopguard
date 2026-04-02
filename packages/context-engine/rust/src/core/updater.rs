@@ -1,6 +1,7 @@
 use std::io::Read;
 
-const GITHUB_API_RELEASES: &str = "https://api.github.com/repos/loopguard/loopguard/releases/latest";
+const GITHUB_API_RELEASES: &str =
+    "https://api.github.com/repos/rodthenewcomer/loopguard/releases/latest";
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub fn run(args: &[String]) {
@@ -8,7 +9,7 @@ pub fn run(args: &[String]) {
 
     println!("loopguard-ctx updater");
     println!("Current version: {CURRENT_VERSION}");
-    println!("Checking https://github.com/loopguard/loopguard …");
+    println!("Checking https://github.com/rodthenewcomer/loopguard …");
 
     let release = match fetch_latest_release() {
         Ok(r) => r,
@@ -45,7 +46,9 @@ pub fn run(args: &[String]) {
         Some(u) => u,
         None => {
             eprintln!("No binary found for this platform ({asset_name}).");
-            eprintln!("Download manually: https://github.com/loopguard/loopguard/releases/latest");
+            eprintln!(
+                "Download manually: https://github.com/rodthenewcomer/loopguard/releases/latest"
+            );
             std::process::exit(1);
         }
     };
@@ -190,7 +193,7 @@ fn platform_asset_name() -> String {
         _ => {
             eprintln!(
                 "Unsupported platform: {os}/{arch}. Download manually from \
-                https://github.com/loopguard/loopguard/releases/latest"
+                https://github.com/rodthenewcomer/loopguard/releases/latest"
             );
             std::process::exit(1);
         }

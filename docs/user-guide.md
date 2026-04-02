@@ -42,13 +42,13 @@ LoopGuard watches your code in real time. The moment it detects you're stuck in 
 
 When you paste code into an AI chat (or when Cursor reads your file), it sends far more than the AI needs. A 1,200-line file for a bug on line 47? The AI gets all 1,200 lines, wastes tokens on irrelevant code, and gives worse answers because of the noise.
 
-LoopGuard's **Context Engine** extracts only what matters — the relevant lines, imports, and error context — before it reaches the AI. Powered by a Rust engine that uses AST analysis and Shannon entropy filtering.
+LoopGuard's **Context Engine** extracts only what matters — the relevant lines, imports, and error context — before it reaches the AI. Powered by a local helper that favors focused reads over dumping entire files into the next prompt.
 
 ```
 Your 1,200-line file:    ~4,800 tokens sent to AI
-With LoopGuard:            ~340 tokens sent to AI
+With LoopGuard:         ~1,200–1,400 focused tokens
 
-Token reduction: 93%   Monthly API cost: significantly lower
+Prompt reduction: 70%+   Monthly API cost: meaningfully lower
 ```
 
 ---
@@ -99,7 +99,7 @@ code --install-extension loopguard-darwin-arm64.vsix
 
 ```bash
 # Clone the repository
-git clone https://github.com/loopguard/loopguard
+git clone https://github.com/rodthenewcomer/loopguard
 cd loopguard
 
 # Install dependencies
@@ -712,7 +712,7 @@ After resolving, **reload VS Code** (`Ctrl+Shift+P` → **Developer: Reload Wind
 
 ### Sign In doesn't work
 
-1. Verify your browser opened `https://loopguard.dev/auth/extension`
+1. Verify your browser opened `https://loopguard.vercel.app/auth/extension`
 2. After authenticating, VS Code should receive a `vscode://` URI callback automatically
 3. If VS Code doesn't open, the browser may have blocked the deep link — click "Open VS Code" if prompted
 
@@ -755,7 +755,7 @@ The LoopGuard status bar item may be hidden if your status bar is crowded.
 1. Check your VS Code version: minimum `1.90.0`
 2. Open the Output panel (View → Output → **Extension Host**)
 3. Look for errors starting with `[LoopGuard]`
-4. Report the error at: https://github.com/loopguard/loopguard/issues
+4. Report the error at: https://github.com/rodthenewcomer/loopguard/issues
 
 ---
 
@@ -774,7 +774,7 @@ LOOP DETECTION — automatic, no setup needed
 CONTEXT ENGINE — manual trigger
   Copy context: Ctrl+Shift+P → "LoopGuard: Copy Optimized Context"
   Then paste directly into your AI chat
-  Engine shown: "Rust engine (340 tokens · 93% reduction)"
+  Engine shown: "Focused engine (smaller prompt · lower spend)"
 
 DASHBOARD
   Click status bar  OR  Ctrl+Shift+P → "LoopGuard: Show Dashboard"
@@ -783,7 +783,7 @@ DASHBOARD
 ACCOUNT & SYNC — optional
   Sign in:  Ctrl+Shift+P → "LoopGuard: Sign In"
   Sign out: Ctrl+Shift+P → "LoopGuard: Sign Out"
-  Web dashboard: https://loopguard.dev/dashboard
+  Web dashboard: https://loopguard.vercel.app/dashboard
 
 MCP SERVER — one-time setup
   Ctrl+Shift+P → "LoopGuard: Configure MCP Server" → pick your AI tool
@@ -802,4 +802,4 @@ SETTINGS (settings.json)
 
 ---
 
-*Found a bug or have a question? Open an issue at https://github.com/loopguard/loopguard/issues*
+*Found a bug or have a question? Open an issue at https://github.com/rodthenewcomer/loopguard/issues*

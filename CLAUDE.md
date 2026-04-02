@@ -10,7 +10,7 @@
 **LoopGuard** is a VS Code / Cursor IDE extension that does two things:
 
 1. **Loop Detection** — Detects when a developer is stuck repeating the same AI-assisted fix with no progress. Shows time wasted. Breaks the loop.
-2. **Context Engine** — Filters and selects only the relevant code context before AI calls. Reduces token waste by 80–98% through *selection*, not just compression.
+2. **Context Engine** — Filters and selects only the relevant code context before AI calls. In normal use it keeps prompts dramatically smaller by sending focused context instead of whole files.
 
 **Stack:** TypeScript · VS Code Extension API · Node.js · Supabase · Stripe · Next.js · Turborepo
 **Support model:** Free core + optional direct support

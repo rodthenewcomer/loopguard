@@ -247,7 +247,7 @@ mod tests {
 
     #[test]
     fn routes_cargo_commands() {
-        let output = "   Compiling loopguard-ctx v2.1.1\n    Finished `release` profile [optimized] target(s) in 30.5s";
+        let output = "   Compiling loopguard-ctx v0.1.0\n    Finished `release` profile [optimized] target(s) in 30.5s";
         assert!(compress_output("cargo build --release", output).is_some());
     }
 

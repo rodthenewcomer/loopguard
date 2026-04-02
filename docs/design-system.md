@@ -424,7 +424,7 @@ The `DashboardPanel` is a singleton `WebviewPanel` with full HTML/CSS generated 
 │  │   3      │  │  47min   │  │ 8,400    │  │    2     │  │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │
 │                                                             │
-│  Token Reduction ████████████░░░░░  93%                    │
+│  Smaller prompts ███████████░░░░░░  70%+                  │
 │                                                             │
 │  Active Loops                                              │
 │  ┌───────────────────────────────────────────────────────┐ │

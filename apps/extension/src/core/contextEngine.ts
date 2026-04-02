@@ -14,11 +14,11 @@ const CONTEXT_RADIUS = 30;
 /**
  * Context Engine — two-tier architecture:
  *
- * Tier 1 (Rust binary): AST signatures, Shannon entropy, Myers delta, 90+ CLI patterns
- *   → 89–99% token reduction. Used when loopguard-ctx binary is available.
+ * Tier 1 (Rust binary): focused reads, delta reuse, shell cleanup, MCP-aware helpers
+ *   → used when loopguard-ctx is available and typically delivers the strongest savings.
  *
  * Tier 2 (TypeScript): Line selection + delta processing
- *   → ~80% token reduction. Used as fallback when binary is not present.
+ *   → used as the reliable local fallback when the binary is not present.
  *
  * The extension tries Tier 1 first on every call. Fallback is automatic.
  * Users never need to know which tier is running.

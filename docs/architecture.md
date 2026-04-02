@@ -118,7 +118,7 @@ packages/context-engine/
   src/
     bridge.ts              → TypeScript ↔ Rust binary bridge (spawns subprocess)
     rustEngine.ts          → Direct Rust interface: signatures/map/entropy/full/compressOutput
-    fallbackEngine.ts      → TS fallback using selectRelevantLines (~80% reduction)
+    fallbackEngine.ts      → TS fallback using selectRelevantLines for smaller focused prompts
     index.ts               → Exports
 ```
 
@@ -301,7 +301,7 @@ apps/extension/
 1. User runs: Ctrl+Shift+P → "LoopGuard: Sign In"
 
 2. AuthService.signIn() opens browser:
-   vscode.env.openExternal('https://loopguard.dev/auth/extension')
+   vscode.env.openExternal('https://loopguard.vercel.app/auth/extension')
 
 3. User authenticates on /auth/extension (Supabase OAuth / email)
 
