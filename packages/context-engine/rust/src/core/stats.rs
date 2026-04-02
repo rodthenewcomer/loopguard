@@ -463,13 +463,13 @@ fn format_cep_live(lv: &serde_json::Value) -> String {
 
     o.push(String::new());
     o.push(format!(
-        "  {BOLD}{WHITE}◆ loopguard-ctx CEP{RST}  {DIM}Live Session (no historical data yet){RST}"
+        "  {BOLD}{WHITE}◆ loopguard-ctx efficiency{RST}  {DIM}Live Session (no historical data yet){RST}"
     ));
     o.push(format!("  {DIM}{ln56}{RST}"));
     o.push(String::new());
 
     o.push(format!(
-        "  {BOLD}{WHITE}CEP Score{RST}         {BOLD}{}{score:>3}/100{RST}",
+        "  {BOLD}{WHITE}Efficiency score{RST}  {BOLD}{}{score:>3}/100{RST}",
         pct_color(score as f64),
     ));
     o.push(format!(
@@ -503,7 +503,7 @@ fn format_cep_live(lv: &serde_json::Value) -> String {
         "  {DIM}This is live data from the current MCP session.{RST}"
     ));
     o.push(format!(
-        "  {DIM}Historical CEP trends appear after more sessions.{RST}"
+        "  {DIM}Historical efficiency trends appear after more sessions.{RST}"
     ));
     o.push(String::new());
 
@@ -525,9 +525,9 @@ pub fn format_cep_report() -> String {
 
     if cep.sessions == 0 && live.is_none() {
         return format!(
-            "{DIM}No CEP sessions recorded yet.{RST}\n\
+            "{DIM}No helper sessions recorded yet.{RST}\n\
              Use loopguard-ctx as an MCP server in your editor to start tracking.\n\
-             CEP metrics are recorded automatically during MCP sessions."
+             Efficiency metrics are recorded automatically during MCP sessions."
         );
     }
 
@@ -572,13 +572,13 @@ pub fn format_cep_report() -> String {
 
     o.push(String::new());
     o.push(format!(
-        "  {BOLD}{WHITE}◆ loopguard-ctx CEP{RST}  {DIM}Cognitive Efficiency Protocol Report{RST}"
+        "  {BOLD}{WHITE}◆ loopguard-ctx efficiency{RST}  {DIM}Helper efficiency report{RST}"
     ));
     o.push(format!("  {DIM}{ln56}{RST}"));
     o.push(String::new());
 
     o.push(format!(
-        "  {BOLD}{WHITE}CEP Score{RST}         {BOLD}{}{:>3}/100{RST}  {DIM}(avg: {avg_score:.0}, latest: {latest_score}){RST}",
+        "  {BOLD}{WHITE}Efficiency score{RST}  {BOLD}{}{:>3}/100{RST}  {DIM}(avg: {avg_score:.0}, latest: {latest_score}){RST}",
         pct_color(latest_score as f64),
         latest_score,
     ));
@@ -629,7 +629,7 @@ pub fn format_cep_report() -> String {
         width = bar_w,
     ));
     o.push(format!(
-        "  {GRAY}MCP/CEP{RST}      {GREEN}{:<width$}{RST} {BOLD}{:>6}{RST} {DIM}({cep_share:.0}%){RST}",
+        "  {GRAY}MCP/efficiency{RST} {GREEN}{:<width$}{RST} {BOLD}{:>6}{RST} {DIM}({cep_share:.0}%){RST}",
         bar_block(cep_ratio, bar_w),
         format_big(total_saved),
         width = bar_w,
@@ -683,7 +683,7 @@ pub fn format_cep_report() -> String {
 
     if cep.scores.len() >= 2 {
         o.push(String::new());
-        o.push(format!("  {BOLD}{WHITE}CEP Score Trend{RST}"));
+        o.push(format!("  {BOLD}{WHITE}Efficiency score trend{RST}"));
         o.push(format!("  {DIM}{ln56}{RST}"));
 
         let score_values: Vec<u64> = cep.scores.iter().map(|s| s.score as u64).collect();
@@ -703,7 +703,7 @@ pub fn format_cep_report() -> String {
 
     o.push(String::new());
     o.push(format!("  {DIM}{ln56}{RST}"));
-    o.push(format!("  {DIM}Improve your CEP score:{RST}"));
+    o.push(format!("  {DIM}Improve your helper efficiency:{RST}"));
     if cache_hit_rate < 50.0 {
         o.push(format!(
             "    {YELLOW}↑{RST} Re-read files with ctx_read to leverage caching"

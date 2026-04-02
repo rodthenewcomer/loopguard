@@ -9,7 +9,7 @@
 
 LoopGuard is a **local-first, two-in-one system**:
 1. **Loop detection** — watches diagnostics and edit patterns, alerts when you're stuck
-2. **Context compression** — strips irrelevant code before it reaches AI tools (89–99% token reduction)
+2. **Focused context** — trims prompts and shell output before they reach AI tools
 
 The VS Code extension does all meaningful work on the developer's machine. The cloud backend is a support layer — not the product.
 
@@ -18,8 +18,8 @@ The VS Code extension does all meaningful work on the developer's machine. The c
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                        loopguard-ctx (Rust binary)                          │
-│  AST signatures · Shannon entropy · Myers delta · 90+ CLI patterns          │
-│  14 languages · MCP server (21 tools) · Shell hooks · Cross-session memory  │
+│  Focused reads · shell cleanup · saved helper sessions                      │
+│  MCP server · language-aware parsing · local helper workflows               │
 └───────────────────────┬────────────────────┬───────────────────────────────┘
                         │                    │                    │
            ┌────────────▼──────┐  ┌──────────▼────────┐  ┌──────▼───────────┐
@@ -30,7 +30,7 @@ The VS Code extension does all meaningful work on the developer's machine. The c
            └───────────────────┘  └────────────────────┘  └──────────────────┘
 ```
 
-The binary is the intelligence layer. The extension is the delivery mechanism.
+The binary is the local helper layer. The extension is the main delivery surface.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -99,19 +99,20 @@ The binary is the intelligence layer. The extension is the delivery mechanism.
 
 ## Package Architecture
 
-### `packages/context-engine` — The Rust Engine Layer
+### `packages/context-engine` — The Local Helper Layer
 
-The Rust binary and TypeScript bridge. Implements 89–99% token reduction.
+The Rust binary and TypeScript bridge power focused reads, agent setup, saved
+helper sessions, and shell cleanup.
 
 ```
 packages/context-engine/
   rust/                    → loopguard-ctx Rust binary (16,000+ lines)
     src/
-      main.rs              → CLI entry point (read, setup, init, mcp subcommands)
-      mcp.rs               → MCP server (21 tools for Cursor/Claude/Windsurf)
-      compression/         → AST + entropy + delta + CLI patterns
-      languages/           → 14 language parsers (TS, JS, Python, Rust, Go, …)
-      memory/              → Cross-session CCP memory (prevent re-sending unchanged ctx)
+      main.rs              → CLI entry point (read, setup, init, mcp, doctor)
+      server.rs            → MCP server and helper instructions
+      compression/         → Read modes, delta reuse, shell cleanup patterns
+      languages/           → Language-aware parsers for common source files
+      memory/              → Saved helper session state and re-read reuse
     Cargo.toml             → name: "loopguard-ctx"
 
   src/
@@ -121,13 +122,13 @@ packages/context-engine/
     index.ts               → Exports
 ```
 
-**Binary compression modes:**
+**Binary read modes:**
 | Mode | Description | Typical reduction |
 |------|-------------|-------------------|
-| `signatures` | AST-level function/class signatures only | 85–95% |
-| `map` | Imports, exports, key dependencies | 90–96% |
-| `entropy` | High-information-density lines via Shannon entropy | 60–85% |
-| `full` | Full file with CCP delta cache (~13 tokens on re-read) | Variable |
+| `signatures` | API surface only | Highest reduction |
+| `map` | Imports, exports, key dependencies | Strong reduction |
+| `entropy` | High-signal lines from larger files | Moderate reduction |
+| `full` | Full file with session-aware delta reuse on re-read | Variable |
 
 ### `packages/core` — The Algorithm Layer
 
@@ -277,7 +278,7 @@ apps/extension/
    Tier 1 path (Rust binary available):
    a. Find binary: check bundled bin/{platform}-{arch}/loopguard-ctx, then PATH
    b. Spawn: loopguard-ctx read <file> --mode=entropy [--focus-line=N]
-   c. Binary applies AST + Shannon entropy + CCP delta
+   c. Binary applies language-aware selection, entropy scoring, and delta reuse
    d. Return ContextSnapshot with stdout as relevantLines
 
    Tier 2 path (no binary):

@@ -279,7 +279,7 @@ impl ServerHandler for LoopguardCtxServer {
                     tool_def(
                         "ctx_response",
                         "Bi-directional response compression. Compresses LLM response text by removing filler \
-                        content and applying TDD shortcuts. Use to verify compression quality of responses.",
+                        content and applying dense shorthand shortcuts. Use to verify compression quality of responses.",
                         json!({
                             "type": "object",
                             "properties": {
@@ -325,11 +325,10 @@ impl ServerHandler for LoopguardCtxServer {
                     ),
                     tool_def(
                         "ctx_session",
-                        "Context Continuity Protocol (CCP) — session state manager for cross-chat continuity. \
-                        Persists task context, findings, decisions, and file state across chat sessions \
-                        and context compactions. Load a previous session to instantly restore context \
-                        (~400 tokens vs ~50K cold start). LITM-aware: places critical info at attention-optimal positions. \
-                        Actions: status, load, save, task, finding, decision, reset, list, cleanup.",
+                        "Saved session state for longer agent workflows. Persists task context, findings, \
+                        decisions, and file state across chat sessions and context resets. Load a previous \
+                        session to restore context quickly. Actions: status, load, save, task, finding, \
+                        decision, reset, list, cleanup.",
                         json!({
                             "type": "object",
                             "properties": {
@@ -857,7 +856,7 @@ PROACTIVE (use without being asked):\n\
 • ctx_metrics — periodically verify token savings\n\
 • ctx_session load — on new chat or after context compaction, restore previous session\n\
 \n\
-SESSION CONTINUITY (Context Continuity Protocol):\n\
+SESSION RESTORE AND SAVED NOTES:\n\
 • ctx_session status — show current session state (~400 tokens vs 50K cold start)\n\
 • ctx_session load — restore previous session (cross-chat memory)\n\
 • ctx_session task \"description\" — set current task\n\
@@ -877,7 +876,7 @@ appended to the response. This keeps context compact in long sessions. Configura
 IDLE CACHE TTL: Cache auto-clears after 5 min of inactivity (new chat, context compaction). \
 Session state is auto-saved before cache clear. Configurable via LOOPGUARD_CTX_CACHE_TTL (seconds, 0=disabled).\n\
 \n\
-COMMUNICATION PROTOCOL (Cognitive Efficiency Protocol v1):\n\
+RESPONSE STYLE:\n\
 1. ACT FIRST — Execute tool calls immediately. Never narrate before acting.\n\
    Bad:  \"Let me read the file to understand the issue...\" [tool call]\n\
    Good: [tool call] then one-line summary of finding\n\
@@ -907,8 +906,8 @@ COMMUNICATION PROTOCOL (Cognitive Efficiency Protocol v1):\n\
         CrpMode::Compact => {
             format!(
                 "{base}\n\n\
-                CRP MODE: compact\n\
-                Respond using Compact Response Protocol:\n\
+                RESPONSE MODE: compact\n\
+                Respond concisely:\n\
                 • Omit filler words, articles, and redundant phrases\n\
                 • Use symbol shorthand: → ∴ ≈ ✓ ✗\n\
                 • Abbreviate: fn, cfg, impl, deps, req, res, ctx, err, ok, ret, arg, val, ty, mod\n\
@@ -920,8 +919,8 @@ COMMUNICATION PROTOCOL (Cognitive Efficiency Protocol v1):\n\
         CrpMode::Tdd => {
             format!(
                 "{base}\n\n\
-                CRP MODE: tdd (Token Dense Dialect)\n\
-                CRITICAL: Maximize information density. Every token must carry meaning.\n\
+                RESPONSE MODE: dense shorthand\n\
+                CRITICAL: Maximize information density. Every token should carry meaning.\n\
                 \n\
                 RESPONSE RULES:\n\
                 • Drop all articles (a, the, an), filler words, and pleasantries\n\

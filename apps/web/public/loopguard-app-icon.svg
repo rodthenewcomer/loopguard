@@ -1,0 +1,31 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="136" fill="#071019"/>
+  <path
+    d="M72 256C103 197 141 160 188 160C242 160 274 198 313 256C352 314 383 352 438 352C484 352 512 324 512 256"
+    stroke="rgba(255,255,255,0.22)"
+    stroke-width="76"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M72 256C103 315 141 352 188 352C242 352 274 314 313 256C352 198 383 160 438 160C484 160 512 188 512 256"
+    stroke="rgba(255,255,255,0.22)"
+    stroke-width="76"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M72 256C103 197 141 160 188 160C242 160 274 198 313 256C352 314 383 352 438 352C484 352 512 324 512 256"
+    stroke="white"
+    stroke-width="44"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M72 256C103 315 141 352 188 352C242 352 274 314 313 256C352 198 383 160 438 160C484 160 512 188 512 256"
+    stroke="white"
+    stroke-width="44"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

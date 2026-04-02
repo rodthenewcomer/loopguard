@@ -223,15 +223,15 @@ LoopGuard uses two engines depending on what's available:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  Tier 1: Rust Engine (loopguard-ctx binary)  —  89–99% reduction │
-│  AST analysis · Shannon entropy · Myers delta · CCP memory       │
-│  Used automatically — binary is bundled inside the VSIX          │
+│  Tier 1: Native helper (loopguard-ctx binary)                    │
+│  Focused reads · delta-aware re-reads · shell cleanup            │
+│  Used automatically when the bundled helper loads                │
 └─────────────────────────────────────────────────────────────────┘
         ↓ Falls back to if binary not found ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  Tier 2: TypeScript Engine  —  ~80% reduction                   │
-│  Line selection around error · Import extraction · Delta cache   │
-│  Always available, no binary needed                              │
+│  Tier 2: Built-in editor path                                    │
+│  Line selection around the current problem                       │
+│  Always available, no separate helper install needed             │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -257,15 +257,17 @@ What gets stripped:
 **After copying, you'll see:**
 
 ```
-LoopGuard: Context copied via Rust engine (340 tokens · 93% reduction).
+LoopGuard: Context copied via native helper (340 tokens · 78% smaller).
 ```
 
-### What the Rust Engine actually does
+### What the native helper adds
 
-When the `loopguard-ctx` binary is available, it applies a multi-pass compression:
+When the `loopguard-ctx` binary is available, it uses a few local read strategies
+to keep the prompt smaller without hiding the part you are working on.
 
-#### 1. AST Signatures
-Parses your file's Abstract Syntax Tree (14 languages supported). Extracts only function signatures, class definitions, and type declarations — drops the bodies of functions that aren't relevant.
+#### 1. Signature-first reads
+For larger files, LoopGuard can keep just the API surface first so you see the
+shape of the file without dragging along every function body.
 
 ```typescript
 // Before (full function body sent to AI):
@@ -281,21 +283,23 @@ function processOrders(orders: Order[]): ProcessedOrder[] {
 function processOrders(orders: Order[]): ProcessedOrder[] { ... }
 ```
 
-#### 2. Shannon Entropy Filtering
-Measures the "information density" of each line. Keeps lines that carry unique, high-value information. Drops lines that are low-entropy (whitespace, simple assignments, `}`, repeated patterns).
+#### 2. High-signal line selection
+The helper prefers lines that carry useful structure or unusual detail and drops
+repetitive boilerplate when it is not helping the current task.
 
-#### 3. Myers Delta
-On re-reads of the same file, only the **changed sections** are transmitted. A file you've already sent costs ~13 tokens to re-read instead of its full size.
+#### 3. Delta-aware re-reads
+When you revisit the same file, LoopGuard can keep the repeated parts light and
+focus on what changed since the last read.
 
-#### 4. CLI Pattern Compression
-When used with shell hooks, compresses terminal output (npm install logs, git history, docker build output) using 90+ command-specific patterns. A `npm install` log that was 3,000 tokens becomes ~200 tokens.
+#### 4. Shell cleanup
+When used with shell hooks, the helper keeps long command output smaller before
+you paste it into chat or hand it to an agent.
 
 ### Supported Languages
 
-The Rust engine supports 14 languages:
-TypeScript · JavaScript · Python · Rust · Go · Java · C · C++ · C# · Ruby · PHP · Swift · Kotlin · Scala
-
-The TypeScript fallback works with any text file.
+The native helper works best on common code and config files such as TypeScript,
+JavaScript, Python, Rust, Go, Java, JSON, YAML, and TOML. The built-in editor
+path still works as a best-effort fallback on any readable text file.
 
 ---
 
@@ -333,7 +337,9 @@ Optional support link for users who want to back the project while the core prod
 
 ### Web Dashboard
 
-The web dashboard at `https://loopguard.dev/dashboard` shows your aggregated metrics across all sessions. Requires signing in — see [Account & Sync](#7-account--sync).
+The web dashboard at `https://loopguard.vercel.app/dashboard` shows your
+aggregated metrics across all sessions. Requires signing in — see
+[Account & Sync](#7-account--sync).
 
 ---
 
@@ -346,7 +352,7 @@ Signing in is **optional**. LoopGuard works fully offline without an account. An
 ### Signing In
 
 1. Press `Ctrl+Shift+P` → **LoopGuard: Sign In**
-2. Your browser opens `https://loopguard.dev/auth/extension`
+2. Your browser opens `https://loopguard.vercel.app/auth/extension`
 3. Sign in with your email or Google account
 4. VS Code opens automatically with your session — you're connected
 
@@ -360,7 +366,9 @@ All credentials are removed from your keychain. The extension continues working 
 
 ### What Gets Synced
 
-Every loop detected and every session is synced to the backend in real time (when authenticated). Sync is fire-and-forget — the extension never blocks on it.
+When authenticated, session metrics are synced every few minutes and again at
+session end. Sync is best-effort — the extension keeps working locally if the
+backend is unavailable.
 
 **What is synced (privacy-safe):**
 - Session duration, loop count, tokens saved
@@ -381,24 +389,25 @@ Every loop detected and every session is synced to the backend in real time (whe
 
 ### What you get
 
-When configured as an MCP server, loopguard-ctx gives your AI tool 21 context tools:
+When configured as an MCP server, `loopguard-ctx` gives your AI tool a focused
+set of local read, search, tree, shell, and session tools.
 
 | Tool | What it does |
 |------|-------------|
-| `ctx_read` | Focused file reads with session caching — re-reads cost ~13 tokens |
+| `ctx_read` | Focused file reads with session-aware re-reads |
 | `ctx_search` | Token-efficient code search results |
 | `ctx_tree` | Compact directory listings and project maps |
 | `ctx_shell` | Compressed shell output (git, cargo, npm, docker, kubectl…) |
-| `ctx_session` | Context Continuity Protocol — save and restore session state |
-| `ctx_compress` | Checkpoint when context grows large |
-| `ctx_metrics` | Token savings report |
-| … | 14 more context and compression tools |
+| `ctx_session` | Save and restore lightweight session state |
+| `ctx_metrics` | Helper savings report |
+| More helper tools | Additional local utilities exposed by the binary |
 
 ---
 
 ### Claude Code (terminal) — Recommended
 
-Claude Code gets the strongest enforcement: **4 independent layers** that together guarantee ctx_read is used instead of native Read/Grep.
+Claude Code gets the most complete helper integration: MCP registration, local
+hooks, and a helper guidance file.
 
 #### One-command setup
 
@@ -406,14 +415,16 @@ Claude Code gets the strongest enforcement: **4 independent layers** that togeth
 loopguard-ctx setup --agent=claude
 ```
 
-This installs all 4 layers automatically:
+This installs the Claude helper stack automatically:
 
 1. **MCP registration** — `~/.claude.json` gets the `loopguard-ctx` server entry
-2. **Bash rewrite hook** — rewrites git, cargo, npm, docker, etc. through `loopguard-ctx -c`
-3. **Enforce hook** — blocks native Read and Grep with exit 2, forcing ctx_read/ctx_search
-4. **Global CLAUDE.md** — `~/.claude/CLAUDE.md` with mandatory tool routing table + CCP header
+2. **Shell helper hook** — routes supported command output through the local helper
+3. **Guidance hooks** — nudges the agent toward LoopGuard’s focused tools
+4. **Global CLAUDE.md** — `~/.claude/CLAUDE.md` with helper tool guidance
 
-After setup, open Claude Code. The CLAUDE.md instructions tell it to run `ctx_session load` at the start of every session, restoring the previous task, files, and findings in ~400 tokens instead of the 50K+ a cold start costs.
+After setup, open Claude Code. If you want to resume a prior helper session,
+run `ctx_session load` to restore the previous task and notes in a lighter form
+than a full cold start.
 
 #### Verify
 
@@ -421,9 +432,9 @@ After setup, open Claude Code. The CLAUDE.md instructions tell it to run `ctx_se
 loopguard-ctx doctor
 ```
 
-Checks all 4 layers and reports what's active, what's missing, and how to fix gaps.
+Checks the helper setup and reports what is active, what is missing, and how to fix gaps.
 
-#### Context Continuity Protocol (CCP)
+#### Session restore
 
 Record session state as you work — it survives context resets and new chats:
 
@@ -434,7 +445,8 @@ ctx_session decision "use optimistic locking instead of transactions"
 ctx_session save
 ```
 
-On new chat or after context compaction, `ctx_session load` restores everything in ~400 tokens.
+On a new chat or after context compaction, `ctx_session load` restores the last
+saved session in a lightweight form.
 
 #### Bypass
 
@@ -446,7 +458,8 @@ LOOPGUARD_BYPASS=1 claude
 
 ### Cursor
 
-Cursor gets MCP registration + a `.mdc` rule file (always-on Cursor rule) that enforces ctx_read and sets the CCP session restore header.
+Cursor gets MCP registration plus a small project rule file that nudges the
+agent toward LoopGuard’s focused tools.
 
 ```bash
 loopguard-ctx setup --agent=cursor
@@ -454,17 +467,20 @@ loopguard-ctx setup --agent=cursor
 
 This writes:
 - MCP config to `~/.cursor/mcp.json`
-- `loopguard-ctx.mdc` Cursor rule with mandatory tool routing + `ctx_session load` header
+- `loopguard-ctx.mdc` Cursor rule with LoopGuard tool guidance
 
-After setup, add `ctx_session load` at the top of your Cursor AI chat when starting a new session. The `.mdc` rule ensures the model uses ctx_read over its built-in Read tool.
+If you want to resume a saved helper session later, add `ctx_session load` at
+the top of a new Cursor chat.
 
-> **Note:** Cursor does not support PreToolUse hooks. Enforcement is model-level via the rule file — not hook-enforced like in Claude Code.
+> **Note:** Cursor does not support the same hook model as Claude Code. The
+> rule file is guidance, not hard enforcement.
 
 ---
 
 ### Windsurf
 
-Windsurf gets MCP registration + a `windsurfrules.txt` rules file with the same mandatory routing table and CCP header.
+Windsurf gets MCP registration plus a project rules file with the same focused
+tool guidance.
 
 ```bash
 loopguard-ctx setup --agent=windsurf
@@ -472,9 +488,10 @@ loopguard-ctx setup --agent=windsurf
 
 This writes:
 - MCP config to `~/.codeium/windsurf/mcp_config.json`
-- `windsurfrules.txt` with mandatory tool routing + `ctx_session load` header
+- `.windsurfrules` with LoopGuard tool guidance
 
-> **Note:** Windsurf does not support PreToolUse hooks. Enforcement is model-level only via the rules file.
+> **Note:** Windsurf does not support the same hook model as Claude Code. The
+> rules file is guidance, not hard enforcement.
 
 ---
 
@@ -486,27 +503,27 @@ loopguard-ctx setup
 # Command Palette → LoopGuard: Configure MCP Server
 ```
 
-These agents receive MCP registration only — no hook or rules file enforcement.
+These agents receive MCP registration only — no extra rules or shell hooks.
 
 ---
 
-### Per-agent enforcement summary
+### Per-agent setup summary
 
-| Agent | MCP | Bash rewrite hook | Enforce hook | Rules / CLAUDE.md | CCP support |
-|-------|-----|-------------------|--------------|-------------------|-------------|
-| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ Full |
-| Cursor | ✅ | ❌ | ❌ | ✅ (.mdc) | ✅ Model-level |
-| Windsurf | ✅ | ❌ | ❌ | ✅ (rules.txt) | ✅ Model-level |
-| VS Code / Copilot | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Codex CLI | ✅ | ❌ | ❌ | ❌ | ❌ |
-
-For the highest savings and enforcement, use Claude Code.
+| Agent | MCP | Shell helper | Guidance file |
+|-------|-----|--------------|---------------|
+| Claude Code | ✅ | ✅ | ✅ |
+| Cursor | ✅ | ❌ | ✅ (`.mdc`) |
+| Windsurf | ✅ | ❌ | ✅ (`.windsurfrules`) |
+| VS Code / Copilot | ✅ | ❌ | ❌ |
+| Codex CLI | ✅ | ❌ | ✅ (small local instruction file) |
 
 ---
 
 ## 9. Shell Hooks
 
-Shell hooks pipe your terminal output through LoopGuard's compression engine **before** it reaches an AI context window. When you run a command and paste the output into an AI chat, it's already compressed.
+Shell hooks run your terminal output through LoopGuard’s local cleanup path
+**before** it reaches an AI context window. When you run a command and paste the
+output into chat, it is already smaller and easier to scan.
 
 ### What gets compressed
 

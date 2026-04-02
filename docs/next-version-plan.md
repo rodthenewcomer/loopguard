@@ -106,7 +106,7 @@ Do not market these as fully complete unless they are verified end to end:
 - durable offline metrics queueing
 - strong billing / subscription enforcement
 - fully live web dashboard in the strict realtime sense
-- universal `89–99%` reduction on every file or every workflow
+- blanket `90%+` reduction claims on every file or every workflow
 - “every file read is automatically compressed” across all agents without validating their exact MCP/tool-use behavior
 
 ## Recommended target for `v0.2.0`

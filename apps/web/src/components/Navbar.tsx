@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import LoopGuardLogo from './LoopGuardLogo';
 
 const NAV_LINKS = [
   { label: 'Features',    href: '/#features' },
@@ -35,8 +35,11 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/icon-192x192.png" alt="LoopGuard" width={32} height={32} className="rounded-lg" />
-          <span className="text-[17px] font-bold text-white tracking-tight">LoopGuard</span>
+          <LoopGuardLogo
+            size={30}
+            showWordmark
+            wordmarkClassName="text-[17px] font-bold text-white tracking-tight"
+          />
         </Link>
 
         {/* Desktop nav */}

@@ -7,11 +7,11 @@
 #   ./install.sh --build-only   # build only, don't install
 #
 # One-liner (no Rust required):
-#   curl -fsSL https://loopguardctx.com/install.sh | sh
+#   curl -fsSL https://loopguard.vercel.app/install.sh | sh
 set -euo pipefail
 
 REPO="rodthenewcomer/loopguard"
-INSTALL_DIR="${LEAN_CTX_INSTALL_DIR:-$HOME/.local/bin}"
+INSTALL_DIR="${LOOPGUARD_CTX_INSTALL_DIR:-$HOME/.local/bin}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-install.sh}")" 2>/dev/null && pwd || pwd)"
 RUST_DIR="$SCRIPT_DIR/rust"
 
@@ -187,7 +187,7 @@ case "${1:-}" in
     echo "  --build-only  Build only, don't install"
     echo ""
     echo "Environment:"
-    echo "  LEAN_CTX_INSTALL_DIR  Custom install directory (default: ~/.local/bin)"
+echo "  LOOPGUARD_CTX_INSTALL_DIR  Custom install directory (default: ~/.local/bin)"
     ;;
   *)             install_from_source ;;
 esac

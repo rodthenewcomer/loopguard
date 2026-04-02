@@ -3,7 +3,7 @@ use std::process::Command;
 fn loopguard_ctx_bin() -> Command {
     let mut cmd = Command::new(env!("CARGO_BIN_EXE_loopguard-ctx"));
     cmd.current_dir(env!("CARGO_MANIFEST_DIR"));
-    cmd.env("LEAN_CTX_ACTIVE", "1");
+    cmd.env("LOOPGUARD_CTX_ACTIVE", "1");
     cmd
 }
 
@@ -28,7 +28,7 @@ fn binary_prints_help() {
         .expect("failed to run loopguard-ctx");
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(
-        stdout.contains("Cognitive Filter"),
+        stdout.contains("focused reads and smaller shell output"),
         "help should contain tagline"
     );
     assert!(stdout.contains("MCP"), "help should mention MCP");

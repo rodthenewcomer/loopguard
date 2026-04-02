@@ -560,7 +560,7 @@ pub fn format_terminal(b: &ProjectBenchmark) -> String {
     };
     out.push(format!(
         "  {:<24} {:>10} {:>10} {:>9.1}%",
-        "loopguard-ctx (no CCP)",
+        "loopguard-ctx (reads only)",
         format_num(s.lean_tokens),
         format!("${:.3}", s.lean_cost),
         lean_pct,
@@ -573,7 +573,7 @@ pub fn format_terminal(b: &ProjectBenchmark) -> String {
     };
     out.push(format!(
         "  {:<24} {:>10} {:>10} {:>9.1}%",
-        "loopguard-ctx + CCP",
+        "loopguard-ctx + session restore",
         format_num(s.lean_ccp_tokens),
         format!("${:.3}", s.ccp_cost),
         ccp_pct,
@@ -656,7 +656,7 @@ pub fn format_markdown(b: &ProjectBenchmark) -> String {
         0.0
     };
     out.push(format!(
-        "| loopguard-ctx (no CCP) | {} | ${:.3} | {:.1}% |",
+        "| loopguard-ctx (reads only) | {} | ${:.3} | {:.1}% |",
         format_num(s.lean_tokens),
         s.lean_cost,
         lean_pct
@@ -668,7 +668,7 @@ pub fn format_markdown(b: &ProjectBenchmark) -> String {
         0.0
     };
     out.push(format!(
-        "| loopguard-ctx + CCP | {} | ${:.3} | {:.1}% |",
+        "| loopguard-ctx + session restore | {} | ${:.3} | {:.1}% |",
         format_num(s.lean_ccp_tokens),
         s.ccp_cost,
         ccp_pct
@@ -730,7 +730,7 @@ pub fn format_json(b: &ProjectBenchmark) -> String {
     serde_json::to_string_pretty(&report).unwrap_or_else(|_| "{}".to_string())
 }
 
-// ── CEP A/B Benchmark ──────────────────────────────────────
+// ── Efficiency A/B Benchmark ───────────────────────────────
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -813,11 +813,11 @@ pub fn format_cep_comparison(comparisons: &[CepComparison], path: &str) -> Strin
     let mut out = Vec::new();
     let short = crate::core::protocol::shorten_path(path);
 
-    out.push(format!("CEP A/B Benchmark — {short}"));
+    out.push(format!("Efficiency A/B Benchmark — {short}"));
     out.push("═".repeat(60));
     out.push(format!(
         "{:<14} {:>8} {:>8} {:>8} {:>6}",
-        "Mode", "Without", "With CEP", "Quality", "Pass"
+        "Mode", "Without", "With helper", "Quality", "Pass"
     ));
     out.push("─".repeat(60));
 

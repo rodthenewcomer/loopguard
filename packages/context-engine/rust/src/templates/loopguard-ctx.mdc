@@ -1,53 +1,36 @@
 ---
-description: loopguard-ctx Token Optimization — MCP tools replace built-in Read/Grep/Shell
+description: LoopGuard focused reads and shell cleanup
 globs: **/*
 alwaysApply: true
 ---
 
-> **MANDATORY — run this before anything else at the start of every session:**
-> ```
-> ctx_session load
-> ```
-> This restores your previous context: task in progress, files already read, key findings.
-> **Skipping this means re-reading files you already read and losing prior reasoning.**
-> After loading, acknowledge what was restored before proceeding.
+# LoopGuard tools
 
-# loopguard-ctx — MANDATORY Tool Routing
+Use LoopGuard MCP tools when you need to inspect a repo without dragging in unnecessary context.
 
-loopguard-ctx is active as an MCP server. Built-in Read and Grep are **blocked** — use the loopguard-ctx equivalents at all times:
+## Prefer these mappings
 
-| Built-in (BLOCKED) | Use instead  | Why                                          |
-|--------------------|--------------|----------------------------------------------|
-| Read / cat / head  | `ctx_read`   | Session caching — re-reads cost ~13 tokens   |
-| Grep / rg          | `ctx_search` | Compact, token-efficient search results      |
-| Bash (shell)       | `ctx_shell`  | Pattern-based compression for git, cargo…    |
-| ls / find          | `ctx_tree`   | Compact directory maps with file counts      |
+| Instead of | Use |
+|---|---|
+| `Read` | `ctx_read` |
+| `Grep` | `ctx_search` |
+| terminal commands with long output | `ctx_shell` |
+| `ls` / `find` | `ctx_tree` |
 
-Write, Edit, Delete, Glob have no loopguard-ctx equivalent — use them normally.
+## Read modes
 
-## ctx_read Modes
+- `full` for files you are about to edit
+- `map` for quick structure and dependencies
+- `signatures` for API surface
+- `diff` after changes
+- `lines:N-M` for specific ranges
 
-- `full` — cached read (use for files you will edit)
-- `map` — deps + API signatures (use for context-only files)
-- `signatures` — API surface only
-- `diff` — changed lines only (after edits)
-- `aggressive` — syntax stripped
-- `entropy` — Shannon + Jaccard filtering
-- `lines:N-M` — specific line range (e.g. `lines:10-50`)
+## Session restore
 
-## Session Continuity (CCP)
+If this project already has helper session state, you can restore it with:
 
-Record progress as you work — survives context resets and new chats:
-
-```
-ctx_session task "brief description of current task"
-ctx_session finding "src/auth.rs:142 — JWT expiry not validated"
-ctx_session decision "use optimistic locking instead of transactions"
-ctx_session save
+```text
+ctx_session load
 ```
 
-## Proactive Tools
-
-- `ctx_compress` — when context grows large, create a checkpoint
-- `ctx_metrics` — verify token savings
-- `ctx_overview` — at session start, get task-relevant project map
+Use session restore when it helps. It is optional.

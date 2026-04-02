@@ -96,7 +96,7 @@ const TEMPLATES: &[InstructionTemplate] = &[
     },
     InstructionTemplate {
         code: "SYMBOLS",
-        full: "Use TDD symbols: ⊕=add ⊖=remove ∆=modify →=returns ✓=ok ✗=fail",
+        full: "Use dense shorthand symbols: ⊕=add ⊖=remove ∆=modify →=returns ✓=ok ✗=fail",
     },
 ];
 

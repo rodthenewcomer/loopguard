@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
+import LoopGuardLogo from '../components/LoopGuardLogo';
 import ScrollReveal from '../components/ScrollReveal';
 
 function Icon({ path, size = 20 }: { path: string; size?: number }) {
@@ -133,7 +134,12 @@ export default function LandingPage() {
               </div>
 
             <div className="max-w-2xl">
-              <div className="mb-4 text-sm font-semibold uppercase tracking-[0.36em] text-[#4E6B88]">LoopGuard</div>
+              <div className="mb-5 flex items-center gap-3">
+                <LoopGuardLogo size={34} />
+                <div className="text-sm font-semibold uppercase tracking-[0.36em] text-[#4E6B88]">
+                  LoopGuard
+                </div>
+              </div>
               <h1 className="text-5xl font-black leading-[0.96] tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl">
                 Save the hour.
                 <br />

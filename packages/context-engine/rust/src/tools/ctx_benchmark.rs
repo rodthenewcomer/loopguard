@@ -109,7 +109,7 @@ pub fn handle(path: &str, crp_mode: CrpMode) -> String {
             0
         };
         rows.push(format!(
-            "TDD bonus (signatures): {} extra tokens saved ({}%)",
+            "Dense shorthand bonus (signatures): {} extra tokens saved ({}%)",
             tdd_extra, tdd_pct
         ));
     } else {

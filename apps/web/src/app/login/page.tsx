@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import LoginClient from './LoginClient';
+import LoopGuardLogo from '../../components/LoopGuardLogo';
 
 export const metadata: Metadata = {
   title: 'Sign in — LoopGuard',
@@ -13,8 +14,7 @@ export default function LoginPage() {
       <header className="border-b border-[#1F2937]">
         <div className="max-w-md mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/icon-192x192.png" alt="LoopGuard" width="28" height="28" className="rounded-lg" />
-            <span className="font-bold text-white">LoopGuard</span>
+            <LoopGuardLogo showWordmark size={28} />
           </Link>
           <Link href="/signup" className="text-sm text-[#6B7280] hover:text-[#9CA3AF] transition-colors">
             Create account →

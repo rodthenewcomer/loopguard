@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import LoopGuardLogo from '../../components/LoopGuardLogo';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — LoopGuard',
@@ -12,8 +13,7 @@ export default function PrivacyPage() {
       <div className="border-b border-[#1F2937]">
         <div className="max-w-3xl mx-auto px-6 py-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <img src="/icon-192x192.png" alt="LoopGuard" width="28" height="28" className="rounded-lg" />
-            <span className="font-bold text-white">LoopGuard</span>
+            <LoopGuardLogo showWordmark size={28} />
           </Link>
           <Link href="/" className="text-sm text-[#6B7280] hover:text-[#9CA3AF] transition-colors">
             Home →

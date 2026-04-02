@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../../lib/supabase';
+import LoopGuardLogo from '../../../components/LoopGuardLogo';
 
 const IDE_NAMES: Record<string, string> = {
   vscode:   'VS Code',
@@ -110,12 +111,11 @@ export default function ExtensionAuthClient() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1220] flex flex-col items-center justify-center px-6 py-16">
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 mb-10">
-        <img src="/icon-192x192.png" alt="LoopGuard" width="28" height="28" className="rounded-lg" />
-        <span className="text-xl font-bold text-white">LoopGuard</span>
-      </div>
+      <div className="min-h-screen bg-[#0B1220] flex flex-col items-center justify-center px-6 py-16">
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 mb-10">
+          <LoopGuardLogo showWordmark size={28} wordmarkClassName="text-xl font-bold text-white" />
+        </div>
 
       {/* IDE badge */}
       {ideScheme !== 'vscode' && (

@@ -16,6 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://loopguard.vercel.app'),
   title: 'LoopGuard — Save Time In AI Coding. Cut Prompt Spend By 70%+.',
   description:
     'LoopGuard catches repeat-fix loops and trims prompts before they hit the model, helping AI-heavy coding sessions save time, tokens, and API spend.',

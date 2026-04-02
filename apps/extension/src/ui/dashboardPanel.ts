@@ -635,14 +635,11 @@ function buildHtml(
       <div class="masthead-top">
         <div class="brand">
           <div class="brand-mark">
-            <svg width="24" height="24" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-              <path d="M17 2L3 8v10c0 8.3 5.8 15.8 14 17.7C25.2 33.8 31 26.3 31 18V8L17 2z" fill="url(#panelShield)" />
-              <defs>
-                <linearGradient id="panelShield" x1="3" y1="2" x2="31" y2="35" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#4E8FFF" />
-                  <stop offset="100%" stop-color="#7EE8FF" />
-                </linearGradient>
-              </defs>
+            <svg width="28" height="18" viewBox="0 0 132 76" fill="none" aria-hidden="true">
+              <path d="M10 38C18 23 28 14 40 14C54 14 62 24 72 38C82 52 90 62 104 62C116 62 124 54 124 38" stroke="rgba(255,255,255,0.24)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M10 38C18 53 28 62 40 62C54 62 62 52 72 38C82 24 90 14 104 14C116 14 124 22 124 38" stroke="rgba(255,255,255,0.24)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M10 38C18 23 28 14 40 14C54 14 62 24 72 38C82 52 90 62 104 62C116 62 124 54 124 38" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M10 38C18 53 28 62 40 62C54 62 62 52 72 38C82 24 90 14 104 14C116 14 124 22 124 38" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
           <div>

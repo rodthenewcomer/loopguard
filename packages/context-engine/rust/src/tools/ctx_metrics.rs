@@ -218,9 +218,9 @@ pub fn handle(cache: &SessionCache, tool_calls: &[ToolCallRecord], crp_mode: Crp
     let cep = compute_cep_compliance(cache, tool_calls);
     out.push(String::new());
     if crp_mode.is_tdd() {
-        out.push("§CEP compliance".to_string());
+        out.push("§helper efficiency".to_string());
     } else {
-        out.push("CEP Compliance:".to_string());
+        out.push("Helper efficiency:".to_string());
     }
     out.push(format!(
         "  Cache utilization: {:.0}%  (hit rate for repeated files)",
@@ -235,7 +235,7 @@ pub fn handle(cache: &SessionCache, tool_calls: &[ToolCallRecord], crp_mode: Crp
         cep.compression_rate * 100.0
     ));
     out.push(format!(
-        "  CEP Score:         {:.0}/100",
+        "  Efficiency score:  {:.0}/100",
         cep.overall_score * 100.0
     ));
 
@@ -320,13 +320,13 @@ mod tests {
         }];
         let output = handle(&cache, &calls, CrpMode::Tdd);
         assert!(
-            output.contains("§CEP compliance"),
-            "TDD output must contain CEP compliance section"
+            output.contains("§helper efficiency"),
+            "Dense shorthand output must contain helper efficiency section"
         );
         assert!(output.contains("Cache utilization:"));
         assert!(output.contains("Mode diversity:"));
         assert!(output.contains("Compression rate:"));
-        assert!(output.contains("CEP Score:"));
+        assert!(output.contains("Efficiency score:"));
         assert!(output.contains("Task complexity:"));
     }
 
@@ -336,8 +336,8 @@ mod tests {
         let calls = vec![];
         let output = handle(&cache, &calls, CrpMode::Off);
         assert!(
-            output.contains("CEP Compliance:"),
-            "Normal output must contain CEP Compliance section"
+            output.contains("Helper efficiency:"),
+            "Normal output must contain helper efficiency section"
         );
         assert!(output.contains("Task complexity:"));
     }
@@ -347,7 +347,7 @@ mod tests {
         let cache = SessionCache::new();
         let calls = vec![];
         let output = handle(&cache, &calls, CrpMode::Tdd);
-        assert!(output.contains("CEP Score:         0/100"));
+        assert!(output.contains("Efficiency score:  0/100"));
         assert!(output.contains("Cache utilization: 0%"));
     }
 

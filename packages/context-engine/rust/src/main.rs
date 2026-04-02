@@ -215,9 +215,9 @@ fn shell_quote(s: &str) -> String {
 
 fn print_help() {
     println!(
-        "loopguard-ctx 2.6.0 — The Cognitive Filter for AI Engineering
+        "loopguard-ctx 2.6.0 — Local helper for focused reads and smaller shell output
 
-90+ compression patterns | 21 MCP tools | Context Continuity Protocol
+90+ shell patterns | 21 MCP tools | optional session restore
 
 USAGE:
     loopguard-ctx                       Start MCP server (stdio)
@@ -232,10 +232,10 @@ COMMANDS:
     gain --graph                   30-day savings chart
     gain --daily                   Bordered day-by-day table with USD
     gain --json                    Raw JSON export of all stats
-    cep                            CEP impact report (score trends, cache, modes)
+    cep                            Helper efficiency report (score trends, cache, modes)
     dashboard [--port=N]           Open web dashboard (default: http://localhost:3333)
     wrapped [--week|--month|--all] [--plain]  Savings card (shareable; --plain for copy-paste)
-    sessions [list|show|cleanup]   Manage CCP sessions (~/.loopguard-ctx/sessions/)
+    sessions [list|show|cleanup]   Manage saved helper sessions (~/.loopguard-ctx/sessions/)
     benchmark run [path] [--json]  Run real benchmark on project files
     benchmark report [path]        Generate shareable Markdown report
     setup                          One-command setup: shell + editor + verify
@@ -277,7 +277,7 @@ SHELL HOOK PATTERNS (90+):
 READ MODES:
     full (default)                 Full content (cached re-reads = 13 tokens)
     map                            Dependency graph + API signatures
-    signatures                     tree-sitter AST extraction (14 languages)
+    signatures                     language-aware API surface extraction
     aggressive                     Syntax-stripped content
     entropy                        Shannon entropy filtered
     diff                           Changed lines only
@@ -298,7 +298,7 @@ EXAMPLES:
     loopguard-ctx dashboard             Open web dashboard at localhost:3333
     loopguard-ctx wrapped               Weekly savings report card
     loopguard-ctx wrapped --month       Monthly savings report card
-    loopguard-ctx sessions list         List all CCP sessions
+    loopguard-ctx sessions list         List saved helper sessions
     loopguard-ctx sessions show         Show latest session state
     loopguard-ctx discover              Find missed savings in shell history
     loopguard-ctx setup                 One-command setup (shell + editors + verify)

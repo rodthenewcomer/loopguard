@@ -1,5 +1,5 @@
 class LoopguardCtx < Formula
-  desc "Token compression layer for AI engineering — MCP server, shell hook, Context Continuity Protocol"
+  desc "Local helper for focused reads, MCP setup, and smaller shell output"
   homepage "https://loopguard.vercel.app"
   version "2.6.0"
 

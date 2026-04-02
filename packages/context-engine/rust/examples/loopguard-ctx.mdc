@@ -1,5 +1,5 @@
 ---
-description: loopguard-ctx Token Optimization — MCP tools replace built-in Read/Grep/Shell
+description: loopguard-ctx focused helper tools for local reads, search, and shell output
 globs: **/*
 alwaysApply: true
 ---
@@ -12,8 +12,8 @@ Always use loopguard-ctx MCP tools. Never use the standard equivalents.
 
 | Instead of | Use | Why |
 |---|-----|-----|
-| `Read` | `ctx_read` | Session caching, 6 compression modes, re-reads cost ~13 tokens |
-| `Shell` | `ctx_shell` | Pattern-based compression for git, npm, cargo, docker, tsc |
+| `Read` | `ctx_read` | Session-aware reads with focused modes and lighter re-reads |
+| `Shell` | `ctx_shell` | Smaller shell output for git, npm, cargo, docker, tsc |
 | `Grep` | `ctx_search` | Compact context, token-efficient results |
 | `ls`, `find` | `ctx_tree` | Compact directory maps with file counts |
 
@@ -21,7 +21,7 @@ Always use loopguard-ctx MCP tools. Never use the standard equivalents.
 
 - `full` — default, cached read (use for files you will edit)
 - `map` — dependency graph + exports + API signatures (use for context-only files)
-- `signatures` — API surface only (tree-sitter AST for 14 languages)
+- `signatures` — API surface only for language-aware reads
 - `diff` — changed lines only (use after edits)
 - `aggressive` — syntax stripped
 - `entropy` — Shannon + Jaccard filtering

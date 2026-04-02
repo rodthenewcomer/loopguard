@@ -96,13 +96,17 @@ fn run_setup_for_single_agent(agent: &str) {
         }
     }
 
-    // Install agent instruction hooks if applicable
-    if !target.agent_key.is_empty() {
-        crate::hooks::install_agent_hook(target.agent_key, true);
+    match agent {
+        "claude" | "claude-code" | "cursor" | "codex" | "windsurf" | "cline" | "roo"
+        | "copilot" => crate::hooks::install_agent_hook(agent, false),
+        _ => {}
     }
 
     println!();
-    println!("\x1b[1;32m✓ Done.\x1b[0m Restart {} to activate 21 MCP tools.", target.name);
+    println!(
+        "\x1b[1;32m✓ Done.\x1b[0m Restart {} to activate LoopGuard tools.",
+        target.name
+    );
 }
 
 pub fn run_setup() {
@@ -270,7 +274,7 @@ fn build_targets(home: &std::path::Path, _binary: &str) -> Vec<EditorTarget> {
         },
         EditorTarget {
             name: "VS Code / Copilot",
-            agent_key: "vscode",
+            agent_key: "",
             config_path: vscode_mcp_path(),
             detect_path: detect_vscode_path(),
             config_type: ConfigType::VsCodeMcp,

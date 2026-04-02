@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import SignupClient from './SignupClient';
+import LoopGuardLogo from '../../components/LoopGuardLogo';
 
 export const metadata: Metadata = {
   title: 'Create free account — LoopGuard',
@@ -44,8 +45,7 @@ export default function SignupPage() {
       <header className="border-b border-[#1F2937]">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/icon-192x192.png" alt="LoopGuard" width="28" height="28" className="rounded-lg" />
-            <span className="font-bold text-white">LoopGuard</span>
+            <LoopGuardLogo showWordmark size={28} />
           </Link>
           <Link href="/login" className="text-sm text-[#6B7280] hover:text-[#9CA3AF] transition-colors">
             Already have an account? Sign in →

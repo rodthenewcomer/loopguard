@@ -254,7 +254,7 @@ mod tests {
         let (eff_without, eff_with) = compute_litm_efficiency(100, 500, 100, 300, 200);
         assert!(
             eff_with > eff_without,
-            "CCP should improve LITM efficiency: without={eff_without:.1}%, with={eff_with:.1}%"
+            "Session restore should improve LITM efficiency: without={eff_without:.1}%, with={eff_with:.1}%"
         );
     }
 
