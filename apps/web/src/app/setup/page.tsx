@@ -153,7 +153,7 @@ export default function SetupPage() {
             >
               <p className="text-sm text-[#6B7280] mb-4">
                 Cursor gets MCP registration + an always-on <code className="text-[#9CA3AF] text-xs">.cursor/rules/loopguard-ctx.mdc</code> rule
-                that mandates ctx_read and CCP session restore. One command installs both.
+                that tells the agent to use LoopGuard tools and restore the last saved session. One command installs both.
               </p>
 
               <Step n={1} title="Install the loopguard-ctx binary">
@@ -175,7 +175,7 @@ export default function SetupPage() {
                 <div className="mt-3 p-3 bg-[#0d1117] border border-[#1F2937] rounded-xl space-y-2">
                   {[
                     { path: '~/.cursor/mcp.json', desc: 'MCP server registration' },
-                    { path: '.cursor/rules/loopguard-ctx.mdc', desc: 'Always-on rule: ctx_read + CCP session header' },
+                    { path: '.cursor/rules/loopguard-ctx.mdc', desc: 'Always-on rule: focused reads + session restore' },
                   ].map((f) => (
                     <div key={f.path} className="flex items-start gap-3">
                       <code className="text-[#22D3EE] text-xs font-mono flex-shrink-0 mt-0.5">{f.path}</code>
@@ -185,14 +185,14 @@ export default function SetupPage() {
                 </div>
               </Step>
 
-              <Step n={3} title="Session continuity — restore context at session start">
+              <Step n={3} title="Restore your last session">
                 <p className="text-sm text-[#6B7280] mb-2">
                   The installed rule tells Cursor&rsquo;s agent to run this at the top of every session:
                 </p>
                 <Code>ctx_session load</Code>
                 <p className="text-xs text-[#4B5563] mt-2">
-                  Restores task, files, and findings in ~400 tokens. Without this, every new chat
-                  re-reads all files from scratch.
+                  Restores task, files, and findings in about 400 tokens instead of forcing a cold
+                  re-read on every new chat.
                 </p>
               </Step>
 
@@ -227,7 +227,7 @@ export default function SetupPage() {
             >
               <p className="text-sm text-[#6B7280] mb-4">
                 Windsurf gets MCP registration + a project-local <code className="text-[#9CA3AF] text-xs">.windsurfrules</code> file
-                with mandatory tool routing and CCP session restore header. One command installs both.
+                with focused tool routing and session restore instructions. One command installs both.
               </p>
 
               <Step n={1} title="Install the loopguard-ctx binary">
@@ -249,7 +249,7 @@ export default function SetupPage() {
                 <div className="mt-3 p-3 bg-[#0d1117] border border-[#1F2937] rounded-xl space-y-2">
                   {[
                     { path: '~/.codeium/windsurf/mcp_config.json', desc: 'MCP server registration' },
-                    { path: '.windsurfrules', desc: 'Project rules: ctx_read + CCP session header' },
+                    { path: '.windsurfrules', desc: 'Project rules: focused reads + session restore' },
                   ].map((f) => (
                     <div key={f.path} className="flex items-start gap-3">
                       <code className="text-[#22D3EE] text-xs font-mono flex-shrink-0 mt-0.5">{f.path}</code>
@@ -259,7 +259,7 @@ export default function SetupPage() {
                 </div>
               </Step>
 
-              <Step n={3} title="Session continuity — restore context at session start">
+              <Step n={3} title="Restore your last session">
                 <p className="text-sm text-[#6B7280] mb-2">
                   The installed rules tell Windsurf&rsquo;s agent to run this at the top of every session:
                 </p>
@@ -454,15 +454,14 @@ loopguard-ctx is active as an MCP server. Built-in Read and Grep are **blocked**
                 </div>
               </Step>
 
-              <Step n={4} title="Session continuity — restore context at the start of every session">
+              <Step n={4} title="Restore the last session before you continue">
                 <p className="text-sm text-[#6B7280] mb-3">
-                  After Claude Code&rsquo;s context is compacted or a new session starts, LoopGuard
-                  automatically prompts you to restore the previous session state. Run this at the
-                  start of any session to avoid re-reading files already cached:
+                  After Claude Code starts a new session or compacts context, run this first so the
+                  same files and findings do not have to be pulled back in from scratch:
                 </p>
                 <Code>ctx_session load</Code>
                 <p className="text-sm text-[#6B7280] mt-3 mb-2">
-                  Record key findings as you work so they survive context resets:
+                  Record key findings as you work so they survive resets:
                 </p>
                 <div className="mt-1 px-4 py-3 bg-[#0d1117] border border-[#1F2937] rounded-xl overflow-x-auto">
                   <pre className="text-[#22D3EE] text-xs font-mono leading-5 whitespace-pre">{`ctx_session task "implementing OAuth refresh flow"
@@ -470,11 +469,11 @@ ctx_session finding "src/auth.rs:142 — JWT expiry not validated"
 ctx_session save   # force-persist before ending a long session`}</pre>
                 </div>
                 <div className="mt-3 p-3 rounded-xl bg-[#8B5CF6]/5 border border-[#8B5CF6]/20">
-                  <p className="text-xs text-[#8B5CF6] font-semibold mb-1">Context Continuity Protocol (CCP)</p>
+                  <p className="text-xs text-[#8B5CF6] font-semibold mb-1">Why session restore matters</p>
                   <p className="text-xs text-[#6B7280] leading-5">
-                    Without CCP, every context reset forces Claude to re-read all files from scratch — typically
-                    50,000+ tokens wasted per reset. <code className="text-[#9CA3AF]">ctx_session load</code> restores
-                    the full session state in ~400 tokens.
+                    Without session restore, every reset forces Claude to re-read the same files from
+                    scratch. <code className="text-[#9CA3AF]">ctx_session load</code> brings that context back in a much
+                    smaller form.
                   </p>
                 </div>
               </Step>

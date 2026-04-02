@@ -1,6 +1,6 @@
 # pi-loopguard-ctx
 
-[Pi Coding Agent](https://github.com/badlogic/pi-mono) extension that routes all tool output through [loopguard-ctx](https://loopguardctx.com) for **60–90% token savings**.
+[Pi Coding Agent](https://github.com/badlogic/pi-mono) extension that routes all tool output through [loopguard-ctx](https://loopguard.vercel.app) for **60-90% token savings**.
 
 ## What it does
 
@@ -19,7 +19,7 @@ Overrides Pi's built-in tools to route them through `loopguard-ctx`:
 ```bash
 # 1. Install loopguard-ctx (if not already installed)
 cargo install loopguard-ctx
-# or: brew tap yvgude/loopguard-ctx && brew install loopguard-ctx
+# or: brew tap rodthenewcomer/tap/loopguard-ctx && brew install rodthenewcomer/tap/loopguard-ctx
 
 # 2. Install the Pi package
 pi install npm:pi-loopguard-ctx
@@ -29,7 +29,7 @@ pi install npm:pi-loopguard-ctx
 
 The extension locates the `loopguard-ctx` binary in this order:
 
-1. `LEAN_CTX_BIN` environment variable
+1. `LOOPGUARD_CTX_BIN` environment variable
 2. `~/.cargo/bin/loopguard-ctx`
 3. `~/.local/bin/loopguard-ctx` (Linux) or `%APPDATA%\Local\loopguard-ctx\loopguard-ctx.exe` (Windows)
 4. `/usr/local/bin/loopguard-ctx` (macOS/Linux)
@@ -58,6 +58,5 @@ Use `/loopguard-ctx` in Pi to check which binary is being used.
 
 ## Links
 
-- [loopguard-ctx](https://loopguardctx.com) — The Cognitive Filter for AI Engineering
-- [GitHub](https://github.com/yvgude/loopguard-ctx)
-- [Discord](https://discord.gg/pTHkG9Hew9)
+- [loopguard-ctx](https://loopguard.vercel.app) — Local context tools for LoopGuard
+- [GitHub](https://github.com/rodthenewcomer/loopguard)

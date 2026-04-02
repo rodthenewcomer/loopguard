@@ -66,27 +66,27 @@ function shellQuote(value: string): string {
 }
 
 function resolveBinary(): string {
-  const envBin = process.env.LEAN_CTX_BIN;
+  const envBin = process.env.LOOPGUARD_CTX_BIN;
   if (envBin && existsSync(envBin)) return envBin;
 
   const home = homedir();
   const isWin = platform() === "win32";
   const candidates = isWin
     ? [
-        resolve(home, ".cargo", "bin", "lean-ctx.exe"),
-        resolve(home, "AppData", "Local", "lean-ctx", "lean-ctx.exe"),
+        resolve(home, ".cargo", "bin", "loopguard-ctx.exe"),
+        resolve(home, "AppData", "Local", "loopguard-ctx", "loopguard-ctx.exe"),
       ]
     : [
-        resolve(home, ".cargo", "bin", "lean-ctx"),
-        resolve(home, ".local", "bin", "lean-ctx"),
-        "/usr/local/bin/lean-ctx",
+        resolve(home, ".cargo", "bin", "loopguard-ctx"),
+        resolve(home, ".local", "bin", "loopguard-ctx"),
+        "/usr/local/bin/loopguard-ctx",
       ];
 
   for (const candidate of candidates) {
     if (existsSync(candidate)) return candidate;
   }
 
-  return "lean-ctx";
+  return "loopguard-ctx";
 }
 
 function normalizePathArg(path: string): string {
@@ -137,7 +137,7 @@ function clampStats(original: number, compressed: number): CompressionStats {
   return { originalTokens: orig, compressedTokens: comp, percentSaved };
 }
 
-function parseLeanCtxOutput(text: string) {
+function parseLoopguardOutput(text: string) {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   let stats: CompressionStats | undefined;
   const kept: string[] = [];
@@ -145,7 +145,7 @@ function parseLeanCtxOutput(text: string) {
   for (const line of lines) {
     const trimmed = line.trim();
 
-    const shellMatch = trimmed.match(/^\[lean-ctx:\s*(\d+)\s*→\s*(\d+)\s*tok,\s*-?(\d+)%\]$/);
+    const shellMatch = trimmed.match(/^\[loopguard-ctx:\s*(\d+)\s*→\s*(\d+)\s*tok,\s*-?(\d+)%\]$/);
     if (shellMatch) {
       stats = clampStats(Number(shellMatch[1]), Number(shellMatch[2]));
       continue;
@@ -181,7 +181,7 @@ function withFooter(text: string, opts?: {
   always?: boolean;
   preferEstimate?: boolean;
 }) {
-  const parsed = parseLeanCtxOutput(text);
+  const parsed = parseLoopguardOutput(text);
   const limited = limitLines(parsed.text, opts?.limit);
 
   let stats = parsed.stats;
@@ -230,11 +230,11 @@ function splitFooter(text: string) {
   return { body: normalized.slice(0, -match[0].length), footer: match[1] };
 }
 
-async function execLeanCtx(pi: ExtensionAPI, args: string[]) {
+async function execLoopguardCtx(pi: ExtensionAPI, args: string[]) {
   const bin = resolveBinary();
   const result = await pi.exec(bin, args, {});
   if (result.code !== 0) {
-    const msg = (result.stderr || result.stdout || `lean-ctx failed: ${args.join(" ")}`).trim();
+    const msg = (result.stderr || result.stdout || `loopguard-ctx failed: ${args.join(" ")}`).trim();
     throw new Error(msg);
   }
   return result.stdout;
@@ -255,11 +255,11 @@ export default function (pi: ExtensionAPI) {
   pi.registerTool({
     ...baseBashTool,
     description:
-      "Execute a bash command through lean-ctx compression for 60-90% smaller output.",
-    promptSnippet: "Run shell commands through lean-ctx compression.",
+      "Execute a bash command through loopguard-ctx compression for 60-90% smaller output.",
+    promptSnippet: "Run shell commands through loopguard-ctx compression.",
     promptGuidelines: [
-      "Use bash normally — commands are automatically routed through lean-ctx.",
-      "lean-ctx compresses verbose CLI output (git, cargo, npm, docker, kubectl, etc.) automatically.",
+      "Use bash normally — commands are automatically routed through loopguard-ctx.",
+      "loopguard-ctx compresses verbose CLI output (git, cargo, npm, docker, kubectl, etc.) automatically.",
     ],
     async execute(toolCallId, params, signal, onUpdate, ctx) {
       try {
@@ -287,10 +287,10 @@ export default function (pi: ExtensionAPI) {
     name: "read",
     label: "Read",
     description:
-      "Read file contents through lean-ctx with automatic mode selection (full/map/signatures) based on file type and size.",
-    promptSnippet: "Read files through lean-ctx compression with smart mode selection.",
+      "Read file contents through loopguard-ctx with automatic mode selection (full/map/signatures) based on file type and size.",
+    promptSnippet: "Read files through loopguard-ctx compression with smart mode selection.",
     promptGuidelines: [
-      "Use read normally — lean-ctx automatically selects the optimal compression mode.",
+      "Use read normally — loopguard-ctx automatically selects the optimal compression mode.",
       "Small files get full reads, large code files get map/signatures mode.",
     ],
     parameters: readSchema,
@@ -355,12 +355,12 @@ export default function (pi: ExtensionAPI) {
         const endLine = params.limit ? startLine + params.limit - 1 : 999999;
         const args = ["read", absolutePath, "-m", `lines:${startLine}-${endLine}`];
         try {
-          const output = await execLeanCtx(pi, args);
+          const output = await execLoopguardCtx(pi, args);
           const originalSlice = await readSlice(absolutePath, params.offset, params.limit);
           const decorated = withFooter(output, { originalText: originalSlice.text, always: true, preferEstimate: true });
           return {
             content: [{ type: "text", text: decorated.text }],
-            details: { path: absolutePath, lines: originalSlice.lines, source: "lean-ctx", mode: `lines:${startLine}-${endLine}`, compression: decorated.stats },
+            details: { path: absolutePath, lines: originalSlice.lines, source: "loopguard-ctx", mode: `lines:${startLine}-${endLine}`, compression: decorated.stats },
           };
         } catch {
           const sliced = await readSlice(absolutePath, params.offset, params.limit);
@@ -377,13 +377,13 @@ export default function (pi: ExtensionAPI) {
 
       const mode = await chooseReadMode(absolutePath);
       const args = mode === "full" ? ["read", absolutePath] : ["read", absolutePath, "-m", mode];
-      const output = await execLeanCtx(pi, args);
+      const output = await execLoopguardCtx(pi, args);
       const originalText = await readFile(absolutePath, "utf8");
       const decorated = withFooter(output, { originalText, always: true, preferEstimate: true });
 
       return {
         content: [{ type: "text", text: decorated.text }],
-        details: { path: absolutePath, source: "lean-ctx", mode, compression: decorated.stats },
+        details: { path: absolutePath, source: "loopguard-ctx", mode, compression: decorated.stats },
       };
     },
   });
@@ -391,18 +391,18 @@ export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: "ls",
     label: "ls",
-    description: "List directory contents through lean-ctx compression.",
+    description: "List directory contents through loopguard-ctx compression.",
     promptSnippet: "List directory contents with token-optimized output.",
-    promptGuidelines: ["Use ls normally — output is automatically compressed by lean-ctx."],
+    promptGuidelines: ["Use ls normally — output is automatically compressed by loopguard-ctx."],
     parameters: lsSchema,
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const requestedPath = normalizePathArg(params.path || ".");
       const absolutePath = resolve(ctx.cwd, requestedPath);
-      const output = await execLeanCtx(pi, ["ls", absolutePath]);
+      const output = await execLoopguardCtx(pi, ["ls", absolutePath]);
       const decorated = withFooter(output, { limit: params.limit, always: true });
       return {
         content: [{ type: "text", text: decorated.text }],
-        details: { path: absolutePath, source: "lean-ctx", truncated: decorated.truncated, compression: decorated.stats },
+        details: { path: absolutePath, source: "loopguard-ctx", truncated: decorated.truncated, compression: decorated.stats },
       };
     },
   });
@@ -410,18 +410,18 @@ export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: "find",
     label: "find",
-    description: "Find files by glob pattern through lean-ctx compression.",
+    description: "Find files by glob pattern through loopguard-ctx compression.",
     promptSnippet: "Find files with compressed output.",
-    promptGuidelines: ["Use find normally — output respects .gitignore and is compressed by lean-ctx."],
+    promptGuidelines: ["Use find normally — output respects .gitignore and is compressed by loopguard-ctx."],
     parameters: findSchema,
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const requestedPath = normalizePathArg(params.path || ".");
       const absolutePath = resolve(ctx.cwd, requestedPath);
-      const output = await execLeanCtx(pi, ["find", params.pattern, absolutePath]);
+      const output = await execLoopguardCtx(pi, ["find", params.pattern, absolutePath]);
       const decorated = withFooter(output, { limit: params.limit, always: true });
       return {
         content: [{ type: "text", text: decorated.text }],
-        details: { path: absolutePath, pattern: params.pattern, source: "lean-ctx", truncated: decorated.truncated, compression: decorated.stats },
+        details: { path: absolutePath, pattern: params.pattern, source: "loopguard-ctx", truncated: decorated.truncated, compression: decorated.stats },
       };
     },
   });
@@ -429,9 +429,9 @@ export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: "grep",
     label: "grep",
-    description: "Search file contents through ripgrep + lean-ctx compression.",
+    description: "Search file contents through ripgrep + loopguard-ctx compression.",
     promptSnippet: "Search code with compressed, grouped results.",
-    promptGuidelines: ["Use grep normally — results are compressed and grouped by lean-ctx."],
+    promptGuidelines: ["Use grep normally — results are compressed and grouped by loopguard-ctx."],
     parameters: grepSchema,
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const requestedPath = normalizePathArg(params.path || ".");
@@ -444,22 +444,22 @@ export default function (pi: ExtensionAPI) {
       if (params.limit && params.limit > 0) searchArgs.push("-m", String(params.limit));
       searchArgs.push(params.pattern, absolutePath);
 
-      const output = await execLeanCtx(pi, ["-c", ...searchArgs]);
+      const output = await execLoopguardCtx(pi, ["-c", ...searchArgs]);
       const decorated = withFooter(output, { always: true });
       return {
         content: [{ type: "text", text: decorated.text }],
-        details: { path: absolutePath, pattern: params.pattern, source: "lean-ctx", compression: decorated.stats },
+        details: { path: absolutePath, pattern: params.pattern, source: "loopguard-ctx", compression: decorated.stats },
       };
     },
   });
 
-  pi.registerCommand("lean-ctx", {
-    description: "Show the lean-ctx binary currently used by the Pi integration",
+  pi.registerCommand("loopguard-ctx", {
+    description: "Show the loopguard-ctx binary currently used by the Pi integration",
     handler: async (_args, ctx) => {
       const bin = resolveBinary();
       const found = existsSync(bin);
       ctx.ui.notify(
-        found ? `pi-lean-ctx using: ${bin}` : `lean-ctx not found. Install: cargo install lean-ctx`,
+        found ? `pi-loopguard-ctx using: ${bin}` : `loopguard-ctx not found. Install: cargo install loopguard-ctx`,
         found ? "info" : "warning",
       );
     },

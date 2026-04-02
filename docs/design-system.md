@@ -394,11 +394,11 @@ Use **VS Code Codicons** inside the extension. Use **Lucide React** on the web.
     3 large numbers with animations
     "Users save avg. 47min/week" etc.
 
-[6] PRICING
+[6] SUPPORT
     Background: var(--color-bg)
-    2-column: Free vs Pro
-    Free: forever, no credit card
-    Pro: $9/mo, annual discount option
+    Single support block
+    Core stays free
+    Optional "Buy me a coffee" support CTA
 
 [7] CTA FOOTER
     Background: var(--color-primary) gradient
@@ -415,7 +415,7 @@ The `DashboardPanel` is a singleton `WebviewPanel` with full HTML/CSS generated 
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  LoopGuard — Session Dashboard                   [Upgrade ▲]│
+│  LoopGuard — Session Dashboard                   [Support  ]│
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
@@ -432,7 +432,7 @@ The `DashboardPanel` is a singleton `WebviewPanel` with full HTML/CSS generated 
 │  │  e5f6g7h8  ·  3×  ·  18min  ·  ts  ·  resolved       │ │
 │  └───────────────────────────────────────────────────────┘ │
 │                                                             │
-│  Tips                           Pro Upgrade CTA            │
+│  Tips                           Sync / support rail        │
 └─────────────────────────────────────────────────────────────┘
 ```
 

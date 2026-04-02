@@ -471,12 +471,12 @@ fn install_codex_hook() {
     let _ = std::fs::create_dir_all(&codex_dir);
 
     let agents_path = codex_dir.join("AGENTS.md");
-    let agents_content = "# Global Agent Instructions\n\n@LEAN-CTX.md\n";
+    let agents_content = "# Global Agent Instructions\n\n@LOOPGUARD-CTX.md\n";
 
-    let loopguard_ctx_md = codex_dir.join("LEAN-CTX.md");
+    let loopguard_ctx_md = codex_dir.join("LOOPGUARD-CTX.md");
     let binary = resolve_binary_path();
     let loopguard_ctx_content = format!(
-        r#"# loopguard-ctx — Token Optimization
+        r#"# LoopGuard CTX — Shell Compression
 
 Prefix all shell commands with `{binary} -c` for compressed output:
 
@@ -486,13 +486,15 @@ Prefix all shell commands with `{binary} -c` for compressed output:
 {binary} -c ls src/       # instead of: ls src/
 ```
 
-This saves 60-90% tokens per command. Works with: git, cargo, npm, pnpm, docker, kubectl, pip, ruff, go, curl, grep, find, ls, aws, helm, and 90+ more commands.
+This keeps terminal output smaller and easier to paste into an AI tool. Works with: git, cargo, npm, pnpm, docker, kubectl, pip, ruff, go, curl, grep, find, ls, aws, helm, and more.
 "#
     );
 
     if agents_path.exists() {
         let content = std::fs::read_to_string(&agents_path).unwrap_or_default();
-        if content.contains("loopguard-ctx") || content.contains("LEAN-CTX") {
+        if content.contains("loopguard-ctx")
+            || content.contains("LOOPGUARD-CTX")
+        {
             println!("Codex AGENTS.md already configured.");
             return;
         }

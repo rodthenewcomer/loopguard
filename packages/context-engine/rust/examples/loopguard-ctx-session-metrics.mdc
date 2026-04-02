@@ -1,0 +1,22 @@
+---
+description: Shows loopguard-ctx MCP token metrics for the current session at the end of each reply
+globs: **/*
+alwaysApply: true
+---
+
+# End of reply — LoopGuard CTX metrics block
+
+On every substantive reply:
+
+1. Call the MCP tool `ctx_metrics` once.
+2. In the last paragraph of your reply, report the numbers returned by `ctx_metrics`.
+
+## Limits
+
+- These figures only cover tool calls tracked by loopguard-ctx during the session.
+- They do not represent full editor or model billing.
+- If no loopguard-ctx tool was used, say so instead of inventing savings.
+
+## If `ctx_metrics` is unavailable
+
+Write one line: *"LoopGuard CTX metrics unavailable for this session."*

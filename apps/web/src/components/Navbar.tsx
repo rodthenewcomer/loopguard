@@ -9,6 +9,8 @@ const NAV_LINKS = [
   { label: 'Docs',        href: '/docs' },
 ];
 
+const SUPPORT_URL = 'https://buymeacoffee.com/yvgude';
+
 // Placeholder — replace with real Marketplace URL once published
 const MARKETPLACE_URL = '/setup';
 
@@ -58,12 +60,12 @@ export default function Navbar() {
           >
             Log in
           </Link>
-          <Link
-            href="/signup"
+          <a
+            href={SUPPORT_URL}
             className="px-4 py-2 border border-[#374151] hover:border-[#4B5563] text-sm text-[#D1D5DB] hover:text-white rounded-lg transition-colors duration-200"
           >
-            Sign up free
-          </Link>
+            Buy me a coffee
+          </a>
           <a
             href={MARKETPLACE_URL}
             className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-blue-900/30"
@@ -105,13 +107,13 @@ export default function Navbar() {
               <Link href="/login" onClick={() => setMobileOpen(false)} className="py-2.5 text-sm text-[#9CA3AF] hover:text-white transition-colors">
                 Log in
               </Link>
-              <Link
-                href="/signup"
+              <a
+                href={SUPPORT_URL}
                 onClick={() => setMobileOpen(false)}
                 className="py-2.5 text-center border border-[#374151] text-sm text-white rounded-lg"
               >
-                Sign up free
-              </Link>
+                Buy me a coffee
+              </a>
               <a
                 href={MARKETPLACE_URL}
                 className="py-2.5 text-center bg-[#2563EB] text-white text-sm font-semibold rounded-lg"

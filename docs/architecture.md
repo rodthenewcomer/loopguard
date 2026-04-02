@@ -563,10 +563,10 @@ Build order is enforced automatically by Turborepo dependency graph.
 **Rationale:** Available without any AI API. Works with all languages. Zero cost. Immediate value.
 **Consequences:** Cannot detect loops in conversations that don't produce diagnostic errors (e.g., wrong logic with no compiler errors). This is a v2 problem (prompt history tracking).
 
-### ADR-004: $9/month Pro pricing
-**Decision:** Start at $9/month for Pro.
-**Rationale:** Below psychological $10 threshold. Clear ROI if users save even 30 min/month. Easy to raise later.
-**Consequences:** May attract users who churn quickly. Revisit at 500+ paying users.
+### ADR-004: support-first monetization
+**Decision:** Keep the core product free while validating direct support and optional paid add-ons later.
+**Rationale:** Lower friction for installation, faster trust, and cleaner product messaging while the workflow is still being refined.
+**Consequences:** Revenue arrives later. Revisit once the product story and support funnel are stable.
 
 ### ADR-005: esbuild for extension bundling
 **Decision:** Use esbuild instead of webpack for bundling the extension.

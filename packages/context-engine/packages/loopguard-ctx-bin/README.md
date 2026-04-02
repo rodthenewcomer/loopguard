@@ -1,6 +1,6 @@
 # loopguard-ctx-bin
 
-Pre-built binary distribution of [loopguard-ctx](https://github.com/yvgude/loopguard-ctx) — the Cognitive Filter for AI Engineering.
+Pre-built binary distribution of [loopguard-ctx](https://github.com/rodthenewcomer/loopguard) for LoopGuard setup flows and agent integrations.
 
 No Rust toolchain required. The correct binary for your platform is downloaded automatically during `npm install`.
 
@@ -30,10 +30,10 @@ This auto-detects your shell and editors, installs shell aliases, creates MCP co
 
 ```bash
 # Universal installer (no Rust needed)
-curl -fsSL https://loopguardctx.com/install.sh | sh
+curl -fsSL https://loopguard.vercel.app/install.sh | sh
 
 # Homebrew (macOS/Linux)
-brew tap yvgude/loopguard-ctx && brew install loopguard-ctx
+brew tap rodthenewcomer/tap/loopguard-ctx && brew install rodthenewcomer/tap/loopguard-ctx
 
 # Cargo (requires Rust)
 cargo install loopguard-ctx
@@ -41,7 +41,6 @@ cargo install loopguard-ctx
 
 ## Links
 
-- [Documentation](https://loopguardctx.com/docs/getting-started)
-- [GitHub](https://github.com/yvgude/loopguard-ctx)
+- [Documentation](https://loopguard.vercel.app/docs)
+- [GitHub](https://github.com/rodthenewcomer/loopguard)
 - [crates.io](https://crates.io/crates/loopguard-ctx)
-- [Discord](https://discord.gg/pTHkG9Hew9)

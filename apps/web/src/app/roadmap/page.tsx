@@ -15,7 +15,7 @@ const PHASES = [
       { title: 'Loop detection via VS Code diagnostics API', detail: 'Fires when the same error hash appears 2–5× in a session depending on sensitivity setting.' },
       { title: 'Edit-pattern loop detection', detail: 'Detects when you are editing the same region of code repeatedly with no forward progress.' },
       { title: 'TypeScript context engine (~80% token reduction)', detail: 'Free tier. Extracts imports and a focused window around the current error.' },
-      { title: 'Rust context engine (89–99% token reduction)', detail: 'Pro tier. Full AST parse, Shannon entropy scoring, Myers delta, memory cache.' },
+      { title: 'Rust context engine (89–99% token reduction)', detail: 'Local helper path. Full AST parse, Shannon entropy scoring, Myers delta, memory cache.' },
       { title: 'MCP server support', detail: 'Setup path for Claude Code, Cursor, Windsurf, Codex CLI, Zed, and VS Code / Copilot.' },
       { title: 'Shell hooks — CLI output compression', detail: 'bash, zsh, fish on Windows (WSL), macOS, Linux. 60–90% reduction on npm, git, docker output.' },
       { title: 'Multi-IDE auth — VS Code, Cursor, Windsurf', detail: 'URI callback scheme auto-detected from vscode.env.uriScheme.' },

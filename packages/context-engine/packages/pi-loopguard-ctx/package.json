@@ -4,15 +4,15 @@
   "description": "Pi Coding Agent extension that routes bash, read, grep, find, and ls through loopguard-ctx for 60-90% token savings",
   "keywords": ["pi-package", "loopguard-ctx", "token-optimization", "compression"],
   "license": "MIT",
-  "author": "Yves Gugger",
+  "author": "LoopGuard",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yvgude/loopguard-ctx.git",
-    "directory": "packages/pi-loopguard-ctx"
+    "url": "https://github.com/rodthenewcomer/loopguard.git",
+    "directory": "packages/context-engine/packages/pi-loopguard-ctx"
   },
-  "homepage": "https://loopguardctx.com",
+  "homepage": "https://loopguard.vercel.app",
   "bugs": {
-    "url": "https://github.com/yvgude/loopguard-ctx/issues"
+    "url": "https://github.com/rodthenewcomer/loopguard/issues"
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": ">=0.50.0",

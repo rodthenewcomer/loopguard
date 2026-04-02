@@ -328,8 +328,8 @@ Each detected loop with: error hash, occurrence count, time wasted, file type, d
 **Break-the-Loop Tips**
 Contextual suggestions when you're stuck.
 
-**Pro Upgrade CTA**
-Visible to free tier users — unlocks dashboard history and advanced analytics.
+**Support CTA**
+Optional support link for users who want to back the project while the core product stays free.
 
 ### Web Dashboard
 
@@ -342,7 +342,6 @@ The web dashboard at `https://loopguard.dev/dashboard` shows your aggregated met
 Signing in is **optional**. LoopGuard works fully offline without an account. An account unlocks:
 - Historical metrics across sessions (web dashboard)
 - Loop trends over time
-- Pro tier features (when subscribed)
 
 ### Signing In
 

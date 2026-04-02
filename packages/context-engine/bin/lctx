@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lctx — lean-ctx launcher for AI coding agents
+# lctx — LoopGuard CTX launcher for AI coding agents
 #
 # Usage:
 #   lctx                              # auto-detect agent, current dir
@@ -14,22 +14,22 @@
 #   lctx --resume ID                  # resume Claude session
 set -euo pipefail
 
-LEAN_CTX=""
+LOOPGUARD_CTX=""
 AGENT=""
 PROJECT_DIR=""
 PROMPT=""
 RESUME_ID=""
 SCAN_ONLY=false
 
-find_lean_ctx() {
-  if command -v lean-ctx &>/dev/null; then
-    LEAN_CTX="$(command -v lean-ctx)"
-  elif [[ -x "${SCRIPT_DIR}/../rust/target/release/lean-ctx" ]]; then
-    LEAN_CTX="${SCRIPT_DIR}/../rust/target/release/lean-ctx"
+find_loopguard_ctx() {
+  if command -v loopguard-ctx &>/dev/null; then
+    LOOPGUARD_CTX="$(command -v loopguard-ctx)"
+  elif [[ -x "${SCRIPT_DIR}/../rust/target/release/loopguard-ctx" ]]; then
+    LOOPGUARD_CTX="${SCRIPT_DIR}/../rust/target/release/loopguard-ctx"
   else
-    echo "Error: lean-ctx not found."
-    echo "Install: cargo install lean-ctx"
-    echo "     or: curl -fsSL https://raw.githubusercontent.com/yvgude/lean-ctx/main/install.sh | bash -s -- --download"
+    echo "Error: loopguard-ctx not found."
+    echo "Install: cargo install loopguard-ctx"
+    echo "     or: curl -fsSL https://loopguard.vercel.app/install.sh | sh"
     exit 1
   fi
 }
@@ -101,15 +101,15 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-find_lean_ctx
+find_loopguard_ctx
 find_project_root
 echo "Project: $PROJECT_DIR"
-echo "Using:   $LEAN_CTX"
+echo "Using:   $LOOPGUARD_CTX"
 
 echo ""
 echo "Building project graph..."
-"$LEAN_CTX" -c "$LEAN_CTX graph build" 2>/dev/null \
-  || LEAN_CTX_ACTIVE=1 "$LEAN_CTX" graph build 2>/dev/null \
+"$LOOPGUARD_CTX" -c "$LOOPGUARD_CTX graph build" 2>/dev/null \
+  || LOOPGUARD_CTX_ACTIVE=1 "$LOOPGUARD_CTX" graph build 2>/dev/null \
   || echo "(graph build skipped — run in MCP mode for full graph)"
 
 if $SCAN_ONLY; then
@@ -122,8 +122,8 @@ echo ""
 
 case "$AGENT" in
   claude|claude-code)
-    echo "Setting up lean-ctx for Claude Code..."
-    "$LEAN_CTX" init --agent claude --global 2>/dev/null || true
+    echo "Setting up loopguard-ctx for Claude Code..."
+    "$LOOPGUARD_CTX" init --agent claude --global 2>/dev/null || true
 
     CLAUDE_ARGS=()
     if [[ -n "$RESUME_ID" ]]; then
@@ -138,15 +138,15 @@ case "$AGENT" in
     exec claude ${CLAUDE_ARGS[@]+"${CLAUDE_ARGS[@]}"} ;;
 
   cursor)
-    echo "Setting up lean-ctx for Cursor..."
-    "$LEAN_CTX" init --agent cursor --global 2>/dev/null || true
+    echo "Setting up loopguard-ctx for Cursor..."
+    "$LOOPGUARD_CTX" init --agent cursor --global 2>/dev/null || true
     echo ""
-    echo "Cursor configured. Open your project in Cursor to use lean-ctx MCP tools."
+    echo "Cursor configured. Open your project in Cursor to use loopguard-ctx MCP tools."
     echo "  cursor $PROJECT_DIR" ;;
 
   gemini)
-    echo "Setting up lean-ctx for Gemini CLI..."
-    "$LEAN_CTX" init --agent gemini --global 2>/dev/null || true
+    echo "Setting up loopguard-ctx for Gemini CLI..."
+    "$LOOPGUARD_CTX" init --agent gemini --global 2>/dev/null || true
 
     echo "Launching Gemini CLI..."
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -154,20 +154,20 @@ case "$AGENT" in
     exec gemini ;;
 
   codex)
-    echo "Setting up lean-ctx for Codex..."
-    "$LEAN_CTX" init --agent codex --global 2>/dev/null || true
+    echo "Setting up loopguard-ctx for Codex..."
+    "$LOOPGUARD_CTX" init --agent codex --global 2>/dev/null || true
     echo ""
-    echo "Codex configured. lean-ctx hooks installed." ;;
+    echo "Codex configured. LoopGuard CTX hooks installed." ;;
 
   windsurf)
-    echo "Setting up lean-ctx for Windsurf..."
-    "$LEAN_CTX" init --agent windsurf 2>/dev/null || true
+    echo "Setting up loopguard-ctx for Windsurf..."
+    "$LOOPGUARD_CTX" init --agent windsurf 2>/dev/null || true
     echo ""
     echo "Windsurf configured. Open your project in Windsurf." ;;
 
   cline|roo)
-    echo "Setting up lean-ctx for Cline/Roo..."
-    "$LEAN_CTX" init --agent cline 2>/dev/null || true
+    echo "Setting up loopguard-ctx for Cline/Roo..."
+    "$LOOPGUARD_CTX" init --agent cline 2>/dev/null || true
     echo ""
     echo "Cline configured." ;;
 

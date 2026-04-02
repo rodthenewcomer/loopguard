@@ -7,10 +7,10 @@ const path = require("path");
 const https = require("https");
 const { createGunzip } = require("zlib");
 
-const REPO = "yvgude/lean-ctx";
+const REPO = "rodthenewcomer/loopguard";
 const BIN_DIR = path.join(__dirname, "bin");
 const IS_WIN = process.platform === "win32";
-const BINARY_NAME = IS_WIN ? "lean-ctx.exe" : "lean-ctx";
+const BINARY_NAME = IS_WIN ? "loopguard-ctx.exe" : "loopguard-ctx";
 const BINARY_PATH = path.join(BIN_DIR, BINARY_NAME);
 
 function getTarget() {
@@ -29,7 +29,7 @@ function getTarget() {
   const target = targets[key];
   if (!target) {
     console.error(`Unsupported platform: ${key}`);
-    console.error("Build from source instead: cargo install lean-ctx");
+    console.error("Build from source instead: cargo install loopguard-ctx");
     process.exit(1);
   }
   return target;
@@ -38,7 +38,7 @@ function getTarget() {
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
     const get = (u) => {
-      https.get(u, { headers: { "User-Agent": "lean-ctx-bin-npm" } }, (res) => {
+      https.get(u, { headers: { "User-Agent": "loopguard-ctx-bin-npm" } }, (res) => {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           get(res.headers.location);
           return;
@@ -115,48 +115,48 @@ function extractTarGz(archive, destDir, binaryName) {
 
 async function main() {
   if (fs.existsSync(BINARY_PATH)) {
-    console.log("lean-ctx binary already exists, skipping download");
+    console.log("loopguard-ctx binary already exists, skipping download");
     return;
   }
 
   const target = getTarget();
-  console.log(`lean-ctx: installing for ${target}...`);
+  console.log(`loopguard-ctx: installing for ${target}...`);
 
   const release = await httpsGetJson(`https://api.github.com/repos/${REPO}/releases/latest`);
   const tag = release.tag_name;
-  console.log(`lean-ctx: latest release ${tag}`);
+  console.log(`loopguard-ctx: latest release ${tag}`);
 
   const ext = IS_WIN ? ".zip" : ".tar.gz";
-  const assetName = `lean-ctx-${target}${ext}`;
+  const assetName = `loopguard-ctx-${target}${ext}`;
   const asset = (release.assets || []).find((a) => a.name === assetName);
   if (!asset) {
-    console.error(`No binary for ${target}. Install from source: cargo install lean-ctx`);
+    console.error(`No binary for ${target}. Install from source: cargo install loopguard-ctx`);
     process.exit(1);
   }
 
-  const tmpDir = fs.mkdtempSync(path.join(require("os").tmpdir(), "lean-ctx-"));
+  const tmpDir = fs.mkdtempSync(path.join(require("os").tmpdir(), "loopguard-ctx-"));
   const archivePath = path.join(tmpDir, assetName);
 
   try {
     await downloadToFile(asset.browser_download_url, archivePath);
-    console.log("lean-ctx: downloaded, extracting...");
+    console.log("loopguard-ctx: downloaded, extracting...");
 
     fs.mkdirSync(BIN_DIR, { recursive: true });
 
     if (IS_WIN) {
       execSync(`tar -xf "${archivePath}" -C "${BIN_DIR}"`, { stdio: "ignore" });
     } else {
-      await extractTarGz(archivePath, BIN_DIR, "lean-ctx");
+      await extractTarGz(archivePath, BIN_DIR, "loopguard-ctx");
     }
 
-    console.log(`lean-ctx: installed to ${BINARY_PATH}`);
+    console.log(`loopguard-ctx: installed to ${BINARY_PATH}`);
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
 }
 
 main().catch((err) => {
-  console.error(`lean-ctx: installation failed: ${err.message}`);
-  console.error("Install from source instead: cargo install lean-ctx");
+  console.error(`loopguard-ctx: installation failed: ${err.message}`);
+  console.error("Install from source instead: cargo install loopguard-ctx");
   process.exit(1);
 });

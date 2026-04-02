@@ -117,7 +117,7 @@ Do not market these as fully complete unless they are verified end to end:
 
 - durable metrics retry / offline queueing
 - billing and entitlement enforcement
-- clearer free vs pro gating in product behavior
+- clearer support vs account messaging in product behavior
 - broader MCP verification across supported tools
 - test coverage and CI hardening
 
@@ -125,7 +125,7 @@ Do not market these as fully complete unless they are verified end to end:
 
 - marketplace-ready release automation
 - better session history surfaces
-- cleaner pricing and account flows
+- cleaner support and account flows
 - more explicit Codex onboarding in the product itself, not just docs
 
 ## Suggested owner sequence

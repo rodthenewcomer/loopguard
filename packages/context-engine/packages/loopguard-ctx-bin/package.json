@@ -3,11 +3,11 @@
   "version": "2.6.0",
   "description": "loopguard-ctx — the token-efficient context tool for LLM coding agents. Installs a pre-built binary, no Rust required.",
   "keywords": ["loopguard-ctx", "mcp", "llm", "context", "claude", "cursor", "ai", "token-optimization"],
-  "homepage": "https://loopguardctx.com",
+  "homepage": "https://loopguard.vercel.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yvgude/loopguard-ctx.git",
-    "directory": "packages/loopguard-ctx-bin"
+    "url": "https://github.com/rodthenewcomer/loopguard.git",
+    "directory": "packages/context-engine/packages/loopguard-ctx-bin"
   },
   "license": "MIT",
   "bin": {

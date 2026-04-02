@@ -13,7 +13,7 @@
 2. **Context Engine** — Filters and selects only the relevant code context before AI calls. Reduces token waste by 80–98% through *selection*, not just compression.
 
 **Stack:** TypeScript · VS Code Extension API · Node.js · Supabase · Stripe · Next.js · Turborepo
-**Monetization:** Free tier + Pro at $9/month
+**Support model:** Free core + optional direct support
 **Privacy law:** User code never leaves the device. Backend stores only metrics.
 
 ---
@@ -160,7 +160,7 @@ Profiles extension startup time, memory usage, and event handler latency. Sets a
 ### DATA / ANALYTICS
 
 **Data Analyst**
-Tracks the metrics that matter: DAU, weekly active users, loops detected per user per day, Pro conversion rate, churn rate. Builds dashboards in Supabase.
+Tracks the metrics that matter: DAU, weekly active users, loops detected per user per day, activation rate, and churn. Builds dashboards in Supabase.
 
 **Product Analyst**
 Instruments every meaningful user action as an analytics event. Builds conversion funnels. Identifies where users drop off in onboarding.
@@ -192,23 +192,23 @@ Only activates after organic validation. Tests ad creatives on TikTok and Twitte
 ### SALES / REVENUE
 
 **Sales Manager**
-Converts power users to Pro. No cold outreach — converts through product value. Identifies moments where users feel the pain of the free tier limits.
+Converts power users into long-term supporters and future paid adopters. No cold outreach — converts through product value and trust.
 
 **Business Development Manager**
 Explores integration partnerships with Cursor IDE, GitHub Copilot ecosystem, and AI tool vendors. Thinks about distribution deals that could 10x user acquisition.
 
 **Revenue Operations Manager**
-Owns the Stripe integration and all billing flows. Ensures subscription lifecycle is reliable. Monitors MRR, churn, and expansion revenue.
+Owns the Stripe integration and any future billing flows. Ensures support and purchase journeys are reliable. Monitors revenue, churn, and retention.
 
 **Pricing Strategist**
-$9/month is the validated starting point. Tests pricing elasticity as product matures. Knows that pricing signals value — don't underprice.
+Keeps pricing simple and earned. Validates support-first monetization before introducing feature paywalls or subscriptions.
 
 ---
 
 ### CUSTOMER
 
 **Customer Success Manager**
-Onboards Pro users. Reduces churn by ensuring users achieve the "aha moment" quickly. Builds relationships with power users who become advocates.
+Onboards supporters and heavy users. Reduces churn by ensuring users achieve the "aha moment" quickly. Builds relationships with power users who become advocates.
 
 **Support Engineer**
 Triages bugs and user-reported issues. Writes clear GitHub issue templates. Reproduces bugs before escalating.

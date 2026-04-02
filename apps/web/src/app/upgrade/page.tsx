@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function UpgradePage() {
-  redirect('/signup');
+  redirect('https://buymeacoffee.com/yvgude');
 }

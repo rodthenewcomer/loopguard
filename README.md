@@ -246,21 +246,13 @@ No source code. No file contents. No error messages. No file paths.
 
 ---
 
-## Pricing
+## Support Model
 
-| | Free | Pro |
-|-|------|-----|
-| Loop detection | ✅ Unlimited | ✅ Unlimited |
-| Session time tracking | ✅ | ✅ |
-| Notifications | ✅ | ✅ |
-| Context Engine (TS fallback) | ✅ | ✅ |
-| Optional Rust helper | ✅ local setup | ✅ |
-| MCP Server integration | Manual setup | ✅ |
-| Shell hooks | Manual setup | ✅ |
-| Expanded history and reporting | ❌ | ✅ |
-| Premium usage surfaces | ❌ | ✅ |
-| Smart suggestions | ❌ | ✅ Coming soon |
-| | Free forever | **$9/month** |
+LoopGuard core is currently free to use.
+
+- Loop detection stays available without a paid tier.
+- The local context tools can be installed separately when you want deeper agent and terminal workflows.
+- If the project saves you time, support it directly instead of going through a feature paywall.
 
 ---
 
@@ -413,6 +405,6 @@ MIT — see [LICENSE](LICENSE)
 
 Built for developers who are done losing hours to AI loops.
 
-**[Install on VS Code Marketplace](https://marketplace.visualstudio.com)** · **[Report a Bug](https://github.com/loopguard/loopguard/issues)** · **[Pro Plan — $9/mo](#pricing)**
+**[Install on VS Code Marketplace](https://marketplace.visualstudio.com)** · **[Report a Bug](https://github.com/loopguard/loopguard/issues)** · **[Buy me a coffee](https://buymeacoffee.com/yvgude)**
 
 </div>
