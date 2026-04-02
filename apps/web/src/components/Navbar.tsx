@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { label: 'Docs',        href: '/docs' },
 ];
 
-const SUPPORT_URL = 'https://buymeacoffee.com/yvgude';
+const SUPPORT_URL = 'https://buymeacoffee.com/rodthenewcomer';
 
 // Placeholder — replace with real Marketplace URL once published
 const MARKETPLACE_URL = '/setup';

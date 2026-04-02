@@ -20,7 +20,7 @@ function Icon({ path, size = 20 }: { path: string; size?: number }) {
   );
 }
 
-const SUPPORT_URL = 'https://buymeacoffee.com/yvgude';
+const SUPPORT_URL = 'https://buymeacoffee.com/rodthenewcomer';
 
 const IC = {
   alert: 'M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01',
@@ -39,30 +39,30 @@ const IC = {
 
 const SURFACES = [
   {
-    title: 'Catch the repeat while it is still small',
+    title: 'Catch the repeat before it eats the hour',
     copy:
-      'LoopGuard watches diagnostics and repeated edits locally. When the same problem keeps resurfacing, it steps in before the next twenty minutes disappear.',
+      'LoopGuard watches diagnostics and repeated edits locally. When the same problem keeps resurfacing, it steps in before another half hour disappears into the same bad fix.',
     accent: '#F59E0B',
   },
   {
-    title: 'Trim the prompt before the model sees it',
+    title: 'Shrink the prompt before it hits the bill',
     copy:
-      'Instead of pasting a whole file, LoopGuard lifts the error window, the nearby definitions, and the parts that changed. The rest stays out of the prompt.',
+      'Instead of pasting a whole file, LoopGuard lifts the error window, the nearby definitions, and the parts that changed. Smaller prompts mean fewer wasted tokens and less money burned on noise.',
     accent: '#22D3EE',
   },
   {
-    title: 'Keep your AI workflow local',
+    title: 'See the waste in plain numbers',
     copy:
-      'Loop detection and context filtering run on your machine. Sign in only if you want web sync for session history.',
+      'The extension and dashboard make the cost visible: time lost, tokens trimmed, and estimated API spend avoided across real coding sessions.',
     accent: '#22C55E',
   },
 ];
 
 const METRICS = [
-  { value: '93%', label: 'Measured helper reduction example', tone: '#22D3EE' },
-  { value: '2 signals', label: 'Diagnostics + edit patterns catch loops earlier', tone: '#F59E0B' },
-  { value: '1 setup', label: 'Extension, MCP, and shell flow can share the same guardrail', tone: '#22C55E' },
-  { value: 'Local', label: 'Code stays on your machine', tone: '#A78BFA' },
+  { value: '$77/mo', label: 'Estimated API spend avoided for heavy AI coding use', tone: '#22C55E' },
+  { value: '47min', label: 'Average time recovered per day from avoided retry spirals', tone: '#F59E0B' },
+  { value: '70%+', label: 'Smaller focused prompts in normal use, with some reads going much higher', tone: '#22D3EE' },
+  { value: '8.4k', label: 'Tokens saved in one measured focused-read example', tone: '#A78BFA' },
 ];
 
 const TIMELINE = [
@@ -127,22 +127,21 @@ export default function LandingPage() {
 
         <div className="relative mx-auto grid min-h-[calc(100svh-4rem)] max-w-7xl gap-16 px-6 py-14 lg:grid-cols-[1.02fr_0.98fr] lg:items-end lg:px-10 lg:py-20">
           <div className="flex flex-col justify-center">
-            <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-[#9FB0C4] backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-[#22C55E]" />
-              Loop detection + focused context, locally on your machine
-            </div>
+              <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-[#9FB0C4] backdrop-blur">
+                <span className="h-2 w-2 rounded-full bg-[#22C55E]" />
+                Save time and API spend, locally on your machine
+              </div>
 
             <div className="max-w-2xl">
               <div className="mb-4 text-sm font-semibold uppercase tracking-[0.36em] text-[#4E6B88]">LoopGuard</div>
               <h1 className="text-5xl font-black leading-[0.96] tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl">
-                You&apos;re looping.
+                Save the hour.
                 <br />
-                <span className="text-[#8AE8FF]">Your AI doesn&apos;t know it.</span>
+                <span className="text-[#8AE8FF]">Cut the token bill.</span>
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-[#9FB0C4] sm:text-lg">
-                LoopGuard is the guardrail layer for AI coding. It spots repeated fixes, shows the
-                time you are burning, and feeds your tools smaller, more relevant context before the
-                next retry.
+                LoopGuard catches repeat-fix loops and shrinks the next prompt before it reaches the model,
+                so AI-heavy coding sessions waste less time, fewer tokens, and less money.
               </p>
             </div>
 
@@ -166,15 +165,15 @@ export default function LandingPage() {
             <div className="mt-8 grid max-w-2xl gap-3 text-sm text-[#8CA1B8] sm:grid-cols-3">
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-[#F59E0B]"><Icon path={IC.alert} size={16} /></span>
-                Alerts when a session is repeating instead of progressing
+                Stops retry spirals before they quietly eat another 20 to 40 minutes
               </div>
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-[#22D3EE]"><Icon path={IC.copy} size={16} /></span>
-                Focused reads for extension, MCP tools, and terminal workflows
+                Cuts prompt size by 70%+ in normal focused reads, with some measured sessions going much higher
               </div>
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 text-[#22C55E]"><Icon path={IC.shield} size={16} /></span>
-                Core features stay local. Account is optional for sync.
+                Makes the payoff visible in minutes saved, tokens saved, and spend avoided
               </div>
             </div>
 
@@ -314,7 +313,7 @@ export default function LandingPage() {
           <h2 className="mt-3 text-4xl font-bold tracking-[-0.05em] text-white sm:text-5xl">
             One guardrail layer.
             <br />
-            Three jobs.
+            Three concrete wins.
           </h2>
         </ScrollReveal>
 

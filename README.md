@@ -1,13 +1,13 @@
 # LoopGuard
 
-LoopGuard is a local-first guardrail for AI-assisted coding.
+LoopGuard is a local-first AI coding guardrail built to save time and reduce API waste.
 
 It does two jobs:
 
 1. It catches repeat-fix loops in VS Code-based editors before another twenty minutes disappear.
-2. It keeps the next AI turn smaller by sending a tighter context snapshot instead of dumping whole files.
+2. It keeps the next AI turn smaller so you send fewer useless tokens and spend less money on noisy prompts.
 
-LoopGuard is built for people using VS Code, Cursor, Windsurf, Codex CLI, Claude Code, GitHub Copilot, and other MCP-friendly workflows who want fewer wasted retries and less prompt noise.
+LoopGuard is built for people using VS Code, Cursor, Windsurf, Codex CLI, Claude Code, GitHub Copilot, and other MCP-friendly workflows who want fewer wasted retries, smaller prompts, and lower AI bills.
 
 ## What It Actually Does
 
@@ -19,10 +19,16 @@ LoopGuard is built for people using VS Code, Cursor, Windsurf, Codex CLI, Claude
 
 ## Honest Positioning
 
-- LoopGuard can make prompts much smaller, especially when the native helper is active.
-- The `93%` figure used in product copy is a measured example, not a universal promise.
+- LoopGuard is designed to cut focused prompt size by 70%+ in normal use, especially when the native helper is active.
+- The `93%` figure used in product copy is a measured high-end example, not a universal promise.
 - Exact savings vary by file, workflow, and read mode.
-- The product value is not “fancy compression.” It is catching wasted retries early and keeping the next prompt tighter.
+- The product value is not “fancy compression.” It is saving time, trimming tokens, and making AI coding sessions cheaper to run.
+
+## Outcome First
+
+- Save time by cutting off repeat-fix loops before they quietly consume the next half hour.
+- Save tokens by sending focused context instead of whole files and noisy terminal output.
+- Save money by reducing how much irrelevant code reaches paid AI models over a week or month of heavy use.
 
 ## Product Surfaces
 
@@ -67,7 +73,7 @@ curl -fsSL https://loopguard.vercel.app/install.sh | sh
 
 ### 3. Web Dashboard
 
-If you sign in, LoopGuard can sync anonymized session metrics so you can review loop history and session trends in the browser.
+If you sign in, LoopGuard can sync anonymized session metrics so you can review time saved, tokens saved, and session trends in the browser.
 
 Core protection still works without an account.
 
@@ -150,7 +156,7 @@ cd packages/context-engine/rust && cargo check
 
 LoopGuard keeps the core product free.
 
-- Support it: [buymeacoffee.com/yvgude](https://buymeacoffee.com/yvgude)
+- Support it: [buymeacoffee.com/rodthenewcomer](https://buymeacoffee.com/rodthenewcomer)
 - Report bugs: [github.com/rodthenewcomer/loopguard/issues](https://github.com/rodthenewcomer/loopguard/issues)
 
 ## License

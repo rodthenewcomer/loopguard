@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import type { LoopEvent, SessionMetrics } from '@loopguard/types';
 import { formatDuration } from '@loopguard/utils';
 
-const SUPPORT_URL = 'https://buymeacoffee.com/yvgude';
+const SUPPORT_URL = 'https://buymeacoffee.com/rodthenewcomer';
 
 export class DashboardPanel {
   private static _instance: DashboardPanel | undefined;

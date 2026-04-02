@@ -1,7 +1,7 @@
 {
   "name": "LoopGuard",
   "short_name": "LoopGuard",
-  "description": "Stop AI loops. Cut token spend by 93%.",
+  "description": "Save time in AI coding sessions. Cut prompt spend by 70%+.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0B1220",

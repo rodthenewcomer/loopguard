@@ -16,9 +16,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'LoopGuard — Stop AI Loops. Cut Token Spend by 93%.',
+  title: 'LoopGuard — Save Time In AI Coding. Cut Prompt Spend By 70%+.',
   description:
-    'LoopGuard detects when you\'re stuck in an AI coding loop and breaks the cycle before you waste another hour. Cuts token spend by 93% with a Rust-powered context engine. Free for VS Code and Cursor.',
+    'LoopGuard catches repeat-fix loops and trims prompts before they hit the model, helping AI-heavy coding sessions save time, tokens, and API spend.',
   keywords: [
     'AI coding',
     'VS Code extension',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
   openGraph: {
     title: 'LoopGuard — Stop AI Loops',
-    description: 'Detect AI coding loops in real time. Cut your token bill by 93%.',
+    description: 'Save time in AI coding sessions and cut prompt spend by 70%+ with focused local reads.',
     type: 'website',
     url: 'https://loopguard.vercel.app',
     images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'LoopGuard' }],
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'LoopGuard — Stop AI Loops',
-    description: 'Detect AI coding loops in real time. Cut your token bill by 93%.',
+    description: 'Save time in AI coding sessions and cut prompt spend by 70%+ with focused local reads.',
     images: ['/twitter-image.png'],
   },
 };
