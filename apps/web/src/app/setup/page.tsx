@@ -390,7 +390,7 @@ export default function SetupPage() {
 
               <Step n={1} title="Install loopguard-ctx">
                 <Lead>Use the installer script or download a release binary for your platform.</Lead>
-                <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh</Code>
+                <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download</Code>
                 <p className="mt-3 text-sm text-[#6B7280]">
                   Then verify it:
                 </p>
@@ -414,9 +414,9 @@ export default function SetupPage() {
                 <Code>loopguard-ctx doctor</Code>
               </Step>
 
-              <Step n={4} title="Optional: restore the last helper session">
+              <Step n={4} title="Restore previous session context">
                 <Lead>
-                  If you are resuming a prior thread, run this first inside the Claude session:
+                  Run this inside Claude Code before starting work to restore context from the previous session:
                 </Lead>
                 <Code>ctx_session load</Code>
               </Step>
@@ -448,8 +448,10 @@ export default function SetupPage() {
                 noisy output before it reaches an AI tool.
               </Lead>
 
-              <Step n={1} title="Install the helper if needed">
-                <Code>loopguard-ctx --version</Code>
+              <Step n={1} title="Install the helper">
+                <Lead>If you do not already have loopguard-ctx, install it:</Lead>
+                <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download</Code>
+                <p className="mt-2 text-xs text-[#4B5563]">Then verify: <code className="text-[#9CA3AF]">loopguard-ctx --version</code></p>
               </Step>
 
               <Step n={2} title="Install shell hooks">

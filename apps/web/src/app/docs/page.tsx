@@ -271,7 +271,7 @@ export default function DocsPage() {
             If you use Codex CLI, Claude Code, or want LoopGuard’s shell path without the editor,
             install <Code>loopguard-ctx</Code> directly:
           </P>
-          <Pre>{`curl -fsSL https://loopguard.vercel.app/install.sh | sh
+          <Pre>{`curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download
 
 loopguard-ctx --version`}</Pre>
           <P>
@@ -517,8 +517,7 @@ args = []`}</Pre>
             <Code>~/.claude/CLAUDE.md</Code>.
           </P>
           <Note>
-            If you come back to a prior helper session later, <Code>ctx_session load</Code> can
-            restore the last saved task context.
+            Run <Code>ctx_session load</Code> at the start of every Claude Code session to restore the previous task context and saved findings.
           </Note>
 
           <H2 id="shell-hooks">Shell helper</H2>
