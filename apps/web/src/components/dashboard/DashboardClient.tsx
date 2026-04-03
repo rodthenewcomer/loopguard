@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import LoopGuardLogo from '../LoopGuardLogo';
 import { DEMO_DATA, fmtMs, type SummaryData, useDashboardData } from './DashboardData';
 import WeekChart from './WeekChart';
@@ -652,6 +652,124 @@ function DashboardBody({
   );
 }
 
+
+const API_BASE =
+  process.env['NEXT_PUBLIC_API_URL'] ?? 'https://loopguardapi-production.up.railway.app';
+
+interface DeviceStats {
+  deviceId: string;
+  firstSeen: string;
+  lastSynced: string;
+  totalTokensSaved: number;
+  totalCommands: number;
+  totalSessions: number;
+  costSaved: number;
+}
+
+function CliStatsPanel() {
+  const [deviceId, setDeviceId] = useState('');
+  const [stats, setStats] = useState<DeviceStats | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const lookup = async (): Promise<void> => {
+    const id = deviceId.trim();
+    if (!/^[0-9a-f-]{36}$/.test(id)) {
+      setError('Paste the full UUID from ~/.loopguard-ctx/device.json');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/metrics/device-stats?device_id=${encodeURIComponent(id)}`);
+      if (res.status === 404) {
+        setError('No data yet — run a session first, then try again.');
+        setLoading(false);
+        return;
+      }
+      if (!res.ok) throw new Error(`API ${res.status}`);
+      const data = await res.json() as DeviceStats;
+      setStats(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Request failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="rounded-[28px] border border-cyan-400/15 bg-[linear-gradient(145deg,rgba(8,20,38,0.92),rgba(7,17,31,0.88))] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.22)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300">CLI Stats</div>
+      <h2 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
+        Using loopguard-ctx from the terminal?
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-slate-300">
+        Your stats sync automatically at the end of each session. Enter your device ID to view them here.
+      </p>
+      <div className="mt-3 rounded-[18px] border border-white/8 bg-[#081220] px-4 py-3 font-mono text-xs text-slate-400">
+        cat ~/.loopguard-ctx/device.json
+      </div>
+
+      {stats === null ? (
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <input
+            type="text"
+            value={deviceId}
+            onChange={(e) => setDeviceId(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') void lookup(); }}
+            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            className="flex-1 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400/30 focus:ring-1 focus:ring-cyan-400/20"
+          />
+          <button
+            onClick={() => void lookup()}
+            disabled={loading}
+            className="inline-flex items-center justify-center rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
+          >
+            {loading ? 'Loading…' : 'View stats'}
+          </button>
+        </div>
+      ) : (
+        <div className="mt-4 space-y-3">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
+              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Tokens saved</div>
+              <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-cyan-300">
+                {stats.totalTokensSaved.toLocaleString()}
+              </div>
+            </div>
+            <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
+              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Cost saved</div>
+              <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-emerald-300">
+                ${stats.costSaved.toFixed(2)}
+              </div>
+            </div>
+            <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
+              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Sessions</div>
+              <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
+                {stats.totalSessions}
+              </div>
+            </div>
+          </div>
+          <div className="text-[11px] text-slate-500">
+            Last synced: {new Date(stats.lastSynced).toLocaleString()}
+            {' · '}
+            <button
+              onClick={() => setStats(null)}
+              className="text-sky-400 transition hover:text-sky-300"
+            >
+              change device
+            </button>
+          </div>
+        </div>
+      )}
+
+      {error !== null && (
+        <p className="mt-3 text-sm text-rose-400">{error}</p>
+      )}
+    </div>
+  );
+}
+
 function Footer() {
   return (
     <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-white/8 px-1 pt-2 text-xs text-slate-500">
@@ -688,6 +806,7 @@ export default function DashboardClient() {
           ctaHref="/signup"
           ctaLabel="Create free account"
         />
+        <CliStatsPanel />
         <DashboardBody data={DEMO_DATA} isDemo={false} />
         <Footer />
       </DashboardShell>

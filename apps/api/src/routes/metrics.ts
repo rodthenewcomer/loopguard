@@ -239,4 +239,95 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
   });
 });
 
+
+/* ── POST /device-sync ──────────────────────────────────────────────
+ * Called by loopguard-ctx CLI at session end (Stop hook).
+ * No auth required — anonymous, identified by device UUID only.
+ * Privacy: only aggregate token/command counts and daily totals.
+ * Service role bypasses RLS for all writes.
+ */
+const DeviceSyncSchema = z.object({
+  device_id: z.string().uuid(),
+  total_tokens_original: z.number().int().min(0),
+  total_tokens_compressed: z.number().int().min(0),
+  total_tokens_saved: z.number().int().min(0),
+  total_commands: z.number().int().min(0),
+  total_sessions: z.number().int().min(0),
+  daily_breakdown: z
+    .array(
+      z.object({
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        tokens_saved: z.number().int().min(0),
+        commands: z.number().int().min(0),
+      }),
+    )
+    .max(30),
+});
+
+router.post('/device-sync', async (req, res: Response): Promise<void> => {
+  const parsed = DeviceSyncSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid payload', details: parsed.error.flatten() });
+    return;
+  }
+
+  const d = parsed.data;
+  const { error } = await supabase.from('device_stats').upsert(
+    {
+      device_id: d.device_id,
+      last_synced: new Date().toISOString(),
+      total_tokens_original: d.total_tokens_original,
+      total_tokens_compressed: d.total_tokens_compressed,
+      total_tokens_saved: d.total_tokens_saved,
+      total_commands: d.total_commands,
+      total_sessions: d.total_sessions,
+      daily_breakdown: d.daily_breakdown,
+    },
+    { onConflict: 'device_id' },
+  );
+
+  if (error !== null) {
+    console.error('[metrics/device-sync] Supabase error:', error.message);
+    res.status(500).json({ error: 'Failed to sync device stats' });
+    return;
+  }
+
+  res.json({ ok: true });
+});
+
+/* ── GET /device-stats ──────────────────────────────────────────────
+ * Returns stats for a specific device ID (no auth — UUID is the secret).
+ * Used by CLI users who want to view their stats on the web dashboard.
+ */
+router.get('/device-stats', async (req, res: Response): Promise<void> => {
+  const deviceId = req.query['device_id'];
+  if (typeof deviceId !== 'string' || !/^[0-9a-f-]{36}$/.test(deviceId)) {
+    res.status(400).json({ error: 'Invalid device_id', code: 'INVALID_DEVICE_ID' });
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('device_stats')
+    .select('*')
+    .eq('device_id', deviceId)
+    .single();
+
+  if (error !== null || data === null) {
+    res.status(404).json({ error: 'Device not found', code: 'DEVICE_NOT_FOUND' });
+    return;
+  }
+
+  const costPerToken = 0.00003;
+  res.json({
+    deviceId: data['device_id'],
+    firstSeen: data['first_seen'],
+    lastSynced: data['last_synced'],
+    totalTokensSaved: data['total_tokens_saved'],
+    totalCommands: data['total_commands'],
+    totalSessions: data['total_sessions'],
+    costSaved: Number(((data['total_tokens_saved'] as number) * costPerToken).toFixed(2)),
+    dailyBreakdown: data['daily_breakdown'],
+  });
+});
+
 export default router;

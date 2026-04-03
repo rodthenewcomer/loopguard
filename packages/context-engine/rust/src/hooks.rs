@@ -197,6 +197,7 @@ rm -f "${{HOME}}/.loopguard-ctx/.session-restored" 2>/dev/null || true
 rm -f "${{HOME}}/.loopguard-ctx/.session-start-injected" 2>/dev/null || true
 rm -f "${{HOME}}/.loopguard-ctx/.session-prompt-count" 2>/dev/null || true
 "{binary}" notify 2>/dev/null || true
+"{binary}" sync &>/dev/null &
 "#
     );
     write_file(&summary_path, &summary_script);

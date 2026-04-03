@@ -1,5 +1,5 @@
 use anyhow::Result;
-use loopguard_ctx::{cli, core, dashboard, doctor, setup, shell, tools};
+use loopguard_ctx::{cli, core, dashboard, doctor, setup, shell, sync, tools};
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -124,6 +124,10 @@ fn main() {
             }
             "update" | "--self-update" => {
                 core::updater::run(&rest);
+                return;
+            }
+            "sync" => {
+                sync::run();
                 return;
             }
             "doctor" => {

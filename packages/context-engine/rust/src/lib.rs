@@ -6,4 +6,5 @@ pub mod hooks;
 pub mod server;
 pub mod setup;
 pub mod shell;
+pub mod sync;
 pub mod tools;
