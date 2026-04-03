@@ -173,9 +173,9 @@ export default function SetupPage() {
               <Step n={1} title="Install from Marketplace">
                 <Lead>
                   Search for <strong className="text-[#9CA3AF]">LoopGuard</strong> in the Extensions
-                  panel. Or open Quick Open (<code className="text-[#9CA3AF] text-xs">Ctrl+P</code> / <code className="text-[#9CA3AF] text-xs">Cmd+P</code>) and type:
+                  panel, or install from the terminal:
                 </Lead>
-                <Code>ext install LoopGuard.loopguard</Code>
+                <Code>code --install-extension LoopGuard.loopguard</Code>
                 <p className="mt-2 text-xs text-[#4B5563]">
                   The bundled helper is included in the extension package. No separate Rust install
                   is required for the editor workflow.
