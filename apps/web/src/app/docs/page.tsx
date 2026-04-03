@@ -258,7 +258,7 @@ export default function DocsPage() {
           </Note>
 
           <H3>VS Code, Cursor, or Windsurf</H3>
-          <P>Install the extension once and open a workspace:</P>
+          <P>Install the extension from the Extensions panel, or open Quick Open (Ctrl+P / Cmd+P) and type:</P>
           <Pre>ext install LoopGuard.loopguard</Pre>
           <P>
             Cursor and Windsurf can use the same extension. That gives you loop alerts, focused

@@ -173,7 +173,7 @@ export default function SetupPage() {
               <Step n={1} title="Install from Marketplace">
                 <Lead>
                   Search for <strong className="text-[#9CA3AF]">LoopGuard</strong> in the Extensions
-                  panel, or run:
+                  panel. Or open Quick Open (<code className="text-[#9CA3AF] text-xs">Ctrl+P</code> / <code className="text-[#9CA3AF] text-xs">Cmd+P</code>) and type:
                 </Lead>
                 <Code>ext install LoopGuard.loopguard</Code>
                 <p className="mt-2 text-xs text-[#4B5563]">
@@ -238,7 +238,8 @@ export default function SetupPage() {
                 <Lead>
                   If you want focused MCP reads inside Cursor’s agent flow, choose one of these:
                 </Lead>
-                <Code>LoopGuard: Configure MCP Server → Cursor</Code>
+                <Code>LoopGuard: Configure MCP Server</Code>
+                <p className="mt-2 text-xs text-[#4B5563]">A picker appears — select <strong className="text-[#9CA3AF]">Cursor</strong> from the list.</p>
                 <p className="mt-3 text-sm text-[#6B7280]">
                   or from your project root:
                 </p>
@@ -291,7 +292,8 @@ export default function SetupPage() {
                 <Lead>
                   Use the built-in command or the standalone helper from your project root:
                 </Lead>
-                <Code>LoopGuard: Configure MCP Server → Windsurf</Code>
+                <Code>LoopGuard: Configure MCP Server</Code>
+                <p className="mt-2 text-xs text-[#4B5563]">A picker appears — select <strong className="text-[#9CA3AF]">Windsurf</strong> from the list.</p>
                 <p className="mt-3 text-sm text-[#6B7280]">or:</p>
                 <Code>loopguard-ctx setup --agent=windsurf</Code>
                 <Note>
@@ -330,7 +332,8 @@ export default function SetupPage() {
               </Lead>
 
               <Step n={1} title="Fastest path: configure it from the extension">
-                <Code>LoopGuard: Configure MCP Server → Codex CLI</Code>
+                <Code>LoopGuard: Configure MCP Server</Code>
+                <p className="mt-2 text-xs text-[#4B5563]">A picker appears — select <strong className="text-[#9CA3AF]">Codex CLI</strong> from the list.</p>
                 <p className="mt-2 text-xs text-[#4B5563]">
                   This writes the MCP server entry to{' '}
                   <code className="text-[#9CA3AF]">~/.codex/config.toml</code> using the bundled
