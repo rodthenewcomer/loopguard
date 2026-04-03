@@ -143,16 +143,60 @@ esac
         String::new()
     };
 
+    // --- session-start hook (UserPromptSubmit) ---
+    // Fires on every user prompt. Injects the mandatory session protocol on the
+    // first prompt only, then injects a ctx_metrics reminder every 10 prompts.
+    let session_start_path = hooks_dir.join("loopguard-ctx-session-start.sh");
+    let session_start_script = format!(
+        r#"#!/usr/bin/env bash
+# LoopGuard UserPromptSubmit hook
+# - First prompt: inject session restore + proactive tools protocol
+# - Every 10 prompts: inject ctx_metrics + ctx_compress reminder
+
+LOOPGUARD_DIR="${{HOME}}/.loopguard-ctx"
+mkdir -p "$LOOPGUARD_DIR"
+
+START_FLAG="$LOOPGUARD_DIR/.session-start-injected"
+COUNTER_FILE="$LOOPGUARD_DIR/.session-prompt-count"
+METRICS_INTERVAL=10
+
+count=$(cat "$COUNTER_FILE" 2>/dev/null || echo 0)
+count=$((count + 1))
+echo "$count" > "$COUNTER_FILE"
+
+if [ ! -f "$START_FLAG" ]; then
+  touch "$START_FLAG"
+  echo "[LOOPGUARD SESSION PROTOCOL — run these now, before anything else]"
+  echo "1. ctx_session load          — restore previous session state"
+  echo "2. ctx_overview(task)        — get task-relevant project map"
+  echo "3. At end of session: ctx_wrapped(\"session\") — show tokens saved + dollars avoided"
+  echo ""
+  echo "Do NOT skip these. They are mandatory, not optional."
+  exit 0
+fi
+
+if (( count % METRICS_INTERVAL == 0 )); then
+  echo "[LOOPGUARD CHECKPOINT — prompt ${{count}}]"
+  echo "Run ctx_metrics now to verify token savings."
+  echo "If context is growing large, also run ctx_compress to checkpoint."
+fi
+"#
+    );
+    write_file(&session_start_path, &session_start_script);
+    make_executable(&session_start_path);
+
     // --- summary hook (Stop) ---
-    // Also clears .session-restored so the next session gets the restore hint on first call.
+    // Clears all session flags and counter so the next session starts fresh.
     let summary_path = hooks_dir.join("loopguard-ctx-summary.sh");
     let summary_script = format!(
         r#"#!/usr/bin/env bash
 # LoopGuard end-of-session summary — fires when Claude Code session ends
 [ "${{LOOPGUARD_BYPASS:-0}}" = "1" ] && exit 0
 command -v "{binary}" &>/dev/null || exit 0
-# Clear first-call flag so the next session gets the restore hint automatically
+# Clear all session flags and counter so next session starts fresh
 rm -f "${{HOME}}/.loopguard-ctx/.session-restored" 2>/dev/null || true
+rm -f "${{HOME}}/.loopguard-ctx/.session-start-injected" 2>/dev/null || true
+rm -f "${{HOME}}/.loopguard-ctx/.session-prompt-count" 2>/dev/null || true
 "{binary}" notify 2>/dev/null || true
 "#
     );
@@ -239,13 +283,21 @@ date +%s > "$STAMP"
                 "type": "command",
                 "command": summary_path.to_string_lossy()
             }]
+        }],
+        "UserPromptSubmit": [{
+            "matcher": ".*",
+            "hooks": [{
+                "type": "command",
+                "command": session_start_path.to_string_lossy()
+            }]
         }]
     });
 
     let needs_update = !settings_content.contains("loopguard-ctx-summary")
         || !settings_content.contains("loopguard-ctx-periodic")
         || !settings_content.contains("loopguard-ctx-rewrite")
-        || !settings_content.contains("loopguard-ctx-enforce");
+        || !settings_content.contains("loopguard-ctx-enforce")
+        || !settings_content.contains("loopguard-ctx-session-start");
 
     if !needs_update {
         println!("Claude Code hooks already fully configured.");
