@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="../../apps/web/public/loopguard-infinity-white.svg" width="64" alt="LoopGuard" />
+<img src="icon.png" width="64" alt="LoopGuard" />
 
 # LoopGuard
 
