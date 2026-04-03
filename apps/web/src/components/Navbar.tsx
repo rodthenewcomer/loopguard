@@ -2,27 +2,43 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import LoopGuardLogo from './LoopGuardLogo';
+import { supabase } from '../lib/supabase';
 
 const NAV_LINKS = [
-  { label: 'Features',    href: '/#features' },
-  { label: 'How it works',href: '/#how-it-works' },
-  { label: 'Docs',        href: '/docs' },
+  { label: 'Features',     href: '/#features' },
+  { label: 'How it works', href: '/#how-it-works' },
+  { label: 'Docs',         href: '/docs' },
 ];
 
 const SUPPORT_URL = 'https://buymeacoffee.com/rodthenewcomer';
-
-// Placeholder — replace with real Marketplace URL once published
 const MARKETPLACE_URL = '/setup';
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled]     = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userEmail, setUserEmail]   = useState<string | null>(null);
+  const [authReady, setAuthReady]   = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUserEmail(data.session?.user?.email ?? null);
+      setAuthReady(true);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user?.email ?? null);
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  const isLoggedIn = authReady && userEmail !== null;
 
   return (
     <header
@@ -57,24 +73,42 @@ export default function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden md:flex items-center gap-2">
-          <Link
-            href="/login"
-            className="px-4 py-2 text-sm text-[#9CA3AF] hover:text-white transition-colors duration-200"
-          >
-            Log in
-          </Link>
-          <a
-            href={SUPPORT_URL}
-            className="px-4 py-2 border border-[#374151] hover:border-[#4B5563] text-sm text-[#D1D5DB] hover:text-white rounded-lg transition-colors duration-200"
-          >
-            Buy me a coffee
-          </a>
-          <a
-            href={MARKETPLACE_URL}
-            className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-blue-900/30"
-          >
-            Install extension
-          </a>
+          {authReady && (
+            isLoggedIn ? (
+              <>
+                <span className="px-3 py-1.5 text-xs text-[#6B7280] border border-[#1F2937] rounded-lg truncate max-w-[160px]">
+                  {userEmail}
+                </span>
+                <Link
+                  href="/dashboard"
+                  className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-blue-900/30"
+                >
+                  Dashboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-4 py-2 text-sm text-[#9CA3AF] hover:text-white transition-colors duration-200"
+                >
+                  Log in
+                </Link>
+                <a
+                  href={SUPPORT_URL}
+                  className="px-4 py-2 border border-[#374151] hover:border-[#4B5563] text-sm text-[#D1D5DB] hover:text-white rounded-lg transition-colors duration-200"
+                >
+                  Buy me a coffee
+                </a>
+                <a
+                  href={MARKETPLACE_URL}
+                  className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-blue-900/30"
+                >
+                  Install extension
+                </a>
+              </>
+            )
+          )}
         </div>
 
         {/* Mobile burger */}
@@ -107,22 +141,41 @@ export default function Navbar() {
               </a>
             ))}
             <div className="border-t border-[#1F2937] mt-2 pt-4 flex flex-col gap-2">
-              <Link href="/login" onClick={() => setMobileOpen(false)} className="py-2.5 text-sm text-[#9CA3AF] hover:text-white transition-colors">
-                Log in
-              </Link>
-              <a
-                href={SUPPORT_URL}
-                onClick={() => setMobileOpen(false)}
-                className="py-2.5 text-center border border-[#374151] text-sm text-white rounded-lg"
-              >
-                Buy me a coffee
-              </a>
-              <a
-                href={MARKETPLACE_URL}
-                className="py-2.5 text-center bg-[#2563EB] text-white text-sm font-semibold rounded-lg"
-              >
-                Install extension
-              </a>
+              {isLoggedIn ? (
+                <>
+                  <span className="py-2 text-xs text-[#4B5563] truncate">{userEmail}</span>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="py-2.5 text-center bg-[#2563EB] text-white text-sm font-semibold rounded-lg"
+                  >
+                    Dashboard
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="py-2.5 text-sm text-[#9CA3AF] hover:text-white transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <a
+                    href={SUPPORT_URL}
+                    onClick={() => setMobileOpen(false)}
+                    className="py-2.5 text-center border border-[#374151] text-sm text-white rounded-lg"
+                  >
+                    Buy me a coffee
+                  </a>
+                  <a
+                    href={MARKETPLACE_URL}
+                    className="py-2.5 text-center bg-[#2563EB] text-white text-sm font-semibold rounded-lg"
+                  >
+                    Install extension
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </div>

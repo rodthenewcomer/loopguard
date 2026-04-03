@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import Navbar from '../components/Navbar';
 import LoopGuardLogo from '../components/LoopGuardLogo';
 import ScrollReveal from '../components/ScrollReveal';
+import HeroCta from '../components/HeroCta';
 
 function Icon({ path, size = 20 }: { path: string; size?: number }) {
   return (
@@ -150,22 +150,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="/setup"
-                className="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(37,99,235,0.35)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
-              >
-                <Icon path={IC.spark} size={18} />
-                Install extension
-              </a>
-              <Link
-                href="/docs"
-                className="inline-flex items-center gap-2 rounded-full border border-white/12 px-6 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white"
-              >
-                Read the docs
-                <Icon path={IC.arrow} size={18} />
-              </Link>
-            </div>
+            <HeroCta />
 
             <div className="mt-8 grid max-w-2xl gap-3 text-sm text-[#8CA1B8] sm:grid-cols-3">
               <div className="flex items-start gap-2">
