@@ -147,7 +147,7 @@ esac
     // Fires on every user prompt. Injects the mandatory session protocol on the
     // first prompt only, then injects a ctx_metrics reminder every 10 prompts.
     let session_start_path = hooks_dir.join("loopguard-ctx-session-start.sh");
-    let session_start_script = format!(
+    let session_start_script = 
         r#"#!/usr/bin/env bash
 # LoopGuard UserPromptSubmit hook
 # - First prompt: inject session restore + proactive tools protocol
@@ -180,9 +180,8 @@ if (( count % METRICS_INTERVAL == 0 )); then
   echo "Run ctx_metrics now to verify token savings."
   echo "If context is growing large, also run ctx_compress to checkpoint."
 fi
-"#
-    );
-    write_file(&session_start_path, &session_start_script);
+"#;
+    write_file(&session_start_path, session_start_script);
     make_executable(&session_start_path);
 
     // --- summary hook (Stop) ---
