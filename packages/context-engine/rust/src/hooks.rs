@@ -339,7 +339,7 @@ date +%s > "$STAMP"
     );
     #[cfg(target_os = "windows")]
     let (rewrite_cmd, enforce_cmd, periodic_cmd, summary_cmd, session_cmd) = {
-        let ps = |p: &std::path::PathBuf| format!("powershell -NoProfile -File "{}"", p.to_string_lossy());
+        let ps = |p: &std::path::PathBuf| format!(r#"powershell -NoProfile -File "{}""#, p.to_string_lossy());
         (
             ps(&hooks_dir.join("loopguard-ctx-rewrite.ps1")),
             ps(&hooks_dir.join("loopguard-ctx-enforce.ps1")),
@@ -470,7 +470,7 @@ foreach ($p in $patterns) {{ if ($cmd.StartsWith($p)) {{ $matched = $true; break
 if ($cmd -eq 'ls') {{ $matched = $true }}
 if ($matched) {{
     $escaped = $cmd -replace '"', '"'
-    Write-Output ('{{"command":"{0} -c {1}"}}' -f '{binary}', $escaped)
+    Write-Output ('{{"command":"{{0}} -c {{1}}"}}' -f '{binary}', $escaped)
 }}
 exit 0
 "#, binary = binary);
@@ -535,16 +535,16 @@ Start-Process -FilePath '{binary}' -ArgumentList 'sync' -WindowStyle Hidden
     write_file(&hooks_dir.join("loopguard-ctx-summary.ps1"), &summary_ps1);
 
     // PS1 session-start hook — protocol reminder on first prompt
-    let session_ps1 = format!(r#"# loopguard-ctx UserPromptSubmit hook (PowerShell)
+    let session_ps1 = r#"# loopguard-ctx UserPromptSubmit hook (PowerShell)
 $dir   = "$env:USERPROFILE\.loopguard-ctx"
 $flag  = "$dir\.session-start-injected"
 $count = "$dir\.session-prompt-count"
 New-Item -ItemType Directory -Force -Path $dir | Out-Null
 $n = 0
-if (Test-Path $count) {{ $n = [int](Get-Content $count -ErrorAction SilentlyContinue) }}
+if (Test-Path $count) { $n = [int](Get-Content $count -ErrorAction SilentlyContinue) }
 $n++
 $n | Out-File $count -Encoding ascii
-if (-not (Test-Path $flag)) {{
+if (-not (Test-Path $flag)) {
     New-Item -ItemType File -Force -Path $flag | Out-Null
     Write-Output "[LOOPGUARD SESSION PROTOCOL — run these now, before anything else]"
     Write-Output "1. ctx_session load               — restore previous session state"
@@ -556,13 +556,13 @@ if (-not (Test-Path $flag)) {{
     Write-Output "After fixing a loop: ctx_memory(action=""record"", ...) — store the fix pattern"
     Write-Output "Do NOT skip 1-4. They are mandatory, not optional."
     exit 0
-}}
+}
 $interval = 5
-if ($n % $interval -eq 0) {{
+if ($n % $interval -eq 0) {
     Write-Output "[LOOPGUARD CHECKPOINT — prompt $n]"
     Write-Output "Run ctx_metrics now to verify token savings."
-}}
-"#, binary = binary);
+}
+"#;
     write_file(&hooks_dir.join("loopguard-ctx-session-start.ps1"), &session_ps1);
 
     println!("Installed Windows PowerShell hooks in {}", hooks_dir.display());
