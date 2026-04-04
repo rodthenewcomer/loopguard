@@ -600,13 +600,20 @@ loopguard-ctx init`}</Pre>
             with no LLM call.
           </P>
 
-          <H3 id="ctx-loop-hint">ctx_loop_hint — Root cause hint engine</H3>
+          <H3>ctx_loop_hint — Root cause hint engine</H3>
           <P>
             When you are stuck in a loop on the same error, <Code>ctx_loop_hint</Code> analyzes the
             error text and returns a specific diagnosis and fix suggestion — no AI call, no network
             request. It covers TypeScript, Rust, Python, Go, React, and generic syntax errors.
           </P>
-          <Pre>{`ctx_loop_hint(error_text: "Cannot read properties of undefined (reading 'map')")`}</Pre>
+          <Pre>{`# MCP (Claude Code / Cursor / Windsurf / Codex CLI)
+ctx_loop_hint(error_text: "Cannot read properties of undefined (reading 'map')")
+
+# CLI
+loopguard-ctx hint "Cannot read properties of undefined (reading 'map')"
+
+# VS Code / Cursor / Windsurf extension
+# Shown automatically in the loop alert notification detail`}</Pre>
           <P>Example output:</P>
           <Pre>{`ctx_loop_hint — 100% confidence · pattern: null_access
 ─────────────────────────────────────────
@@ -623,12 +630,19 @@ Run ctx_memory(action="record", ...) after resolving.`}</Pre>
             ]}
           />
 
-          <H3 id="ctx-forecast">ctx_forecast — Token cost estimator</H3>
+          <H3>ctx_forecast — Token cost estimator</H3>
           <P>
             Before starting a complex task, <Code>ctx_forecast</Code> estimates how many tokens it
             will likely consume and what that costs across four models.
           </P>
-          <Pre>{`ctx_forecast(task: "Refactor the auth middleware to use Zod validation")`}</Pre>
+          <Pre>{`# MCP
+ctx_forecast(task: "Refactor the auth middleware to use Zod validation")
+
+# CLI
+loopguard-ctx forecast "Refactor the auth middleware to use Zod validation"
+
+# Extension: hover the LoopGuard status bar item to see the forecast
+# Claude Code hook: forecast runs automatically on each new prompt`}</Pre>
           <P>Output includes a cost table comparing Sonnet, Haiku, GPT-4o, and Gemini Flash — with
           and without focused reads. Use it to decide which model fits the budget before you start.</P>
           <Table
@@ -639,13 +653,13 @@ Run ctx_memory(action="record", ...) after resolving.`}</Pre>
             ]}
           />
 
-          <H3 id="ctx-memory">ctx_memory — Local fix memory store</H3>
+          <H3>ctx_memory — Local fix memory store</H3>
           <P>
             <Code>ctx_memory</Code> stores the patterns that worked when you broke a loop, keyed by
             error fingerprint. On future sessions it surfaces matching fixes before you start
             repeating the same cycle.
           </P>
-          <Pre>{`# Record a fix after resolving a loop
+          <Pre>{`# MCP — record a fix after resolving a loop
 ctx_memory(
   action="record",
   error_text="Cannot find module '@loopguard/core'",
@@ -653,8 +667,13 @@ ctx_memory(
   fix_description="Run npm run build in packages/core to rebuild dist/ first"
 )
 
-# Query for a similar error later
-ctx_memory(action="query", error_text="Cannot find module")`}</Pre>
+# CLI equivalents
+loopguard-ctx memory record "Cannot find module" --fix-file="packages/core/src/index.ts" --fix-desc="rebuild dist/ first"
+loopguard-ctx memory query "Cannot find module"
+loopguard-ctx memory list
+loopguard-ctx memory stats
+
+# Extension: Past fixes rail in the LoopGuard dashboard (last 5 entries)`}</Pre>
           <Table
             headers={['Action', 'Description']}
             rows={[
@@ -669,13 +688,19 @@ ctx_memory(action="query", error_text="Cannot find module")`}</Pre>
             Stored at <Code>~/.loopguard-ctx/memory.json</Code> — local only, never synced.
           </Note>
 
-          <H3 id="ctx-predict">ctx_predict — Predictive file pre-selection</H3>
+          <H3>ctx_predict — Predictive file pre-selection</H3>
           <P>
             Before reading any file, <Code>ctx_predict</Code> ranks every file in the workspace by
             predicted relevance to your task description. It uses keyword overlap, path matching, and
             session history to score files so you read the right ones first.
           </P>
-          <Pre>{`ctx_predict(task: "Fix the Zod validation on the auth route")`}</Pre>
+          <Pre>{`# MCP
+ctx_predict(task: "Fix the Zod validation on the auth route")
+
+# CLI
+loopguard-ctx predict "Fix the Zod validation on the auth route" --path=. --limit=10
+
+# Extension: Copy Optimized Context appends predicted related files automatically`}</Pre>
           <P>Returns a ranked list with read suggestions. Use it right after{' '}
           <Code>ctx_session load</Code> and before any <Code>ctx_read</Code> calls.</P>
           <CheckList

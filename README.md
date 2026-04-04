@@ -81,10 +81,10 @@ Available via `loopguard-ctx` MCP to all supported tools (Claude Code, Cursor, W
 
 | Tool | What It Does |
 |---|---|
-| `ctx_loop_hint(error_text)` | Root cause hint — diagnoses the error pattern and returns a specific fix suggestion. No LLM call. |
-| `ctx_forecast(task, files?)` | Token cost estimator — classifies task complexity and shows cost across Sonnet, Haiku, GPT-4o, Gemini Flash |
-| `ctx_memory(action, ...)` | Local fix memory — record patterns that broke loops; query them on future sessions |
-| `ctx_predict(task, path?)` | Predictive file ranking — scores every file in the workspace by relevance before you read anything |
+| `ctx_loop_hint(error_text)` / `loopguard-ctx hint "<error>"` | Root cause hint — diagnoses the error pattern, returns fix suggestion. No LLM call. |
+| `ctx_forecast(task)` / `loopguard-ctx forecast "<task>"` | Token cost estimator — complexity + cost table across Sonnet, Haiku, GPT-4o, Gemini Flash |
+| `ctx_memory(action, ...)` / `loopguard-ctx memory <action>` | Local fix memory — record/query/list fix patterns. Shown in extension dashboard. |
+| `ctx_predict(task, path?)` / `loopguard-ctx predict "<task>"` | Predictive file ranking — scores workspace files by relevance before any reads |
 
 **Session protocol (Claude Code / Cursor / Windsurf):**
 
@@ -141,7 +141,7 @@ Full policy: [loopguard.vercel.app/privacy](https://loopguard.vercel.app/privacy
 |---|---|---|
 | **v1 — Extension Core** | Shipped | Loop detection, status bar, focused context copy, VS Code/Cursor/Windsurf |
 | **v2 — CLI + Sync Pipeline** | Current | loopguard-ctx binary, MCP tools, Homebrew, anonymous device sync, /wrapped |
-| **v3 — Intelligence Layer** | In progress | Root cause hints, predictive context, session memory, cost forecasting |
+| **v3 — Intelligence Layer** | Current | Root cause hints, predictive context, session memory, cost forecasting |
 
 Full details at [loopguard.vercel.app/roadmap](https://loopguard.vercel.app/roadmap).
 

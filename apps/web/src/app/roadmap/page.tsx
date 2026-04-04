@@ -114,9 +114,9 @@ const VERSIONS = [
   {
     version: 'v3',
     label: 'Intelligence Layer',
-    status: 'inprogress' as const,
+    status: 'current' as const,
     summary:
-      'Moving from observation to action. v3 acts on the data v1 and v2 collected — root cause hints, predictive context, session memory, and cost forecasting across every IDE and CLI.',
+      'The intelligence layer — shipped. v3 brings root cause hints, predictive context pre-selection, local fix memory, and cost forecasting to every IDE and CLI tool LoopGuard supports.',
     sections: [
       {
         heading: 'Loop root cause hints',
@@ -131,11 +131,11 @@ const VERSIONS = [
       {
         heading: 'Predictive context pre-selection',
         items: [
-          'Watch task description + open files and predict which files + line ranges the model will need before you ask',
-          'Selection before the prompt is sent — not compression after the fact',
-          'Runs locally, zero network calls for the prediction step',
-          'Available as MCP tool (ctx_predict) and via Copy Optimized Context in all supported editors',
-          'Covers Claude Code, Cursor, Windsurf, Codex CLI, GitHub Copilot workflows',
+          'Ranks every file in the workspace by keyword overlap, path relevance, and session history — before any read',
+          'VS Code/Cursor/Windsurf: Copy Optimized Context appends predicted related files to clipboard output',
+          'CLI: loopguard-ctx predict "<task>" --path=<dir> or ctx_predict via MCP',
+          'Runs locally, zero network calls — pure keyword and path scoring',
+          'Session history boost: files you touched this session rank higher automatically',
         ],
       },
       {
