@@ -445,6 +445,22 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
+              {/* LoopGuard alert fires here */}
+              <div className="mx-6 mb-6 overflow-hidden rounded-2xl border border-[#F59E0B]/30 bg-[#F59E0B]/5">
+                <div className="flex items-start gap-3 px-4 py-4">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F59E0B]/20 text-sm">
+                    ⚠️
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-[#F59E0B]">LoopGuard detected a loop</div>
+                    <div className="mt-0.5 text-xs text-[#A5B8CA]">Same error 3× &nbsp;·&nbsp; 23 min wasted</div>
+                  </div>
+                </div>
+                <div className="flex gap-2 border-t border-[#F59E0B]/15 px-4 py-3">
+                  <button className="rounded-lg bg-[#F59E0B] px-4 py-1.5 text-xs font-semibold text-black">Get Unstuck</button>
+                  <button className="rounded-lg border border-white/10 px-4 py-1.5 text-xs font-medium text-[#8CA1B8]">Dismiss</button>
+                </div>
+              </div>
             </div>
           </ScrollReveal>
 
