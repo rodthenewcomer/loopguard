@@ -2,7 +2,7 @@ import ScrollReveal from '../ScrollReveal';
 
 const CTX_BULLETS = [
   { title: 'One-click copy', copy: 'Use Copy Optimized Context to get a focused prompt instead of pasting the whole file.' },
-  { title: 'Only what changed', copy: 'The same file is not resent twice. Only the lines that changed since the last read are included.' },
+  { title: 'Delta-first reads', copy: 'Each file read is hashed into a session cache. Subsequent reads send only the diff — the model never sees the same unchanged lines twice.' },
   { title: 'Error window first', copy: 'The failing lines, nearby definitions, and recent edits come first. Boilerplate is dropped.' },
   { title: 'Works in every session', copy: 'No setup. The context engine runs automatically when you copy context from the extension.' },
 ];
