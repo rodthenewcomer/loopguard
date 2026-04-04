@@ -319,47 +319,58 @@ date +%s > "$STAMP"
     make_executable(&periodic_path);
 
     // Build the full desired hooks JSON
-    // PreToolUse layer 1: Bash rewrite (exit 0 = allow with rewritten command)
+    // PreToolUse layer 1: Bash/PS1 rewrite (exit 0 = allow with rewritten command)
     // PreToolUse layer 2: Read/Grep enforcement (exit 2 = block + show error)
     // PostToolUse: periodic savings summary (every 15 min)
     // Stop: end-of-session savings summary
+
+    // On Windows: also install PowerShell equivalents and register them
+    #[cfg(target_os = "windows")]
+    install_windows_ps1_hooks(&hooks_dir, &binary, &settings_path, &settings_content);
+
+    // Build hook command strings — on Windows use powershell, elsewhere use the .sh directly
+    #[cfg(not(target_os = "windows"))]
+    let (rewrite_cmd, enforce_cmd, periodic_cmd, summary_cmd, session_cmd) = (
+        script_path.to_string_lossy().to_string(),
+        enforce_path.to_string_lossy().to_string(),
+        periodic_path.to_string_lossy().to_string(),
+        summary_path.to_string_lossy().to_string(),
+        session_start_path.to_string_lossy().to_string(),
+    );
+    #[cfg(target_os = "windows")]
+    let (rewrite_cmd, enforce_cmd, periodic_cmd, summary_cmd, session_cmd) = {
+        let ps = |p: &std::path::PathBuf| format!("powershell -NoProfile -File "{}"", p.to_string_lossy());
+        (
+            ps(&hooks_dir.join("loopguard-ctx-rewrite.ps1")),
+            ps(&hooks_dir.join("loopguard-ctx-enforce.ps1")),
+            ps(&hooks_dir.join("loopguard-ctx-periodic.ps1")),
+            ps(&hooks_dir.join("loopguard-ctx-summary.ps1")),
+            ps(&hooks_dir.join("loopguard-ctx-session-start.ps1")),
+        )
+    };
+
     let full_hooks = serde_json::json!({
         "PreToolUse": [
             {
                 "matcher": "Bash|bash",
-                "hooks": [{
-                    "type": "command",
-                    "command": script_path.to_string_lossy()
-                }]
+                "hooks": [{ "type": "command", "command": rewrite_cmd }]
             },
             {
                 "matcher": "Read|Grep",
-                "hooks": [{
-                    "type": "command",
-                    "command": enforce_path.to_string_lossy()
-                }]
+                "hooks": [{ "type": "command", "command": enforce_cmd }]
             }
         ],
         "PostToolUse": [{
             "matcher": ".*",
-            "hooks": [{
-                "type": "command",
-                "command": periodic_path.to_string_lossy()
-            }]
+            "hooks": [{ "type": "command", "command": periodic_cmd }]
         }],
         "Stop": [{
             "matcher": ".*",
-            "hooks": [{
-                "type": "command",
-                "command": summary_path.to_string_lossy()
-            }]
+            "hooks": [{ "type": "command", "command": summary_cmd }]
         }],
         "UserPromptSubmit": [{
             "matcher": ".*",
-            "hooks": [{
-                "type": "command",
-                "command": session_start_path.to_string_lossy()
-            }]
+            "hooks": [{ "type": "command", "command": session_cmd }]
         }]
     });
 
@@ -430,6 +441,133 @@ date +%s > "$STAMP"
             println!("CLAUDE.md already configured.");
         }
     }
+}
+
+
+/// Install PowerShell hook equivalents for Claude Code on Windows.
+/// Called from `install_claude_hook` only on Windows targets.
+#[cfg(target_os = "windows")]
+fn install_windows_ps1_hooks(
+    hooks_dir: &std::path::Path,
+    binary: &str,
+    settings_path: &std::path::Path,
+    settings_content: &str,
+) {
+    // PS1 rewrite hook — rewrites known shell commands to loopguard-ctx -c equivalents
+    let rewrite_ps1 = format!(r#"# loopguard-ctx PreToolUse rewrite hook (PowerShell)
+# Rewrites Bash tool commands to loopguard-ctx -c equivalents for compressed output.
+$input_data = $input | ConvertFrom-Json -ErrorAction SilentlyContinue
+if (-not $input_data) {{ exit 0 }}
+$toolName = $input_data.tool_name
+if ($toolName -notin @('Bash','bash')) {{ exit 0 }}
+$cmd = $input_data.tool_input.command
+if (-not $cmd) {{ exit 0 }}
+# Skip if already using loopguard-ctx
+if ($cmd -match '^loopguard-ctx ') {{ exit 0 }}
+$patterns = @('git ','gh ','cargo ','npm ','pnpm ','yarn ','docker ','kubectl ','pip ','ruff ','go ','curl ','grep ','rg ','find ','ls ','cat ','aws ','helm ')
+$matched = $false
+foreach ($p in $patterns) {{ if ($cmd.StartsWith($p)) {{ $matched = $true; break }} }}
+if ($cmd -eq 'ls') {{ $matched = $true }}
+if ($matched) {{
+    $escaped = $cmd -replace '"', '"'
+    Write-Output ('{{"command":"{0} -c {1}"}}' -f '{binary}', $escaped)
+}}
+exit 0
+"#, binary = binary);
+
+    write_file(&hooks_dir.join("loopguard-ctx-rewrite.ps1"), &rewrite_ps1);
+
+    // PS1 enforce hook — blocks Read and Grep, redirects to MCP tools
+    let enforce_ps1 = r#"# loopguard-ctx Read/Grep enforcement hook (PowerShell)
+# Exits with code 2 to cancel the tool call and surface the error to the model.
+$input_data = $input | ConvertFrom-Json -ErrorAction SilentlyContinue
+if (-not $input_data) { exit 0 }
+$toolName = $input_data.tool_name
+switch ($toolName) {
+    { $_ -in @('Read','read') } {
+        [Console]::Error.WriteLine("Use ctx_read instead of Read. Example: ctx_read(path='C:\path\to\file')")
+        [Console]::Error.WriteLine("ctx_read has session caching — re-reads cost ~13 tokens instead of full file.")
+        exit 2
+    }
+    { $_ -in @('Grep','grep') } {
+        [Console]::Error.WriteLine("Use ctx_search instead of Grep. Example: ctx_search(pattern='fn main', path='src/')")
+        [Console]::Error.WriteLine("ctx_search returns compact, token-efficient results.")
+        exit 2
+    }
+    default { exit 0 }
+}
+"#;
+    write_file(&hooks_dir.join("loopguard-ctx-enforce.ps1"), enforce_ps1);
+
+    // PS1 periodic hook — session restore hint + periodic notify
+    let periodic_ps1 = format!(r#"# loopguard-ctx PostToolUse hook (PowerShell)
+$env:LOOPGUARD_BYPASS = "1"
+$dir = "$env:USERPROFILE\.loopguard-ctx"
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+$restored = "$dir\.session-restored"
+$stamp    = "$dir\.last-notify"
+$interval = 900
+if (-not (Test-Path $restored)) {{
+    New-Item -ItemType File -Force -Path $restored | Out-Null
+    & '{binary}' notify 2>$null
+    (Get-Date -UFormat %s) | Out-File $stamp -Encoding ascii
+    exit 0
+}}
+if (Test-Path $stamp) {{
+    $last = [int](Get-Content $stamp -ErrorAction SilentlyContinue)
+    $now  = [int](Get-Date -UFormat %s)
+    if (($now - $last) -lt $interval) {{ exit 0 }}
+}}
+(Get-Date -UFormat %s) | Out-File $stamp -Encoding ascii
+& '{binary}' notify 2>$null
+"#, binary = binary);
+    write_file(&hooks_dir.join("loopguard-ctx-periodic.ps1"), &periodic_ps1);
+
+    // PS1 summary hook — end-of-session cleanup + notify
+    let summary_ps1 = format!(r#"# loopguard-ctx Stop hook (PowerShell)
+$dir = "$env:USERPROFILE\.loopguard-ctx"
+Remove-Item "$dir\.session-restored"         -ErrorAction SilentlyContinue
+Remove-Item "$dir\.session-start-injected"   -ErrorAction SilentlyContinue
+Remove-Item "$dir\.session-prompt-count"     -ErrorAction SilentlyContinue
+& '{binary}' notify 2>$null
+Start-Process -FilePath '{binary}' -ArgumentList 'sync' -WindowStyle Hidden
+"#, binary = binary);
+    write_file(&hooks_dir.join("loopguard-ctx-summary.ps1"), &summary_ps1);
+
+    // PS1 session-start hook — protocol reminder on first prompt
+    let session_ps1 = format!(r#"# loopguard-ctx UserPromptSubmit hook (PowerShell)
+$dir   = "$env:USERPROFILE\.loopguard-ctx"
+$flag  = "$dir\.session-start-injected"
+$count = "$dir\.session-prompt-count"
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+$n = 0
+if (Test-Path $count) {{ $n = [int](Get-Content $count -ErrorAction SilentlyContinue) }}
+$n++
+$n | Out-File $count -Encoding ascii
+if (-not (Test-Path $flag)) {{
+    New-Item -ItemType File -Force -Path $flag | Out-Null
+    Write-Output "[LOOPGUARD SESSION PROTOCOL — run these now, before anything else]"
+    Write-Output "1. ctx_session load               — restore previous session state"
+    Write-Output "2. ctx_forecast(task)             — estimate token cost before starting"
+    Write-Output "3. ctx_predict(task)              — predict relevant files before reading"
+    Write-Output "4. ctx_overview(task)             — get task-relevant project map"
+    Write-Output "5. At end: ctx_wrapped(""session"") — show tokens saved + dollars avoided"
+    Write-Output ""
+    Write-Output "After fixing a loop: ctx_memory(action=""record"", ...) — store the fix pattern"
+    Write-Output "Do NOT skip 1-4. They are mandatory, not optional."
+    exit 0
+}}
+$interval = 5
+if ($n % $interval -eq 0) {{
+    Write-Output "[LOOPGUARD CHECKPOINT — prompt $n]"
+    Write-Output "Run ctx_metrics now to verify token savings."
+}}
+"#, binary = binary);
+    write_file(&hooks_dir.join("loopguard-ctx-session-start.ps1"), &session_ps1);
+
+    println!("Installed Windows PowerShell hooks in {}", hooks_dir.display());
+    let _ = settings_path; // referenced above for cfg-gated call
+    let _ = settings_content;
 }
 
 fn install_cursor_hook(global: bool) {
