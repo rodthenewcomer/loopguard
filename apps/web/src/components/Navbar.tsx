@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import LoopGuardLogo from './LoopGuardLogo';
 import { supabase } from '../lib/supabase';
+import { GITHUB_URL, MARKETPLACE_URL } from '../lib/constants';
 
 const NAV_LINKS = [
   { label: 'Features',     href: '/#features' },
@@ -11,16 +12,21 @@ const NAV_LINKS = [
   { label: 'Docs',         href: '/docs' },
 ];
 
-const SUPPORT_URL = 'https://buymeacoffee.com/rodthenewcomer';
-const MARKETPLACE_URL = '/setup';
-const GITHUB_URL = 'https://github.com/rodthenewcomer/loopguard';
-
-
 function GitHubIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
     </svg>
+  );
+}
+
+// Skeleton placeholder — same shape as the action buttons, prevents auth flash
+function NavSkeleton() {
+  return (
+    <div className="hidden md:flex items-center gap-2" aria-hidden="true">
+      <div className="h-8 w-16 rounded-lg bg-white/5 animate-pulse" />
+      <div className="h-8 w-32 rounded-lg bg-[#2563EB]/20 animate-pulse" />
+    </div>
   );
 }
 
@@ -95,41 +101,36 @@ export default function Navbar() {
             Star
           </a>
 
-          {authReady && (
-            isLoggedIn ? (
-              <>
-                <span className="px-3 py-1.5 text-xs text-[#6B7280] border border-[#1F2937] rounded-lg truncate max-w-[160px]">
-                  {userEmail}
-                </span>
-                <Link
-                  href="/dashboard"
-                  className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-blue-900/30"
-                >
-                  Dashboard
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-sm text-[#9CA3AF] hover:text-white transition-colors duration-200"
-                >
-                  Log in
-                </Link>
-                <a
-                  href={SUPPORT_URL}
-                  className="px-4 py-2 border border-[#374151] hover:border-[#4B5563] text-sm text-[#D1D5DB] hover:text-white rounded-lg transition-colors duration-200"
-                >
-                  Buy me a coffee
-                </a>
-                <a
-                  href={MARKETPLACE_URL}
-                  className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-blue-900/30"
-                >
-                  Install extension
-                </a>
-              </>
-            )
+          {/* Render skeleton until auth resolves — avoids layout flash */}
+          {!authReady ? (
+            <NavSkeleton />
+          ) : isLoggedIn ? (
+            <>
+              <span className="px-3 py-1.5 text-xs text-[#6B7280] border border-[#1F2937] rounded-lg truncate max-w-[160px]">
+                {userEmail}
+              </span>
+              <Link
+                href="/dashboard"
+                className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-blue-900/30"
+              >
+                Dashboard
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="px-4 py-2 text-sm text-[#9CA3AF] hover:text-white transition-colors duration-200"
+              >
+                Log in
+              </Link>
+              <a
+                href={MARKETPLACE_URL}
+                className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-blue-900/30"
+              >
+                Install free
+              </a>
+            </>
           )}
         </div>
 
@@ -194,17 +195,10 @@ export default function Navbar() {
                     Log in
                   </Link>
                   <a
-                    href={SUPPORT_URL}
-                    onClick={() => setMobileOpen(false)}
-                    className="py-2.5 text-center border border-[#374151] text-sm text-white rounded-lg"
-                  >
-                    Buy me a coffee
-                  </a>
-                  <a
                     href={MARKETPLACE_URL}
                     className="py-2.5 text-center bg-[#2563EB] text-white text-sm font-semibold rounded-lg"
                   >
-                    Install extension
+                    Install free
                   </a>
                 </>
               )}
