@@ -16,7 +16,7 @@ class LoopguardCtx < Formula
 
   on_linux do
     on_arm do
-      url "https://github.com/rodthenewcomer/loopguard/releases/download/v#{version}/loopguard-ctx-aarch64-unknown-linux-musl.tar.gz"
+      url "https://github.com/rodthenewcomer/loopguard/releases/download/v#{version}/loopguard-ctx-aarch64-unknown-linux-gnu.tar.gz"
       sha256 "4b7c788e6fea6bb14debbe6b0c51782c313c7da0ba019d1a20d5315044cb6a51"
     end
     on_intel do

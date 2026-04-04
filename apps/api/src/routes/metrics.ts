@@ -210,7 +210,7 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  const costPerToken = 0.00003; // $0.03 / 1k tokens (GPT-4o pricing)
+  const costPerToken = 0.000003; // $3.00 / 1M tokens (claude-sonnet-4-6 input pricing)
 
   res.json({
     thisWeek: {
@@ -317,7 +317,7 @@ router.get('/device-stats', async (req, res: Response): Promise<void> => {
     return;
   }
 
-  const costPerToken = 0.00003;
+  const costPerToken = 0.000003; // $3.00 / 1M tokens (claude-sonnet-4-6 input pricing)
   res.json({
     deviceId: data['device_id'],
     firstSeen: data['first_seen'],

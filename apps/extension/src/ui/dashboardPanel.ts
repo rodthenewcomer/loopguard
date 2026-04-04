@@ -90,7 +90,7 @@ function buildHtml(
   const sessionDuration = formatDuration(Date.now() - metrics.startTime);
   const timeWasted = formatDuration(metrics.totalTimeWasted);
   const tokensSaved = formatCompactNumber(metrics.tokensSaved);
-  const costSaved = ((metrics.tokensSaved / 1000) * 0.03).toFixed(2);
+  const costSaved = ((metrics.tokensSaved / 1_000_000) * 3.00).toFixed(2);
   const activeCount = activeLoops.filter((loop) => loop.status === 'active').length;
   const headline = getHeadline(activeLoops, metrics);
   const accountSnapshot = accountSummary !== null

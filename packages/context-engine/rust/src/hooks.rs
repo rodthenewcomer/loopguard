@@ -330,9 +330,10 @@ date +%s > "$STAMP"
 
     let global_md_content = include_str!("templates/CLAUDE.md");
     let needs_global_md = if global_claude_md.exists() {
-        !std::fs::read_to_string(&global_claude_md)
-            .unwrap_or_default()
-            .contains("loopguard-ctx")
+        let md = std::fs::read_to_string(&global_claude_md).unwrap_or_default();
+        // Re-install if missing loopguard-ctx OR if the mandatory session protocol
+        // section is absent (catches users with old installs that predate the protocol).
+        !md.contains("loopguard-ctx") || !md.contains("MANDATORY SESSION PROTOCOL")
     } else {
         true
     };
