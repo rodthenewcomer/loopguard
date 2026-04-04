@@ -72,6 +72,7 @@ export default function ContextEngineSection() {
                   <div>4. Smaller prompt shape for the next retry</div>
                 </div>
                 <div className="mt-4 text-xs text-[#22C55E]">~3,600 tokens — 70% less</div>
+                <div className="mt-3 rounded-lg border border-[#22C55E]/20 bg-[#22C55E]/5 px-3 py-2 font-mono text-[11px] text-[#86EFAC]">14,200 → 1,100 tokens on a real session read</div>
               </div>
             </div>
           </div>

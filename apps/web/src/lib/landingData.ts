@@ -4,7 +4,7 @@ export const SURFACES = [
   {
     badge: 'Loop Detection',
     title: 'Catch the repeat before it eats the hour',
-    copy: 'LoopGuard watches diagnostics and repeated edits locally. When the same problem keeps resurfacing, it steps in before another half hour disappears into the same bad fix.',
+    copy: 'LoopGuard watches diagnostics and repeated edits locally. When the same error resurfaces, LoopGuard steps in — before you burn another half hour on the same bad fix.',
     accent: '#F59E0B',
   },
   {

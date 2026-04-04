@@ -23,7 +23,7 @@ export default function HeroSection() {
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-[#9FB0C4] backdrop-blur">
               <span className="h-2 w-2 rounded-full bg-[#22C55E]" />
-              Save time and API spend, locally on your machine
+              v3 live · v4 in active development
             </div>
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#22C55E]/20 bg-[#22C55E]/8 px-3 py-1.5 text-xs font-medium text-[#86EFAC] backdrop-blur">
               <Icon path={IC.shield} size={12} />
@@ -42,8 +42,11 @@ export default function HeroSection() {
                 LoopGuard
               </div>
             </div>
-            <p className="mb-4 text-sm font-semibold text-[#C4D4E4]">
-              Runs in VS Code, Cursor, and Windsurf. Stops the loop. Cuts the spend. Free.
+            <p className="mb-2 text-base font-semibold leading-7 text-[#D6E3F1]">
+              The local guardrail for AI coding sessions that start repeating instead of moving.
+            </p>
+            <p className="mb-4 text-sm font-medium text-[#7B95AE]">
+              Runs in VS Code, Cursor, and Windsurf. Free.
             </p>
             <h1 className="text-5xl font-black leading-[0.96] tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl">
               Save the hour.
@@ -81,8 +84,18 @@ export default function HeroSection() {
           </div>
 
           <div className="mt-12 overflow-hidden rounded-[28px] border border-white/10 bg-black/20 backdrop-blur">
-            <div className="grid gap-px bg-white/8 sm:grid-cols-4">
-              {METRICS.map((metric) => (
+            {/* $77/mo — primary metric, full-width */}
+            <div className="border-b border-white/8 bg-[#08121D] px-6 py-5">
+              <div className="flex flex-wrap items-baseline gap-3">
+                <div className="text-5xl font-black tracking-[-0.06em]" style={{ color: METRICS[0].tone }}>
+                  {METRICS[0].value}
+                </div>
+                <div className="text-sm leading-6 text-[#8CA1B8]">{METRICS[0].label}</div>
+              </div>
+            </div>
+            {/* Secondary metrics */}
+            <div className="grid gap-px bg-white/8 sm:grid-cols-3">
+              {METRICS.slice(1).map((metric) => (
                 <div key={metric.value} className="bg-[#08121D] px-5 py-5">
                   <div className="text-3xl font-black tracking-[-0.05em]" style={{ color: metric.tone }}>
                     {metric.value}
