@@ -1,8 +1,17 @@
 {
   "name": "loopguard-ctx",
-  "version": "2.7.1",
-  "description": "Context-aware MCP server and local helper for AI coding assistants — loop detection, focused reads, and shell compression",
-  "keywords": ["mcp", "context", "ai", "coding", "loopguard", "claude", "cursor", "compression"],
+  "version": "2.7.2",
+  "description": "Context-aware MCP server and local helper for AI coding assistants \u2014 loop detection, focused reads, and shell compression",
+  "keywords": [
+    "mcp",
+    "context",
+    "ai",
+    "coding",
+    "loopguard",
+    "claude",
+    "cursor",
+    "compression"
+  ],
   "homepage": "https://loopguard.vercel.app",
   "repository": {
     "type": "git",
@@ -15,8 +24,15 @@
   "scripts": {
     "postinstall": "node postinstall.js"
   },
-  "os": ["darwin", "linux", "win32"],
-  "cpu": ["x64", "arm64"],
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
   "engines": {
     "node": ">=18"
   },
