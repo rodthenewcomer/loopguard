@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 const NAV_LINKS = [
   { label: 'Features',     href: '/#features' },
   { label: 'How it works', href: '/#how-it-works' },
+  { label: 'Roadmap',      href: '/#roadmap' },
   { label: 'Docs',         href: '/docs' },
 ];
 
@@ -15,10 +16,10 @@ const MARKETPLACE_URL = '/setup';
 const GITHUB_URL = 'https://github.com/rodthenewcomer/loopguard';
 
 
-function StarIcon() {
+function GitHubIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
     </svg>
   );
 }
@@ -90,7 +91,7 @@ export default function Navbar() {
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3 py-1.5 border border-[#374151] hover:border-[#4B5563] text-sm text-[#9CA3AF] hover:text-white rounded-lg transition-colors duration-200"
           >
-            <StarIcon />
+            <GitHubIcon />
             Star
           </a>
 
@@ -169,7 +170,7 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className="py-2.5 flex items-center justify-center gap-1.5 border border-[#374151] text-sm text-[#9CA3AF] rounded-lg"
               >
-                <StarIcon />
+                <GitHubIcon />
                 Star on GitHub
               </a>
               {isLoggedIn ? (

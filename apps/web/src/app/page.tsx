@@ -109,6 +109,50 @@ const FOOTER_COLS = [
   },
 ];
 
+
+const ROADMAP = [
+  {
+    version: 'v1',
+    label: 'Extension Core',
+    status: 'shipped',
+    desc: 'The VS Code extension that started it all — loop detection, status bar metrics, and focused context snapshots built directly into the editor.',
+    items: [
+      'Loop detection via VS Code diagnostics API',
+      'Status bar: time lost + repeat count per session',
+      'Basic context snapshot — keep the failing lines, drop the noise',
+      'Session tracking with live metrics in the extension',
+      'Published to VS Code Marketplace',
+    ],
+  },
+  {
+    version: 'v2',
+    label: 'CLI + Sync Pipeline',
+    status: 'current',
+    desc: 'The loopguard-ctx binary ships the context engine to every terminal-based AI tool — Claude Code, Cursor, Codex CLI — with anonymous stats sync and a shareable Wrapped card.',
+    items: [
+      'loopguard-ctx Rust binary with 20+ MCP tools (ctx_read, ctx_shell, ctx_search, ctx_session...)',
+      'Homebrew tap for one-command install on macOS and Linux',
+      'Anonymous device sync — UUID-based, no account needed',
+      'Cursor periodic sync via postToolUse hook (every 15 min)',
+      'Session task surfacing at session start (last task shown in protocol)',
+      '/wrapped shareable stats card with dynamic OG meta',
+    ],
+  },
+  {
+    version: 'v3',
+    label: 'Intelligence Layer',
+    status: 'next',
+    desc: 'Moving from observation to action — AI-powered root cause hints, team-level visibility, and smarter context selection that learns from session patterns.',
+    items: [
+      'Smart loop suggestions — root cause hints before the next retry',
+      'Team dashboards — shared visibility across a workspace',
+      'Multi-model cost comparison in the dashboard',
+      'Context learning — surfaces patterns from past sessions',
+      'JetBrains and Windsurf native extension support',
+    ],
+  },
+];
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#071019]">
@@ -539,6 +583,82 @@ export default function LandingPage() {
               </div>
             </div>
           </ScrollReveal>
+        </div>
+      </section>
+
+
+      <section id="roadmap" className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
+        <ScrollReveal className="mb-14 max-w-2xl">
+          <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#4E6B88]">Roadmap</div>
+          <h2 className="mt-3 text-4xl font-bold tracking-[-0.05em] text-white sm:text-5xl">
+            What shipped.
+            <br />
+            What&apos;s next.
+          </h2>
+        </ScrollReveal>
+
+        <div className="relative">
+          {/* Vertical line */}
+          <div className="absolute left-[11px] top-0 bottom-0 w-px bg-white/8 hidden sm:block" aria-hidden="true" />
+
+          <div className="space-y-12">
+            {ROADMAP.map((phase) => {
+              const isCurrent = phase.status === 'current';
+              const isNext = phase.status === 'next';
+              const accent = isCurrent ? '#22D3EE' : isNext ? '#A78BFA' : '#22C55E';
+              return (
+                <ScrollReveal key={phase.version}>
+                  <div className="grid sm:grid-cols-[24px_1fr] gap-6 sm:gap-10">
+                    {/* Dot */}
+                    <div className="hidden sm:flex flex-col items-center pt-1">
+                      <div
+                        className="h-6 w-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                        style={{ borderColor: accent, background: `${accent}18` }}
+                      >
+                        {!isNext && (
+                          <div className="h-2 w-2 rounded-full" style={{ background: accent }} />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(9,18,30,0.9),rgba(5,12,20,0.88))]">
+                      <div className="flex flex-wrap items-center gap-3 border-b border-white/8 px-6 py-5">
+                        <span
+                          className="rounded-full px-2.5 py-0.5 text-xs font-black uppercase tracking-[0.2em]"
+                          style={{ color: accent, background: `${accent}18`, border: `1px solid ${accent}33` }}
+                        >
+                          {phase.version}
+                        </span>
+                        <span className="text-lg font-semibold tracking-[-0.03em] text-white">{phase.label}</span>
+                        <span
+                          className="ml-auto rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em]"
+                          style={{
+                            color: isCurrent ? '#22D3EE' : isNext ? '#A78BFA' : '#22C55E',
+                            background: isCurrent ? 'rgba(34,211,238,0.1)' : isNext ? 'rgba(167,139,250,0.1)' : 'rgba(34,197,94,0.1)',
+                            border: `1px solid ${isCurrent ? 'rgba(34,211,238,0.25)' : isNext ? 'rgba(167,139,250,0.25)' : 'rgba(34,197,94,0.25)'}`,
+                          }}
+                        >
+                          {isCurrent ? 'Current' : isNext ? 'Up next' : 'Shipped'}
+                        </span>
+                      </div>
+                      <div className="px-6 py-6">
+                        <p className="text-sm leading-7 text-[#8CA1B8] mb-5">{phase.desc}</p>
+                        <ul className="space-y-2.5">
+                          {phase.items.map((item) => (
+                            <li key={item} className="flex items-start gap-2.5 text-sm leading-6 text-[#C4D4E3]">
+                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: accent }} />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              );
+            })}
+          </div>
         </div>
       </section>
 
