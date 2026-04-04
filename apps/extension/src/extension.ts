@@ -13,6 +13,7 @@ import { FileListener } from './listeners/fileListener';
 import { StatusBar } from './ui/statusBar';
 import { AlertPanel } from './ui/alertPanel';
 import { DashboardPanel } from './ui/dashboardPanel';
+import { SidebarPanel } from './ui/sidebarPanel';
 import { ApiClient, type DashboardSummary } from './services/apiClient';
 import { AuthService } from './services/authService';
 import { estimateTokens } from '@loopguard/utils';
@@ -57,12 +58,15 @@ function _activate(context: vscode.ExtensionContext): void {
   const alertPanel = new AlertPanel();
   const statusBar = new StatusBar();
 
+  const sidebarPanel = new SidebarPanel(context.extensionUri);
+
   // API sync (no-ops when not authenticated)
   const apiClient = new ApiClient();
   let accountSummary: DashboardSummary | null = null;
   let pendingSyncTimer: ReturnType<typeof setTimeout> | undefined;
 
   const authService = new AuthService(context.secrets, apiClient, (signedIn) => {
+    sidebarPanel.setAuthState(signedIn, signedIn ? authService.userEmail : null);
     if (!signedIn) {
       accountSummary = null;
       refreshLoopState();
@@ -77,6 +81,7 @@ function _activate(context: vscode.ExtensionContext): void {
   // Cache Rust engine availability and tell the dashboard panel which tier is active
   contextEngine.isBinaryAvailable().then((available) => {
     DashboardPanel.setEngineTier(available ? 'rust' : 'ts');
+      sidebarPanel.setEngineTier(available ? 'rust' : 'ts');
     if (available) {
       const workspaceName = vscode.workspace.workspaceFolders?.[0]?.name ?? 'current project';
       contextEngine.runForecast(workspaceName).then((forecast) => {
@@ -89,6 +94,13 @@ function _activate(context: vscode.ExtensionContext): void {
 
   // Restore auth token from SecretStorage — async, best-effort
   authService.initialize().catch((err) => logger.error('Auth init failed', { err }));
+
+  // Register sidebar panel provider — VS Code calls resolveWebviewView when user opens it
+  const sidebarRegistration = vscode.window.registerWebviewViewProvider(
+    SidebarPanel.VIEW_ID,
+    sidebarPanel,
+    { webviewOptions: { retainContextWhenHidden: true } },
+  );
 
   /* ── Helpers ──────────────────────────────────────────────────── */
 
@@ -162,6 +174,7 @@ function _activate(context: vscode.ExtensionContext): void {
     const metrics = sessionTracker.getMetrics();
     statusBar.update(metrics, activeLoops.length);
     DashboardPanel.update(metrics, activeLoops, accountSummary);
+    sidebarPanel.update(metrics, activeLoops, accountSummary);
   }
 
   /* ── Loop handler ─────────────────────────────────────────────── */
@@ -424,6 +437,10 @@ function _activate(context: vscode.ExtensionContext): void {
     }
   });
 
+  const focusSidebar = vscode.commands.registerCommand('loopguard.focusSidebar', () => {
+    vscode.commands.executeCommand('loopguard.sidebar.focus').then(undefined, () => undefined);
+  });
+
   // Config watcher
   const configWatcher = onConfigChange((newConfig) => {
     loopEngine.updateConfig(newConfig);
@@ -455,6 +472,8 @@ function _activate(context: vscode.ExtensionContext): void {
   /* ── Subscriptions ────────────────────────────────────────────── */
   context.subscriptions.push(
     statusBar,
+    sidebarRegistration,
+    focusSidebar,
     uriHandler,
     diagnosticListener.activate(),
     fileListener.activate(),

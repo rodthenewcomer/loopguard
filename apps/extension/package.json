@@ -32,7 +32,8 @@
   ],
   "activationEvents": [
     "onStartupFinished",
-    "onUri"
+    "onUri",
+    "onView:loopguard.sidebar"
   ],
   "main": "./dist/extension.js",
   "extensionKind": [
@@ -76,6 +77,10 @@
       {
         "command": "loopguard.signOut",
         "title": "LoopGuard: Sign Out"
+      },
+      {
+        "command": "loopguard.focusSidebar",
+        "title": "LoopGuard: Focus Sidebar Panel"
       }
     ],
     "configuration": {
@@ -147,6 +152,25 @@
         },
         {
           "command": "loopguard.signOut"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "loopguard-sidebar",
+          "title": "LoopGuard",
+          "icon": "resources/loopguard-sidebar.svg"
+        }
+      ]
+    },
+    "views": {
+      "loopguard-sidebar": [
+        {
+          "type": "webview",
+          "id": "loopguard.sidebar",
+          "name": "LoopGuard",
+          "when": "true"
         }
       ]
     }
