@@ -1,182 +1,59 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type ReactNode } from 'react';
-import LoopGuardLogo from '../LoopGuardLogo';
-import { DEMO_DATA, fmtMs, type SummaryData, useDashboardData } from './DashboardData';
+import { useDashboardData, fmtMs, type SummaryData } from './DashboardData';
 import WeekChart from './WeekChart';
+import LoopGuardLogo from '../LoopGuardLogo';
 
-function Icon({ path, size = 18 }: { path: string; size?: number }) {
+// ─── helpers ──────────────────────────────────────────────────────────────────
+
+function fmt(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+  return String(n);
+}
+
+function timeAgo(ms: number): string {
+  const min = Math.max(1, Math.round((Date.now() - ms) / 60_000));
+  if (min < 60) return `${min}m ago`;
+  return `${Math.floor(min / 60)}h ago`;
+}
+
+// ─── sub-components ───────────────────────────────────────────────────────────
+
+function StatusDot({ live }: { live: boolean }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={path} />
-    </svg>
-  );
-}
-
-function getSessionTone(data: SummaryData): {
-  headline: string;
-  copy: string;
-  badge: string;
-  badgeClass: string;
-} {
-  if (data.today.loops === 0 && data.today.timeWastedMs === 0) {
-    return {
-      headline: 'Quiet session. Keep your prompts sharp.',
-      copy: 'No repeat-debugging pressure today. Use the context engine to stay lean before the next error snowballs.',
-      badge: 'Calm signal',
-      badgeClass: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300',
-    };
-  }
-
-  if (data.today.timeWastedMs >= 30 * 60 * 1000 || data.today.loops >= 3) {
-    return {
-      headline: 'Loop pressure is building today.',
-      copy: 'You have enough signal to intervene now: tighten the prompt, isolate the bug, and send smaller context before repetition hardens.',
-      badge: 'Needs attention',
-      badgeClass: 'border-amber-400/20 bg-amber-400/10 text-amber-300',
-    };
-  }
-
-  return {
-    headline: 'A few repeats showed up, but the session is still recoverable.',
-    copy: 'Watch the active patterns, keep context narrow, and you can prevent small retries from turning into a long debugging spiral.',
-    badge: 'Watch closely',
-    badgeClass: 'border-sky-400/20 bg-sky-400/10 text-sky-300',
-  };
-}
-
-function getActiveLoopCount(data: SummaryData): number {
-  return data.recentLoops.filter((loop) => loop.status === 'active').length;
-}
-
-function getTopPatternLabel(data: SummaryData): string {
-  const top = data.topErrorHashes[0];
-  if (top === undefined) return 'No recurring pattern';
-  return `${top.hash} · ${top.count} repeats`;
-}
-
-function StatusPill({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    active: 'border-rose-400/20 bg-rose-400/10 text-rose-300',
-    resolved: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300',
-    ignored: 'border-white/10 bg-white/5 text-slate-400',
-  };
-
-  return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] ${
-        map[status] ?? map.ignored
-      }`}
-    >
-      {status}
+    <span className="flex items-center gap-1.5 rounded-full border border-[#1A2740] bg-[#0D1826] px-3 py-1">
+      <span
+        className={`inline-block h-1.5 w-1.5 rounded-full ${live ? 'animate-pulse bg-emerald-400' : 'bg-slate-500'}`}
+      />
+      <span className="text-[11px] font-medium text-slate-400">
+        {live ? 'Live metrics' : 'Demo mode'}
+      </span>
     </span>
   );
 }
 
-function formatUpdatedLabel(updatedAt: number): string {
-  const elapsedMs = Date.now() - updatedAt;
-  const elapsedSeconds = Math.max(0, Math.round(elapsedMs / 1000));
-
-  if (elapsedSeconds < 10) return 'Updated just now';
-  if (elapsedSeconds < 60) return `Updated ${elapsedSeconds}s ago`;
-
-  const elapsedMinutes = Math.round(elapsedSeconds / 60);
-  if (elapsedMinutes < 60) return `Updated ${elapsedMinutes}m ago`;
-
-  const elapsedHours = Math.round(elapsedMinutes / 60);
-  return `Updated ${elapsedHours}h ago`;
-}
-
-function DashboardShell({
-  children,
-  mode,
-  updatedAt,
-}: {
-  children: ReactNode;
-  mode: 'live' | 'demo' | 'static';
-  updatedAt?: number;
-}) {
+function TopBar({ live, updatedAt }: { live: boolean; updatedAt: number | null }) {
   return (
-    <div className="min-h-screen overflow-hidden bg-[#07111f] text-[#E5E7EB]">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-x-0 top-0 h-[380px] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_58%)]" />
-        <div className="absolute right-[-12%] top-[22%] h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(34,211,238,0.14),transparent_65%)] blur-3xl" />
-        <div className="absolute left-[-10%] bottom-[-8%] h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.12),transparent_60%)] blur-3xl" />
-      </div>
-      <TopBar mode={mode} updatedAt={updatedAt} />
-      <main className="relative mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
-        {children}
-      </main>
-    </div>
-  );
-}
-
-function TopBar({
-  mode,
-  updatedAt,
-}: {
-  mode: 'live' | 'demo' | 'static';
-  updatedAt?: number;
-}) {
-  const isLive = mode === 'live';
-  const isDemo = mode === 'demo';
-
-  return (
-    <header className="sticky top-0 z-40 border-b border-white/8 bg-[#07111f]/72 backdrop-blur-2xl">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 items-center rounded-2xl border border-sky-400/20 bg-sky-400/10 px-3 shadow-[0_0_24px_rgba(34,211,238,0.12)]">
-              <LoopGuardLogo
-                size={24}
-                showWordmark
-                wordmarkClassName="text-sm font-semibold tracking-tight text-white"
-              />
-            </div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">
-              Dashboard
-            </div>
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div
-            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-medium ${
-              isLive
-                ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
-                : isDemo
-                  ? 'border-amber-400/20 bg-amber-400/10 text-amber-300'
-                  : 'border-white/10 bg-white/[0.04] text-slate-300'
-            }`}
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                isLive ? 'bg-emerald-300 animate-pulse' : isDemo ? 'bg-amber-300' : 'bg-slate-400'
-              }`}
-            />
-            {isLive ? 'Live metrics' : isDemo ? 'Demo metrics' : 'Dashboard'}
-          </div>
-          {mode !== 'static' && (
-            <div className="hidden rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-slate-300 sm:inline-flex">
-              {isLive && updatedAt !== undefined ? formatUpdatedLabel(updatedAt) : 'Retrying every 15s'}
-            </div>
+    <header className="sticky top-0 z-30 border-b border-[#1A2740] bg-[#050B14]/95 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <Link href="/" className="flex items-center gap-3">
+          <LoopGuardLogo showWordmark size={22} />
+          <span className="hidden text-xs text-slate-600 sm:inline">/ dashboard</span>
+        </Link>
+        <div className="flex items-center gap-3">
+          <StatusDot live={live} />
+          {updatedAt !== null && (
+            <span className="hidden text-xs text-slate-700 sm:inline">
+              {timeAgo(updatedAt)}
+            </span>
           )}
           <Link
-            href="/signup"
-            className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-medium text-emerald-300 transition hover:border-emerald-400/40 hover:bg-emerald-400/15"
+            href="/login"
+            className="rounded-lg bg-[#0D1826] border border-[#1A2740] px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:border-[#22D3EE]/30 hover:text-slate-200"
           >
-            Free · all features
+            Sign in
           </Link>
         </div>
       </div>
@@ -184,646 +61,286 @@ function TopBar({
   );
 }
 
-function HeroMetric({
-  label,
-  value,
-  detail,
-  valueClass,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-  valueClass: string;
-}) {
+function DemoBanner({ error }: { error?: string }) {
   return (
-    <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 backdrop-blur-sm">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{label}</div>
-      <div className={`mt-3 text-3xl font-semibold tracking-[-0.04em] ${valueClass}`}>{value}</div>
-      <div className="mt-2 text-sm leading-6 text-slate-400">{detail}</div>
-    </div>
-  );
-}
-
-function UtilityCard({
-  label,
-  value,
-  detail,
-  accentClass,
-  icon,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-  accentClass: string;
-  icon: string;
-}) {
-  return (
-    <div className="rounded-[26px] border border-white/8 bg-[#0d1827]/85 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{label}</div>
-          <div className={`mt-4 text-[2rem] font-semibold tracking-[-0.05em] ${accentClass}`}>{value}</div>
-        </div>
-        <div className={`flex h-11 w-11 items-center justify-center rounded-2xl border border-white/8 bg-white/[0.04] ${accentClass}`}>
-          <Icon path={icon} />
-        </div>
-      </div>
-      <div className="mt-3 text-sm leading-6 text-slate-400">{detail}</div>
-    </div>
-  );
-}
-
-function SectionFrame({
-  eyebrow,
-  title,
-  subtitle,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  subtitle: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="rounded-[30px] border border-white/8 bg-[#0b1625]/88 p-5 shadow-[0_28px_80px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-6">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">{eyebrow}</div>
-          <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">{title}</h2>
-          <p className="mt-1 text-sm text-slate-400">{subtitle}</p>
-        </div>
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function StateBanner({
-  title,
-  copy,
-  ctaHref,
-  ctaLabel,
-}: {
-  title: string;
-  copy: string;
-  ctaHref: string;
-  ctaLabel: string;
-}) {
-  return (
-    <div className="rounded-[28px] border border-sky-400/20 bg-[linear-gradient(145deg,rgba(37,99,235,0.12),rgba(8,15,30,0.72))] p-5 shadow-[0_18px_48px_rgba(8,15,30,0.3)]">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="max-w-2xl">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-300">Account status</div>
-          <h2 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">{title}</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-300">{copy}</p>
-        </div>
+    <div className="border-b border-amber-500/15 bg-amber-500/[0.04]">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
+        <p className="text-xs text-amber-400/70">
+          {error
+            ? `Could not reach the API — showing demo data.`
+            : 'Showing demo data. Sign in to see your real session metrics.'}
+        </p>
         <Link
-          href={ctaHref}
-          className="inline-flex items-center justify-center rounded-full bg-sky-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-sky-400"
+          href="/login"
+          className="flex-shrink-0 rounded-lg border border-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-400 transition hover:border-amber-500/40 hover:text-amber-300"
         >
-          {ctaLabel}
+          Sign in →
         </Link>
       </div>
     </div>
   );
 }
 
-function RecentLoopsPanel({ data }: { data: SummaryData }) {
+function MetricCard({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  accent: string;
+}) {
   return (
-    <SectionFrame
-      eyebrow="Recent loops"
-      title="Where the session started repeating"
-      subtitle="A clean list of the most recent patterns, with just enough context to act."
-    >
-      <div className="overflow-hidden rounded-[24px] border border-white/8">
-        {data.recentLoops.length === 0 ? (
-          <div className="px-5 py-10 text-center text-sm text-slate-500">
-            No loops detected yet. Keep the session moving.
-          </div>
-        ) : (
-          <div className="divide-y divide-white/6">
-            {data.recentLoops.map((loop) => {
-              const minutesAgo = Math.max(1, Math.round((Date.now() - loop.detectedAt) / 60_000));
-              const timeLabel = minutesAgo < 60
-                ? `${minutesAgo}m ago`
-                : `${Math.floor(minutesAgo / 60)}h ago`;
-
-              return (
-                <div
-                  key={loop.id}
-                  className="grid gap-3 bg-white/[0.03] px-5 py-4 transition hover:bg-white/[0.05] sm:grid-cols-[1fr_auto]"
-                >
-                  <div>
-                    <div className="font-mono text-xs tracking-[0.18em] text-slate-300">{loop.errorHash}</div>
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-slate-500">
-                      <span>.{loop.fileType}</span>
-                      <span>{loop.occurrences} repeats</span>
-                      <span>{fmtMs(loop.timeWastedMs)} wasted</span>
-                      <span>{timeLabel}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center sm:justify-end">
-                    <StatusPill status={loop.status} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+    <div className="rounded-2xl border border-[#1A2740] bg-[#0D1826] p-6">
+      <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
+        {label}
       </div>
-    </SectionFrame>
+      <div className={`font-mono text-3xl font-bold tabular-nums ${accent}`}>
+        {value}
+      </div>
+      <div className="mt-2 text-xs text-slate-600">{sub}</div>
+    </div>
   );
 }
 
-function PatternPanel({ data }: { data: SummaryData }) {
-  const maxCount = data.topErrorHashes[0]?.count ?? 1;
-
+function StatusPill({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    active:   'bg-red-500/10 text-red-400 border border-red-500/20',
+    resolved: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+    ignored:  'bg-slate-800 text-slate-500 border border-slate-700',
+  };
   return (
-    <SectionFrame
-      eyebrow="Pattern radar"
-      title="This week’s repeat offenders"
-      subtitle="Frequency-first ranking so the noisiest error hashes surface immediately."
-    >
-      <div className="space-y-4">
-        {data.topErrorHashes.length === 0 && (
-          <div className="rounded-[24px] border border-white/8 bg-white/[0.03] px-5 py-8 text-sm text-slate-500">
-            No recurring hashes yet.
-          </div>
-        )}
-
-        {data.topErrorHashes.map((entry, index) => {
-          const width = Math.max(10, (entry.count / maxCount) * 100);
-          const barClass = index === 0
-            ? 'from-rose-400 via-amber-300 to-cyan-300'
-            : 'from-blue-500 to-cyan-300';
-
-          return (
-            <div key={entry.hash} className="space-y-2 rounded-[24px] border border-white/8 bg-white/[0.03] p-4">
-              <div className="flex items-center justify-between gap-3">
-                <span className="font-mono text-[11px] tracking-[0.18em] text-slate-300">{entry.hash}</span>
-                <span className="text-sm font-semibold text-white">{entry.count}x</span>
-              </div>
-              <div className="h-2 rounded-full bg-white/8">
-                <div
-                  className={`h-full rounded-full bg-gradient-to-r ${barClass} transition-[width] duration-700`}
-                  style={{ width: `${width}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </SectionFrame>
+    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${styles[status] ?? styles['ignored']}`}>
+      {status}
+    </span>
   );
 }
 
-function EnginePanel({ data }: { data: SummaryData }) {
+function LoopRow({ loop }: { loop: SummaryData['recentLoops'][number] }) {
   return (
-    <SectionFrame
-      eyebrow="Context engine"
-      title="Compression that keeps prompts readable"
-      subtitle="Smaller context, better interventions, lower cost."
-    >
-      <div className="space-y-4">
-        <div className="rounded-[24px] border border-cyan-400/15 bg-[linear-gradient(145deg,rgba(8,15,30,0.88),rgba(15,32,53,0.9))] p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300">Engine mode</div>
-              <div className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">Native helper active</div>
-            </div>
-            <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-300">
-              Optimal
-            </div>
-          </div>
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Week tokens saved</div>
-              <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-cyan-300">
-                {data.thisWeek.tokensSaved.toLocaleString()}
-              </div>
-            </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Week cost saved</div>
-              <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-emerald-300">
-                ${data.thisWeek.costSaved.toFixed(2)}
-              </div>
-            </div>
-          </div>
+    <div className="flex items-center justify-between gap-4 border-b border-[#1A2740] px-6 py-4 last:border-0 transition-colors hover:bg-white/[0.015]">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs text-slate-300">{loop.errorHash}</span>
+          <span className="rounded bg-[#1A2740] px-1.5 py-0.5 font-mono text-[10px] text-slate-500">.{loop.fileType}</span>
         </div>
-
-        <div className="rounded-[24px] border border-white/8 bg-white/[0.03] p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">More tools</div>
-          <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">Wire MCP and shell hooks into the same loop guardrail.</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-400">
-            Shell hooks, MCP setup, and the full context engine are all free. Follow the setup guide to activate them.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link
-              href="/setup"
-              className="inline-flex items-center justify-center rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400"
-            >
-              Setup guide
-            </Link>
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white transition hover:border-cyan-400/25 hover:bg-cyan-400/10"
-            >
-              Create free account
-            </Link>
-          </div>
+        <div className="mt-1 text-[11px] text-slate-600">
+          {loop.occurrences}× repeated · {fmtMs(loop.timeWastedMs)} lost
         </div>
       </div>
-    </SectionFrame>
+      <div className="flex flex-shrink-0 items-center gap-3">
+        <span className="text-[11px] text-slate-700">{timeAgo(loop.detectedAt)}</span>
+        <StatusPill status={loop.status} />
+      </div>
+    </div>
   );
 }
 
-function ActionPanel({ data }: { data: SummaryData }) {
-  const activeLoops = getActiveLoopCount(data);
-  const actions = [
-    'Ask the model to explain the error before proposing code.',
-    'Strip the bug into the smallest reproduction before the next prompt.',
-    'Use LoopGuard context instead of sending the whole file.',
-  ];
-
+function EmptyLoops() {
   return (
-    <SectionFrame
-      eyebrow="Intervene"
-      title={activeLoops > 0 ? `${activeLoops} active loop${activeLoops === 1 ? '' : 's'} need a calmer next move` : 'No active loop is screaming right now'}
-      subtitle="These are the next actions that reduce repeat debugging instead of decorating it."
-    >
-      <div className="space-y-3">
-        {actions.map((action, index) => (
-          <div key={action} className="flex gap-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4">
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-sky-400/20 bg-sky-400/10 text-sm font-semibold text-sky-300">
-              {index + 1}
+    <div className="flex flex-col items-center py-14 text-center">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div className="text-sm font-medium text-slate-400">No loops detected</div>
+      <div className="mt-1 text-xs text-slate-600">Next alert will appear here automatically.</div>
+    </div>
+  );
+}
+
+function TopPatterns({ hashes }: { hashes: SummaryData['topErrorHashes'] }) {
+  if (hashes.length === 0) return null;
+  const max = hashes[0]?.count ?? 1;
+  return (
+    <div className="rounded-2xl border border-[#1A2740] bg-[#0D1826] p-6">
+      <div className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
+        Top patterns
+      </div>
+      <div className="space-y-4">
+        {hashes.slice(0, 5).map((h) => (
+          <div key={h.hash}>
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <span className="font-mono text-xs text-slate-400">{h.hash}</span>
+              <span className="text-xs font-bold text-amber-400">{h.count}×</span>
             </div>
-            <p className="pt-1 text-sm leading-6 text-slate-300">{action}</p>
+            <div className="h-1 overflow-hidden rounded-full bg-[#1A2740]">
+              <div
+                className="h-full rounded-full bg-amber-400/50 transition-all"
+                style={{ width: `${Math.round((h.count / max) * 100)}%` }}
+              />
+            </div>
           </div>
         ))}
       </div>
+    </div>
+  );
+}
 
-      <div className="mt-5 rounded-[24px] border border-white/8 bg-[#081220] p-5">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Quick facts</div>
-        <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-300">
-          <div>
-            <div className="text-slate-500">Active loops</div>
-            <div className="mt-1 text-xl font-semibold tracking-[-0.03em] text-white">{activeLoops}</div>
-          </div>
-          <div>
-            <div className="text-slate-500">Top pattern</div>
-            <div className="mt-1 text-sm font-medium text-white">{getTopPatternLabel(data)}</div>
-          </div>
+function ActiveAlert({ count }: { count: number }) {
+  if (count === 0) return null;
+  return (
+    <div className="flex items-start gap-4 rounded-2xl border border-red-500/20 bg-red-500/[0.04] p-5">
+      <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-400">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div>
+        <div className="text-sm font-semibold text-red-400">
+          {count} active loop{count > 1 ? 's' : ''} right now
+        </div>
+        <div className="mt-1 text-xs text-slate-500">
+          Stop retrying the same fix. Narrow the prompt to one failing case, strip the bug to its smallest reproduction, then paste focused context.
         </div>
       </div>
-    </SectionFrame>
+    </div>
   );
 }
 
 function Skeleton() {
   return (
-    <div className="animate-pulse space-y-6">
-      <div className="h-[300px] rounded-[32px] border border-white/8 bg-white/[0.04]" />
-      <div className="grid gap-4 lg:grid-cols-4">
-        {[0, 1, 2, 3].map((index) => (
-          <div key={index} className="h-36 rounded-[26px] border border-white/8 bg-white/[0.04]" />
+    <div className="mx-auto max-w-6xl animate-pulse space-y-5 px-6 py-8">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-28 rounded-2xl bg-[#0D1826]" />
         ))}
       </div>
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
-        <div className="h-[420px] rounded-[30px] border border-white/8 bg-white/[0.04]" />
-        <div className="h-[420px] rounded-[30px] border border-white/8 bg-white/[0.04]" />
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="h-64 rounded-2xl bg-[#0D1826] lg:col-span-2" />
+        <div className="h-64 rounded-2xl bg-[#0D1826]" />
       </div>
+      <div className="h-56 rounded-2xl bg-[#0D1826]" />
     </div>
   );
 }
 
-function DashboardBody({
-  data,
-  isDemo,
-  error,
-}: {
-  data: SummaryData;
-  isDemo: boolean;
-  error?: string;
-}) {
-  const tone = getSessionTone(data);
-  const activeLoops = getActiveLoopCount(data);
+// ─── main dashboard body ──────────────────────────────────────────────────────
+
+function DashboardBody({ data }: { data: SummaryData }) {
+  const activeCount = data.recentLoops.filter((l) => l.status === 'active').length;
 
   return (
-    <>
-      {isDemo && (
-        <StateBanner
-          title="You’re looking at sample metrics."
-          copy={
-            error
-              ? `The API is currently unavailable (${error}), so the dashboard fell back to demo data. Your layout and interactions are real; the numbers are placeholders.`
-              : 'Install the extension and sign in to replace the sample numbers with your real session history automatically.'
-          }
-          ctaHref="/setup"
-          ctaLabel="Install extension"
+    <div className="mx-auto max-w-6xl space-y-5 px-6 py-8">
+      {/* KPI row */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          label="Loops today"
+          value={String(data.today.loops)}
+          sub={`${data.thisWeek.loops} this week`}
+          accent={data.today.loops > 0 ? 'text-amber-400' : 'text-slate-200'}
         />
-      )}
-
-      <section className="relative overflow-hidden rounded-[32px] border border-white/8 bg-[linear-gradient(145deg,rgba(11,22,37,0.96),rgba(9,18,33,0.82))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-y-0 right-0 w-[52%] bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.16),transparent_58%)]" />
-          <div className="absolute left-0 top-0 h-24 w-full bg-[linear-gradient(90deg,rgba(59,130,246,0.2),transparent)]" />
-        </div>
-
-        <div className="relative grid gap-6 xl:grid-cols-[1.45fr_0.95fr] xl:gap-8">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${tone.badgeClass}`}>
-                {tone.badge}
-              </div>
-              <div className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                Private by default
-              </div>
-            </div>
-
-            <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.02] tracking-[-0.06em] text-white sm:text-5xl">
-              {tone.headline}
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-              {tone.copy}
-            </p>
-
-            <div className="mt-8 grid gap-3 md:grid-cols-3">
-              <HeroMetric
-                label="Time wasted today"
-                value={fmtMs(data.today.timeWastedMs)}
-                detail={`${fmtMs(data.thisWeek.timeWastedMs)} this week`}
-                valueClass="text-rose-300"
-              />
-              <HeroMetric
-                label="Tokens saved today"
-                value={data.today.tokensSaved.toLocaleString()}
-                detail={`${data.thisWeek.tokensSaved.toLocaleString()} this week`}
-                valueClass="text-cyan-300"
-              />
-              <HeroMetric
-                label="Loops detected today"
-                value={String(data.today.loops)}
-                detail={`${data.thisWeek.loops} this week`}
-                valueClass="text-amber-300"
-              />
-            </div>
-          </div>
-
-          <aside className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Session readout</div>
-            <div className="mt-4 grid gap-4">
-              <div className="rounded-[22px] border border-white/8 bg-[#081220] p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Active loops</div>
-                <div className="mt-2 text-4xl font-semibold tracking-[-0.05em] text-white">{activeLoops}</div>
-                <div className="mt-2 text-sm leading-6 text-slate-400">
-                  {activeLoops === 0
-                    ? 'No unresolved loops are visible in recent activity.'
-                    : 'Use the context engine before the next retry compounds the same pattern.'}
-                </div>
-              </div>
-
-              <div className="rounded-[22px] border border-white/8 bg-[#081220] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Top pattern</div>
-                  <div className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-                    This week
-                  </div>
-                </div>
-                <div className="mt-3 font-mono text-sm tracking-[0.18em] text-slate-200">{getTopPatternLabel(data)}</div>
-              </div>
-
-              <div className="rounded-[22px] border border-white/8 bg-[#081220] p-4">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Immediate actions</div>
-                <div className="mt-3 space-y-2 text-sm leading-6 text-slate-300">
-                  <div>1. Narrow the prompt to the failing inputs and exact error.</div>
-                  <div>2. Reproduce the bug in the smallest possible file.</div>
-                  <div>3. Let LoopGuard feed the model a smaller context window.</div>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-        <UtilityCard
-          label="Loops this week"
-          value={String(data.thisWeek.loops)}
-          detail="How many times repeat diagnostics crossed the threshold."
-          accentClass="text-amber-300"
-          icon="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"
+        <MetricCard
+          label="Time wasted"
+          value={fmtMs(data.today.timeWastedMs)}
+          sub={`${fmtMs(data.thisWeek.timeWastedMs)} this week`}
+          accent={data.today.timeWastedMs > 0 ? 'text-amber-400' : 'text-slate-200'}
         />
-        <UtilityCard
-          label="Time lost this week"
-          value={fmtMs(data.thisWeek.timeWastedMs)}
-          detail="The emotional cost number. This is the one users feel first."
-          accentClass="text-rose-300"
-          icon="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10zm0-10V7"
+        <MetricCard
+          label="Tokens saved"
+          value={fmt(data.allTime.tokensSaved)}
+          sub={`${fmt(data.thisWeek.tokensSaved)} this week`}
+          accent="text-[#22D3EE]"
         />
-        <UtilityCard
-          label="Tokens saved all time"
-          value={data.allTime.tokensSaved.toLocaleString()}
-          detail="Everything LoopGuard has trimmed away across your signed-in history."
-          accentClass="text-cyan-300"
-          icon="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 6v4l3 3"
-        />
-        <UtilityCard
-          label="Cost saved all time"
+        <MetricCard
+          label="Cost saved"
           value={`$${data.allTime.costSaved.toFixed(2)}`}
-          detail="Estimated total API spend LoopGuard helped avoid across your account."
-          accentClass="text-emerald-300"
-          icon="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"
+          sub={`$${data.thisWeek.costSaved.toFixed(2)} this week`}
+          accent="text-emerald-400"
         />
-      </section>
-
-      <div className="grid gap-6 xl:grid-cols-[1.45fr_0.95fr]">
-        <WeekChart data={data.weeklyBreakdown} />
-        <PatternPanel data={data} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.95fr]">
-        <RecentLoopsPanel data={data} />
-        <div className="grid gap-6">
-          <ActionPanel data={data} />
-          <EnginePanel data={data} />
-        </div>
-      </div>
-    </>
-  );
-}
+      {/* active loops alert */}
+      <ActiveAlert count={activeCount} />
 
-
-const API_BASE =
-  process.env['NEXT_PUBLIC_API_URL'] ?? 'https://loopguardapi-production.up.railway.app';
-
-interface DeviceStats {
-  deviceId: string;
-  firstSeen: string;
-  lastSynced: string;
-  totalTokensSaved: number;
-  totalCommands: number;
-  totalSessions: number;
-  costSaved: number;
-}
-
-function CliStatsPanel() {
-  const [deviceId, setDeviceId] = useState('');
-  const [stats, setStats] = useState<DeviceStats | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const lookup = async (): Promise<void> => {
-    const id = deviceId.trim();
-    if (!/^[0-9a-f-]{36}$/.test(id)) {
-      setError('Paste the full UUID from ~/.loopguard-ctx/device.json');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE}/api/v1/metrics/device-stats?device_id=${encodeURIComponent(id)}`);
-      if (res.status === 404) {
-        setError('No data yet — run a session first, then try again.');
-        setLoading(false);
-        return;
-      }
-      if (!res.ok) throw new Error(`API ${res.status}`);
-      const data = await res.json() as DeviceStats;
-      setStats(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Request failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="rounded-[28px] border border-cyan-400/15 bg-[linear-gradient(145deg,rgba(8,20,38,0.92),rgba(7,17,31,0.88))] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.22)]">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300">CLI Stats</div>
-      <h2 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
-        Using loopguard-ctx from the terminal?
-      </h2>
-      <p className="mt-2 text-sm leading-6 text-slate-300">
-        Your stats sync automatically at the end of each session. Enter your device ID to view them here.
-      </p>
-      <div className="mt-3 rounded-[18px] border border-white/8 bg-[#081220] px-4 py-3 font-mono text-xs text-slate-400">
-        cat ~/.loopguard-ctx/device.json
-      </div>
-
-      {stats === null ? (
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-          <input
-            type="text"
-            value={deviceId}
-            onChange={(e) => setDeviceId(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') void lookup(); }}
-            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-            className="flex-1 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white placeholder-slate-600 outline-none focus:border-cyan-400/30 focus:ring-1 focus:ring-cyan-400/20"
-          />
-          <button
-            onClick={() => void lookup()}
-            disabled={loading}
-            className="inline-flex items-center justify-center rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
-          >
-            {loading ? 'Loading…' : 'View stats'}
-          </button>
-        </div>
-      ) : (
-        <div className="mt-4 space-y-3">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Tokens saved</div>
-              <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-cyan-300">
-                {stats.totalTokensSaved.toLocaleString()}
-              </div>
-            </div>
-            <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Cost saved</div>
-              <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-emerald-300">
-                ${stats.costSaved.toFixed(2)}
-              </div>
-            </div>
-            <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Sessions</div>
-              <div className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
-                {stats.totalSessions}
-              </div>
-            </div>
+      {/* chart + patterns */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="rounded-2xl border border-[#1A2740] bg-[#0D1826] p-6 lg:col-span-2">
+          <div className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
+            Token savings · 7 days
           </div>
-          <div className="text-[11px] text-slate-500">
-            Last synced: {new Date(stats.lastSynced).toLocaleString()}
-            {' · '}
-            <button
-              onClick={() => setStats(null)}
-              className="text-sky-400 transition hover:text-sky-300"
-            >
-              change device
-            </button>
-          </div>
+          <WeekChart data={data.weeklyBreakdown} />
         </div>
-      )}
+        <TopPatterns hashes={data.topErrorHashes} />
+      </div>
 
-      {error !== null && (
-        <p className="mt-3 text-sm text-rose-400">{error}</p>
-      )}
+      {/* recent loops */}
+      <div className="rounded-2xl border border-[#1A2740] bg-[#0D1826]">
+        <div className="flex items-center justify-between border-b border-[#1A2740] px-6 py-4">
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
+            Recent loops
+          </div>
+          {activeCount > 0 && (
+            <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400">
+              {activeCount} active
+            </span>
+          )}
+        </div>
+        {data.recentLoops.length === 0 ? (
+          <EmptyLoops />
+        ) : (
+          data.recentLoops.slice(0, 10).map((l) => <LoopRow key={l.id} loop={l} />)
+        )}
+      </div>
     </div>
   );
 }
 
-function Footer() {
-  return (
-    <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-white/8 px-1 pt-2 text-xs text-slate-500">
-      <div>
-        Your code never leaves your machine.{' '}
-        <Link href="/docs" className="text-slate-400 underline underline-offset-4 transition hover:text-white">
-          Privacy docs
-        </Link>
-      </div>
-      <Link href="/" className="transition hover:text-white">
-        Back to homepage
-      </Link>
-    </footer>
-  );
-}
+// ─── root ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardClient() {
   const state = useDashboardData();
 
   if (state.status === 'loading') {
     return (
-      <DashboardShell mode="static">
+      <div className="min-h-screen bg-[#050B14]">
+        <TopBar live={false} updatedAt={null} />
         <Skeleton />
-      </DashboardShell>
+      </div>
     );
   }
 
-  if (state.status === 'not-authed') {
-    return (
-      <DashboardShell mode="static">
-        <StateBanner
-          title="Real metrics start after sign-in."
-          copy="You can explore the dashboard right now with sample data, then connect the extension whenever you want live session metrics, history, and sync."
-          ctaHref="/signup"
-          ctaLabel="Create free account"
-        />
-        <CliStatsPanel />
-        <DashboardBody data={DEMO_DATA} isDemo={false} />
-        <Footer />
-      </DashboardShell>
-    );
-  }
-
-  const data = state.status === 'live' ? state.data : (state.data ?? DEMO_DATA);
-  const isDemo = state.status === 'demo';
+  const isLive = state.status === 'live';
+  const showBanner = state.status === 'demo' || state.status === 'not-authed';
   const error = state.status === 'demo' ? state.error : undefined;
+  const updatedAt = state.status !== 'not-authed' ? state.updatedAt : null;
+  const data = state.status === 'live' || state.status === 'demo' ? state.data : DEMO_DATA;
 
   return (
-    <DashboardShell
-      mode={state.status === 'live' ? 'live' : 'demo'}
-      updatedAt={state.updatedAt}
-    >
-      <DashboardBody data={data} isDemo={isDemo} error={error} />
-      <Footer />
-    </DashboardShell>
+    <div className="min-h-screen bg-[#050B14]">
+      <TopBar live={isLive} updatedAt={updatedAt} />
+      {showBanner && <DemoBanner error={error} />}
+      <DashboardBody data={data} />
+      <footer className="mx-auto flex max-w-6xl items-center justify-between border-t border-[#1A2740] px-6 py-6 text-xs text-slate-700">
+        <span>Your code never leaves your machine.</span>
+        <Link href="/privacy" className="transition hover:text-slate-500">Privacy</Link>
+      </footer>
+    </div>
   );
 }
+
+// ─── demo / fallback data ─────────────────────────────────────────────────────
+
+const DEMO_DATA: SummaryData = {
+  thisWeek: { loops: 7, timeWastedMs: 38 * 60 * 1000, tokensSaved: 84_200, costSaved: 0.25 },
+  today:    { loops: 2, timeWastedMs: 14 * 60 * 1000, tokensSaved: 12_400, costSaved: 0.04 },
+  allTime:  { loops: 41, timeWastedMs: 6 * 60 * 60 * 1000, tokensSaved: 1_240_000, costSaved: 3.72 },
+  weeklyBreakdown: [
+    { date: 'Mon', loops: 1, tokensSaved: 8_200 },
+    { date: 'Tue', loops: 2, tokensSaved: 21_000 },
+    { date: 'Wed', loops: 0, tokensSaved: 14_600 },
+    { date: 'Thu', loops: 1, tokensSaved: 19_400 },
+    { date: 'Fri', loops: 2, tokensSaved: 11_800 },
+    { date: 'Sat', loops: 0, tokensSaved: 5_200 },
+    { date: 'Sun', loops: 1, tokensSaved: 4_000 },
+  ],
+  recentLoops: [
+    { id: '1', errorHash: 'a1b2c3d4', occurrences: 4, timeWastedMs: 32 * 60 * 1000, fileType: 'ts', status: 'resolved', detectedAt: Date.now() - 90 * 60 * 1000 },
+    { id: '2', errorHash: 'e5f6g7h8', occurrences: 3, timeWastedMs: 18 * 60 * 1000, fileType: 'ts', status: 'active',   detectedAt: Date.now() - 30 * 60 * 1000 },
+    { id: '3', errorHash: 'i9j0k1l2', occurrences: 2, timeWastedMs:  9 * 60 * 1000, fileType: 'py', status: 'resolved', detectedAt: Date.now() - 3 * 60 * 60 * 1000 },
+  ],
+  topErrorHashes: [
+    { hash: 'a1b2c3d4', count: 4 },
+    { hash: 'e5f6g7h8', count: 3 },
+    { hash: 'i9j0k1l2', count: 2 },
+  ],
+};
