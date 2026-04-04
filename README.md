@@ -109,6 +109,16 @@ Full policy: [loopguard.vercel.app/privacy](https://loopguard.vercel.app/privacy
 - Exact savings vary by file, workflow, and read mode.
 - The value is not compression — it is saving time, trimming tokens, and making AI sessions cheaper to run.
 
+## Roadmap
+
+| Version | Status | Focus |
+|---|---|---|
+| **v1 — Extension Core** | Shipped | Loop detection, status bar, focused context copy, VS Code/Cursor/Windsurf |
+| **v2 — CLI + Sync Pipeline** | Current | loopguard-ctx binary, MCP tools, Homebrew, anonymous device sync, /wrapped |
+| **v3 — Intelligence Layer** | Up next | Root cause hints, predictive context, session memory, cost forecasting |
+
+Full details at [loopguard.vercel.app/roadmap](https://loopguard.vercel.app/roadmap).
+
 ## Architecture
 
 ```
@@ -147,6 +157,7 @@ cd packages/context-engine/rust && cargo check  # Rust binary
 
 - Homepage: [loopguard.vercel.app](https://loopguard.vercel.app)
 - Docs: [loopguard.vercel.app/docs](https://loopguard.vercel.app/docs)
+- Roadmap: [loopguard.vercel.app/roadmap](https://loopguard.vercel.app/roadmap)
 - Issues: [github.com/rodthenewcomer/loopguard/issues](https://github.com/rodthenewcomer/loopguard/issues)
 - Support: [buymeacoffee.com/rodthenewcomer](https://buymeacoffee.com/rodthenewcomer)
 

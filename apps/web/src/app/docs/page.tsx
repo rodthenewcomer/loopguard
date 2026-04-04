@@ -18,6 +18,12 @@ const NAV = [
     ],
   },
   {
+    group: 'Project',
+    items: [
+      { label: 'Roadmap', id: 'roadmap-link' },
+    ],
+  },
+  {
     group: 'Loop Detection',
     items: [
       { label: 'How it works', id: 'loop-detection' },
@@ -641,6 +647,17 @@ loopguard-ctx init`}</Pre>
             ]}
           />
 
+          <H2 id="roadmap-link">Roadmap</H2>
+          <P>
+            See what shipped in v1 and v2, and what is coming in v3 — with the full feature list
+            for every IDE and CLI tool.
+          </P>
+          <P>
+            <a href="/roadmap" className="text-sky-400 underline underline-offset-4 hover:text-sky-300">
+              loopguard.vercel.app/roadmap →
+            </a>
+          </P>
+
           <div className="mt-16 border-t border-[#1F2937] pt-10">
             <p className="text-sm text-[#4B5563]">
               Something missing?{' '}
@@ -672,6 +689,9 @@ loopguard-ctx init`}</Pre>
             </Link>
             <Link href="/setup" className="transition-colors hover:text-[#6B7280]">
               Setup
+            </Link>
+            <Link href="/roadmap" className="transition-colors hover:text-[#6B7280]">
+              Roadmap
             </Link>
             <Link href="/privacy" className="transition-colors hover:text-[#6B7280]">
               Privacy

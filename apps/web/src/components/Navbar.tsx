@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 const NAV_LINKS = [
   { label: 'Features',     href: '/#features' },
   { label: 'How it works', href: '/#how-it-works' },
-  { label: 'Roadmap',      href: '/#roadmap' },
+  { label: 'Roadmap',      href: '/roadmap' },
   { label: 'Docs',         href: '/docs' },
 ];
 
