@@ -394,15 +394,42 @@ esac
     write_file(&script_path, &script);
     make_executable(&script_path);
 
+    // --- periodic hook (postToolUse) --- notify + sync every 15 min
+    let periodic_path = hooks_dir.join("loopguard-ctx-cursor-periodic.sh");
+    let periodic_script = format!(
+        r#"#!/usr/bin/env bash
+# loopguard-ctx Cursor postToolUse hook — periodic notify + sync
+[ "${{LOOPGUARD_BYPASS:-0}}" = "1" ] && exit 0
+command -v "{binary}" &>/dev/null || exit 0
+STAMP="${{HOME}}/.loopguard-ctx/.cursor-last-sync"
+INTERVAL=900
+if [ -f "$STAMP" ]; then
+    LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
+    NOW=$(date +%s)
+    [ $((NOW - LAST)) -lt $INTERVAL ] && exit 0
+fi
+date +%s > "$STAMP"
+"{binary}" notify 2>/dev/null || true
+"{binary}" sync &>/dev/null &
+"#
+    );
+    write_file(&periodic_path, &periodic_script);
+    make_executable(&periodic_path);
+
     let hooks_json = home.join(".cursor").join("hooks.json");
     let hook_config = serde_json::json!({
-        "hooks": [{
-            "event": "preToolUse",
-            "matcher": {
-                "tool": "terminal_command"
+        "hooks": [
+            {
+                "event": "preToolUse",
+                "matcher": { "tool": "terminal_command" },
+                "command": script_path.to_string_lossy()
             },
-            "command": script_path.to_string_lossy()
-        }]
+            {
+                "event": "postToolUse",
+                "matcher": { "tool": ".*" },
+                "command": periodic_path.to_string_lossy()
+            }
+        ]
     });
 
     let content = if hooks_json.exists() {
@@ -411,7 +438,7 @@ esac
         String::new()
     };
 
-    if content.contains("loopguard-ctx-rewrite") {
+    if content.contains("loopguard-ctx-rewrite") && content.contains("loopguard-ctx-cursor-periodic") {
         println!("Cursor hook already configured.");
     } else {
         write_file(
