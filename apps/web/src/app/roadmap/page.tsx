@@ -114,7 +114,7 @@ const VERSIONS = [
   {
     version: 'v3',
     label: 'Intelligence Layer',
-    status: 'current' as const,
+    status: 'live' as const,
     summary:
       'The intelligence layer — shipped. v3 brings root cause hints, predictive context pre-selection, local fix memory, and cost forecasting to every IDE and CLI tool LoopGuard supports.',
     sections: [
@@ -165,8 +165,9 @@ const VERSIONS = [
 const STATUS_CONFIG = {
   shipped:    { label: 'Shipped',     color: '#22C55E' },
   current:    { label: 'Current',     color: '#22D3EE' },
+  live:       { label: 'Live',        color: '#A78BFA' },
   inprogress: { label: 'In progress', color: '#F59E0B' },
-  next:       { label: 'Up next',     color: '#A78BFA' },
+  next:       { label: 'Up next',     color: '#818CF8' },
 };
 
 export default function RoadmapPage() {

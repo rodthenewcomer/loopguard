@@ -56,12 +56,27 @@ Search `LoopGuard` in the Extensions sidebar, or install from the [Marketplace p
 
 1. Install the local helper:
    ```bash
-   brew install rodthenewcomer/loopguard/loopguard-ctx
-   # or
+   # Homebrew (macOS / Linux)
+   brew tap rodthenewcomer/loopguard https://github.com/rodthenewcomer/loopguard
+   brew install loopguard-ctx
+
+   # npm (any platform with Node 18+)
+   npm install -g loopguard-ctx
+
+   # curl
    curl -fsSL https://loopguard.vercel.app/install.sh | sh
    ```
-2. Run `LoopGuard: Configure MCP Server` from the command palette.
-3. Restart your AI tool so it picks up the new MCP config.
+2. Wire your agent in one command — installs MCP config, hooks, CLAUDE.md rules, and shell aliases:
+   ```bash
+   loopguard-ctx setup --agent=claude   # Claude Code
+   loopguard-ctx setup --agent=cursor   # Cursor
+   loopguard-ctx setup --agent=codex    # Codex CLI
+   loopguard-ctx setup                  # All detected editors
+   ```
+3. Verify every layer is green:
+   ```bash
+   loopguard-ctx doctor
+   ```
 
 ## Commands
 

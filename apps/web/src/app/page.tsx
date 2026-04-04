@@ -80,7 +80,7 @@ const CONTEXT_LINES = [
   { kind: 'dim', text: '  return <InvoiceTable rows={rows} />;' },
 ];
 
-const WORKSPACES = ['VS Code', 'Cursor', 'Windsurf', 'Codex CLI', 'Claude Code', 'GitHub Copilot'];
+const WORKSPACES = ['VS Code', 'Cursor', 'Windsurf', 'Codex CLI', 'Claude Code', 'GitHub Copilot', 'Homebrew', 'npm'];
 
 const FOOTER_COLS = [
   {
@@ -515,13 +515,13 @@ export default function LandingPage() {
             <div className="border-t border-white/10 pt-6">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#22D3EE]/25 bg-[#22D3EE]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#8AE8FF]">
                 <Icon path={IC.terminal} size={14} />
-                Codex CLI, Claude Code, MCP tools
+                Homebrew · npm · Codex CLI · Claude Code
               </div>
               <div className="space-y-5">
                 {[
-                  'Install the loopguard-ctx helper once on your machine.',
-                  'Register it with your agent so focused reads and compact shell output are available.',
-                  'Use session restore when supported so the same files do not get re-read every time.',
+                  'Install once — Homebrew, npm, or curl.',
+                  'Run loopguard-ctx setup --agent=claude (or cursor, codex) for one-command registration.',
+                  'Run loopguard-ctx doctor to verify every layer is green before you start.',
                 ].map((item, index) => (
                   <div key={item} className="grid grid-cols-[32px_1fr] gap-4 border-b border-white/8 pb-5 last:border-b-0 last:pb-0">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-sm font-bold text-white">
@@ -554,7 +554,7 @@ export default function LandingPage() {
               <h2 className="text-3xl font-bold tracking-[-0.05em] text-white sm:text-4xl">
                 v1 shipped. v2 is live.
                 <br />
-                <span className="text-[#A78BFA]">v3 is the intelligence layer.</span>
+                <span className="text-[#A78BFA]">v3 is live — the intelligence layer.</span>
               </h2>
               <p className="mt-4 max-w-xl text-sm leading-7 text-[#8CA1B8]">
                 See the full feature list for every version — what each one adds for VS Code, Cursor, Windsurf, Claude Code, Codex CLI, and GitHub Copilot.

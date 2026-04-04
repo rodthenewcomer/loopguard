@@ -15,6 +15,7 @@ const NAV = [
       { label: 'Installation', id: 'installation' },
       { label: 'First launch', id: 'first-launch' },
       { label: 'Quick reference', id: 'commands' },
+      { label: 'Zero-gap setup', id: 'zero-gap' },
     ],
   },
   {
@@ -289,17 +290,62 @@ export default function DocsPage() {
           <P>Homebrew (macOS / Linux):</P>
           <Pre>{`brew tap rodthenewcomer/loopguard https://github.com/rodthenewcomer/loopguard
 brew install loopguard-ctx`}</Pre>
+          <P>npm (any platform with Node 18+):</P>
+          <Pre>{`npm install -g loopguard-ctx`}</Pre>
           <P>Or curl installer:</P>
           <Pre>{`curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download
 
 loopguard-ctx --version`}</Pre>
           <P>
-            GitHub release binaries are also available if you prefer a manual install path.
+            GitHub release binaries (macOS x64/ARM64, Linux x64/ARM64, Windows x64) are available
+            on the{' '}
+            <a href="https://github.com/rodthenewcomer/loopguard/releases" className="text-[#22D3EE] underline underline-offset-2">
+              releases page
+            </a>{' '}
+            for manual installs.
           </P>
           <Warning>
             Terminal-only mode does not include loop alerts. If you want loop detection, install the
             extension too.
           </Warning>
+
+          <H2 id="zero-gap">Zero-gap setup</H2>
+          <P>
+            Once <Code>loopguard-ctx</Code> is installed, one command wires every layer for your AI
+            agent — MCP config, hook scripts, global CLAUDE.md rules, and shell aliases.
+          </P>
+          <Pre>{`# Claude Code (installs MCP + PreToolUse hooks + CLAUDE.md + shell aliases)
+loopguard-ctx setup --agent=claude
+
+# Cursor
+loopguard-ctx setup --agent=cursor
+
+# Codex CLI
+loopguard-ctx setup --agent=codex
+
+# All detected editors at once
+loopguard-ctx setup`}</Pre>
+          <P>
+            After setup, run the doctor to verify every layer is green:
+          </P>
+          <Pre>{`loopguard-ctx doctor`}</Pre>
+          <P>
+            The doctor checks 15 layers: binary in PATH, MCP config, hook scripts, CLAUDE.md rules,
+            shell aliases, and Claude Code-specific enforcement hooks. Each failed check shows the
+            exact fix command.
+          </P>
+          <CheckList
+            items={[
+              'Idempotent — running setup twice produces the same result, no duplicates',
+              'Backs up existing config files before any modification',
+              'Use --dry-run to preview all changes without writing anything',
+              'Windows: installs PowerShell .ps1 hook equivalents automatically',
+            ]}
+          />
+          <Note>
+            The setup command is the recommended path for all agent integrations. Manual MCP config
+            still works — see the MCP section below for the JSON format.
+          </Note>
 
           <H2 id="first-launch">First launch</H2>
           <P>
