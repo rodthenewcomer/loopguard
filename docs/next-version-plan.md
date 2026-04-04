@@ -8,7 +8,7 @@ v3 (Intelligence Layer) is live. The following work shipped since the last plan 
 
 - **Sidebar panel** — persistent Activity Bar panel for VS Code, Cursor, Windsurf (`SidebarPanel` WebviewViewProvider, registered to `loopguard.sidebar`)
 - **JWT silent refresh** — refresh_token stored in SecretStorage; `ApiClient._tryRefresh()` silently renews expired tokens; no more silent 401s causing zero dashboard metrics
-- **Web landing page** — comprehensive audit pass across all org roles; metadata/SEO, JSON-LD, WCAG AA contrast fixes, social proof, GitHub stars component, three developer testimonials, CTA clarity ("Opens VS Code Marketplace · 1-click install"), roadmap v4 teaser
+- **Web landing page** — full org audit pass; metadata/SEO, JSON-LD, WCAG AA contrast fixes, social proof, GitHub stars component, three developer testimonials, CTA clarity; ICP separation: vibe coder content above fold, agent-developer section (command grid: Claude Code / Cursor / Codex CLI) gated below divider; FAQ section; "Runs in" editor bar (VS Code / Cursor / Windsurf only)
 - **lib/constants.ts** — SUPPORT_URL, GITHUB_URL, MARKETPLACE_URL deduped across web app
 - **Rust format string fixes** — three Windows PowerShell hook generation errors fixed in `hooks.rs`
 
