@@ -189,6 +189,10 @@ export default function LandingPage() {
                 <Icon path={IC.shield} size={12} />
                 Your code never leaves your machine
               </div>
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#A78BFA]/20 bg-[#A78BFA]/8 px-3 py-1.5 text-xs font-medium text-[#C4B5FD] backdrop-blur">
+                <Icon path={IC.check} size={12} />
+                Free forever · no paid tier
+              </div>
             </div>
 
             <div className="max-w-2xl">
@@ -556,102 +560,96 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
+      <section id="install" className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
         <ScrollReveal className="mb-12 max-w-2xl">
-          <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Install paths</div>
+          <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Install</div>
           <h2 className="mt-3 text-4xl font-bold tracking-[-0.05em] text-white sm:text-5xl">
-            Start in the editor.
+            One click in the editor.
             <br />
-            Add agents when you want them.
+            No terminal required.
           </h2>
         </ScrollReveal>
 
-        <div className="grid gap-10 lg:grid-cols-2">
-          <ScrollReveal>
-            <div className="border-t border-white/10 pt-6">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2563EB]/25 bg-[#2563EB]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#7FB1FF]">
-                <Icon path={IC.code} size={14} />
-                VS Code · Cursor · Windsurf
-              </div>
-              <div className="space-y-5">
-                {[
-                  'Install the LoopGuard extension and open any workspace.',
-                  'Loop detection starts automatically — sidebar panel and status bar update live.',
-                  'Sign in only if you want session history on the web dashboard.',
-                ].map((item, index) => (
-                  <div key={index} className="grid grid-cols-[32px_1fr] gap-4 border-b border-white/8 pb-5 last:border-b-0 last:pb-0">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-sm font-bold text-white">
-                      {index + 1}
+        {/* Primary path — VS Code Marketplace */}
+        <ScrollReveal>
+          <div className="rounded-[32px] border border-[#2563EB]/30 bg-[linear-gradient(160deg,rgba(37,99,235,0.08),rgba(7,16,25,0.9))] p-8 lg:p-10">
+            <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-start">
+              <div>
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2563EB]/30 bg-[#2563EB]/12 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#7FB1FF]">
+                  <Icon path={IC.code} size={14} />
+                  VS Code · Cursor · Windsurf — recommended
+                </div>
+                <div className="space-y-5 max-w-xl">
+                  {[
+                    { n: '1', text: 'Search "LoopGuard" in the Extensions panel, or click Install extension above.' },
+                    { n: '2', text: 'Open any workspace. Loop detection starts automatically — no configuration.' },
+                    { n: '3', text: "The sidebar panel and status bar show live metrics. That's it." },
+                  ].map((item) => (
+                    <div key={item.n} className="grid grid-cols-[32px_1fr] gap-4 border-b border-white/8 pb-5 last:border-b-0 last:pb-0">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#2563EB]/30 bg-[#2563EB]/12 text-sm font-bold text-[#7FB1FF]">
+                        {item.n}
+                      </div>
+                      <div className="text-sm leading-7 text-[#A8BECF]">{item.text}</div>
                     </div>
-                    <div className="text-sm leading-7 text-[#8CA1B8]">{item}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="flex flex-col gap-3 lg:pt-1">
+                <a
+                  href="/setup"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(37,99,235,0.3)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
+                >
+                  <Icon path={IC.spark} size={16} />
+                  Install extension
+                </a>
                 <a
                   href="/setup#vscode"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/12 px-5 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 px-6 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white"
                 >
-                  Open setup guide
+                  View setup guide
                   <Icon path={IC.arrow} size={16} />
                 </a>
+                <p className="text-center text-xs text-[#4E6B88]">Opens VS Code Marketplace</p>
               </div>
             </div>
-          </ScrollReveal>
+          </div>
+        </ScrollReveal>
 
-          <ScrollReveal>
-            <div className="border-t border-white/10 pt-6">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#22D3EE]/25 bg-[#22D3EE]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#8AE8FF]">
-                <Icon path={IC.terminal} size={14} />
-                Homebrew · npm · Codex CLI · Claude Code
+        {/* Secondary path — CLI / agent integration */}
+        <ScrollReveal>
+          <div className="mt-6 rounded-[24px] border border-white/8 bg-black/20 p-6 lg:p-8">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#7B95AE]">
+                  Already have the extension?
+                </div>
+                <div className="text-lg font-semibold text-white">Add agent integration — Homebrew · npm · Codex CLI · Claude Code</div>
               </div>
-              <div className="space-y-5">
-                {[
-                  { step: 'Install once via Homebrew, npm, or curl.', options: null },
-                  {
-                    step: 'Register with your agent in one command:',
-                    options: [
-                      { label: 'Claude Code', cmd: 'loopguard-ctx setup --agent=claude' },
-                      { label: 'Cursor', cmd: 'loopguard-ctx setup --agent=cursor' },
-                      { label: 'Codex CLI', cmd: 'loopguard-ctx setup --agent=codex' },
-                    ],
-                  },
-                  { step: 'Run loopguard-ctx doctor to verify every layer is green before you start.', options: null },
-                ].map((item, index) => (
-                  <div key={index} className="grid grid-cols-[32px_1fr] gap-4 border-b border-white/8 pb-5 last:border-b-0 last:pb-0">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-sm font-bold text-white">
-                      {index + 1}
-                    </div>
-                    <div>
-                      <div className="text-sm leading-7 text-[#8CA1B8]">{item.step}</div>
-                      {item.options && (
-                        <div className="mt-2 space-y-1.5">
-                          {item.options.map((opt) => (
-                            <div key={opt.label} className="flex items-center gap-2">
-                              <span className="w-24 text-xs text-[#6B8299]">{opt.label}</span>
-                              <code className="rounded bg-black/30 px-2 py-0.5 font-mono text-[11px] text-[#8AE8FF]">
-                                {opt.cmd}
-                              </code>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a
-                  href="/setup#codex"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/12 px-5 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white"
-                >
-                  See agent setup
-                  <Icon path={IC.arrow} size={16} />
-                </a>
-              </div>
+              <a
+                href="/setup#codex"
+                className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white"
+              >
+                Agent setup guide
+                <Icon path={IC.arrow} size={14} />
+              </a>
             </div>
-          </ScrollReveal>
-        </div>
+            <div className="grid gap-4 border-t border-white/8 pt-5 sm:grid-cols-3">
+              {[
+                { label: 'Claude Code', cmd: 'loopguard-ctx setup --agent=claude' },
+                { label: 'Cursor', cmd: 'loopguard-ctx setup --agent=cursor' },
+                { label: 'Codex CLI', cmd: 'loopguard-ctx setup --agent=codex' },
+              ].map((opt) => (
+                <div key={opt.label} className="rounded-[16px] border border-white/8 bg-white/3 px-4 py-3">
+                  <div className="mb-2 text-xs font-medium text-[#7B95AE]">{opt.label}</div>
+                  <code className="font-mono text-[11px] text-[#8AE8FF]">{opt.cmd}</code>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-xs text-[#4E6B88]">
+              Run <code className="text-[#8AE8FF]">loopguard-ctx doctor</code> after setup to verify every layer is green.
+            </p>
+          </div>
+        </ScrollReveal>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
@@ -697,6 +695,42 @@ export default function LandingPage() {
             </a>
           </div>
         </div>
+      </section>
+
+      <section id="faq" className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
+        <ScrollReveal className="mb-10 max-w-2xl">
+          <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Common questions</div>
+          <h2 className="mt-3 text-3xl font-bold tracking-[-0.05em] text-white sm:text-4xl">
+            Before you install.
+          </h2>
+        </ScrollReveal>
+        <ScrollReveal>
+          <div className="grid gap-px bg-white/8 overflow-hidden rounded-[28px] sm:grid-cols-2">
+            {[
+              {
+                q: 'Do I need an account?',
+                a: 'No. Loop detection and context filtering run entirely on your machine with no sign-in required. Create a free account later only if you want session history on the web dashboard.',
+              },
+              {
+                q: 'Does this send my code anywhere?',
+                a: 'Never. All processing happens locally inside the extension. If you sign in, the backend stores only anonymized metrics — counts and durations. No source code, no file contents, no file paths.',
+              },
+              {
+                q: 'Does it work offline?',
+                a: 'Yes. The core extension is entirely offline-capable. Loop detection, context filtering, and the sidebar panel all work without an internet connection. Backend sync is optional and best-effort.',
+              },
+              {
+                q: 'Is LoopGuard really free? Will it stay free?',
+                a: 'Yes. Loop detection, focused context, sidebar panel, and MCP integration are free — there is no paid tier that gates any of these features. If it helps you, you can support the project voluntarily.',
+              },
+            ].map(({ q, a }) => (
+              <div key={q} className="bg-[#07111C] px-7 py-6">
+                <div className="mb-2 text-sm font-semibold text-white">{q}</div>
+                <div className="text-sm leading-7 text-[#8CA1B8]">{a}</div>
+              </div>
+            ))}
+          </div>
+        </ScrollReveal>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
