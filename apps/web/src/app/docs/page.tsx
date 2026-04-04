@@ -271,6 +271,10 @@ export default function DocsPage() {
             If you use Codex CLI, Claude Code, or want LoopGuard’s shell path without the editor,
             install <Code>loopguard-ctx</Code> directly:
           </P>
+          <P>Homebrew (macOS / Linux):</P>
+          <Pre>{`brew tap rodthenewcomer/loopguard https://github.com/rodthenewcomer/loopguard
+brew install loopguard-ctx`}</Pre>
+          <P>Or curl installer:</P>
           <Pre>{`curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download
 
 loopguard-ctx --version`}</Pre>
@@ -435,6 +439,32 @@ loopguard-ctx --version`}</Pre>
               'Quick next-step suggestions when the session is visibly repeating',
             ]}
           />
+
+
+          <H2 id="cli-stats">CLI stats and Wrapped</H2>
+          <P>
+            If you use loopguard-ctx from the terminal (Claude Code, Cursor, Codex), stats sync
+            automatically at the end of every session — no sign-in required.
+          </P>
+          <CheckList
+            items={[
+              'A device UUID is generated at ~/.loopguard-ctx/device.json on first run.',
+              'The Stop hook calls loopguard-ctx sync in the background.',
+              'Stats are stored anonymously — only token counts and session totals, never source code.',
+            ]}
+          />
+          <P>
+            View and share your stats card at{' '}
+            <a href="/wrapped" className="text-sky-400 underline underline-offset-4 hover:text-sky-300">
+              loopguard.vercel.app/wrapped
+            </a>
+            . Paste your device ID to generate a shareable link.
+          </P>
+          <Pre>{`# Get your device ID
+cat ~/.loopguard-ctx/device.json
+
+# Or check savings directly in the terminal
+loopguard-ctx wrapped`}</Pre>
 
           <H2 id="sync">Account and session sync</H2>
           <P>

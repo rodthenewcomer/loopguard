@@ -166,7 +166,24 @@ echo "$count" > "$COUNTER_FILE"
 
 if [ ! -f "$START_FLAG" ]; then
   touch "$START_FLAG"
+  # Surface last session task for a concrete restore hint
+  SESSION_FILE=$(ls -t "$LOOPGUARD_DIR/sessions/"*.json 2>/dev/null | head -1)
+  LAST_TASK=""
+  if [ -n "$SESSION_FILE" ]; then
+    LAST_TASK=$(python3 -c "
+import json,sys
+try:
+  d=json.load(open(sys.argv[1]))
+  t=d.get(chr(116)+chr(97)+chr(115)+chr(107),{})
+  desc=(t.get(chr(100)+chr(101)+chr(115)+chr(99)+chr(114)+chr(105)+chr(112)+chr(116)+chr(105)+chr(111)+chr(110))or chr(32)) if isinstance(t,dict) else chr(32)
+  files=len(d.get(chr(102)+chr(105)+chr(108)+chr(101)+chr(115),[]))
+  desc=desc.strip()[:72]
+  if desc and desc != chr(32): print((chr(76)+chr(97)+chr(115)+chr(116)+chr(32)+chr(116)+chr(97)+chr(115)+chr(107)+chr(58)+chr(32))+desc+((" · "+str(files)+" files") if files else ""))
+except: pass
+" "$SESSION_FILE" 2>/dev/null || true)
+  fi
   echo "[LOOPGUARD SESSION PROTOCOL — run these now, before anything else]"
+  [ -n "$LAST_TASK" ] && echo "  $LAST_TASK"
   echo "1. ctx_session load          — restore previous session state"
   echo "2. ctx_overview(task)        — get task-relevant project map"
   echo "3. At end of session: ctx_wrapped(\"session\") — show tokens saved + dollars avoided"
