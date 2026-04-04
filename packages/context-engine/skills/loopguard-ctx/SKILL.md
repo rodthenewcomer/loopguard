@@ -8,6 +8,23 @@ metadata: {"openclaw":{"requires":{"bins":["loopguard-ctx"]}}}
 
 Use `loopguard-ctx` when the task involves noisy shell output, oversized file reads, or MCP-based agent setup.
 
+## Session protocol (run at start of every chat)
+
+```
+ctx_session load          — restore previous session state
+ctx_overview(task)        — get task-relevant project map before reading files
+```
+
+## Session summary (run at end of session or when asked about savings)
+
+```
+ctx_wrapped("session")   — tokens saved + dollars avoided this session
+ctx_wrapped("today")     — today's totals
+ctx_wrapped("week")      — weekly totals
+```
+
+Note: `loopguard-ctx notify` (CLI) is the terminal equivalent of `ctx_wrapped` — it is not an MCP tool and cannot be called from inside Claude.
+
 ## Reach for it when
 
 - a command will produce too much output to be useful raw
@@ -54,9 +71,7 @@ loopguard-ctx setup --agent=codex
 loopguard-ctx doctor
 ```
 
-Run Cursor and Windsurf setup from the project root if you want project-local guidance files too.
-
-## Optional session restore
+## Session state commands
 
 ```bash
 ctx_session load
@@ -64,5 +79,3 @@ ctx_session task "brief task summary"
 ctx_session finding "file:line — key finding"
 ctx_session save
 ```
-
-Use session restore when it helps. It is optional, not a requirement for every task.

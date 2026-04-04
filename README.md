@@ -28,6 +28,7 @@ LoopGuard catches this automatically, shows you how long you've been stuck, and 
 | | |
 |---|---|
 | **Loop detection** | Watches VS Code diagnostics and edit patterns — alerts when you've hit the same error multiple times |
+| **Sidebar panel** | Persistent Activity Bar panel (VS Code, Cursor, Windsurf) — live session metrics without opening a separate window |
 | **Time wasted counter** | Shows elapsed loop time in the status bar so the cost is always visible |
 | **Focused context copy** | Copies only the relevant lines around the current error, not the whole file |
 | **MCP integration** | Exposes a local `loopguard-ctx` helper for Claude Code, Cursor, Windsurf, and Codex CLI |
@@ -86,6 +87,7 @@ Search `LoopGuard` in the Extensions sidebar, or install from the [Marketplace p
 | `LoopGuard: Copy Optimized Context` | Copy focused context for the current file and error |
 | `LoopGuard: Configure MCP Server` | Set up the local MCP helper for your AI tool |
 | `LoopGuard: Install Shell Hooks` | Add shell hooks to clean output before AI calls |
+| `LoopGuard: Focus Sidebar` | Open or focus the sidebar panel in the Activity Bar |
 | `LoopGuard: Reset Session` | Clear loop state and timer |
 | `LoopGuard: Toggle Detection` | Pause or resume loop detection |
 | `LoopGuard: Sign In` | Optional — enables web dashboard sync |
@@ -155,8 +157,9 @@ Full policy: [loopguard.vercel.app/privacy](https://loopguard.vercel.app/privacy
 | Version | Status | Focus |
 |---|---|---|
 | **v1 — Extension Core** | Shipped | Loop detection, status bar, focused context copy, VS Code/Cursor/Windsurf |
-| **v2 — CLI + Sync Pipeline** | Current | loopguard-ctx binary, MCP tools, Homebrew, anonymous device sync, /wrapped |
-| **v3 — Intelligence Layer** | Current | Root cause hints, predictive context, session memory, cost forecasting |
+| **v2 — CLI + Sync Pipeline** | Shipped | loopguard-ctx binary, MCP tools, Homebrew, anonymous device sync, /wrapped |
+| **v3 — Intelligence Layer** | Shipped | Root cause hints, predictive context, session memory, cost forecasting, sidebar panel |
+| **v4 — Multi-session Memory** | In development | Cross-session pattern memory, proactive loop prediction, smarter context recall |
 
 Full details at [loopguard.vercel.app/roadmap](https://loopguard.vercel.app/roadmap).
 

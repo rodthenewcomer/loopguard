@@ -11,7 +11,7 @@
 3. [First Launch](#3-first-launch)
 4. [Feature 1 — Loop Detection](#4-feature-1--loop-detection)
 5. [Feature 2 — Context Engine](#5-feature-2--context-engine)
-6. [Dashboard](#6-dashboard)
+6. [Dashboard & Sidebar Panel](#6-dashboard--sidebar-panel)
 7. [Account & Sync](#7-account--sync)
 8. [MCP Server Integration](#8-mcp-server-integration)
 9. [Shell Hooks](#9-shell-hooks)
@@ -303,9 +303,28 @@ path still works as a best-effort fallback on any readable text file.
 
 ---
 
-## 6. Dashboard
+## 6. Dashboard & Sidebar Panel
 
-The LoopGuard dashboard gives you a real-time view of your session: loops detected, time wasted, tokens saved, and active loop details.
+LoopGuard gives you two surfaces for real-time session metrics — a persistent sidebar panel and a detailed webview dashboard.
+
+### Sidebar Panel (Activity Bar)
+
+The sidebar panel lives in the **Activity Bar** (left edge of VS Code) — the same strip as Explorer, Source Control, and Extensions. Click the LoopGuard icon to open it.
+
+The sidebar panel shows:
+- **Loop count** and current loop status
+- **Time wasted** this session
+- **Tokens saved** via focused context
+- **Engine tier** (Rust native or TypeScript fallback)
+- **Auth state** with a Sign In button when unauthenticated
+
+The panel stays visible as you navigate files — it updates live without you needing to open a separate window.
+
+To focus it programmatically: `Ctrl+Shift+P` → **LoopGuard: Focus Sidebar**
+
+### Session Dashboard (Webview Panel)
+
+The dashboard gives you the full detail view: all active loops, per-loop stats, and session history.
 
 ### Opening the Dashboard
 
@@ -356,7 +375,7 @@ Signing in is **optional**. LoopGuard works fully offline without an account. An
 3. Sign in with your email or Google account
 4. VS Code opens automatically with your session — you're connected
 
-Your JWT is stored securely in your **OS keychain** (macOS Keychain / Windows Credential Manager / Linux libsecret). It persists across VS Code restarts. No plaintext credentials anywhere.
+Your JWT is stored securely in your **OS keychain** (macOS Keychain / Windows Credential Manager / Linux libsecret). A refresh token is also stored and used to silently renew expired JWTs — you stay signed in without re-authenticating. No plaintext credentials anywhere.
 
 ### Signing Out
 
@@ -557,6 +576,7 @@ Access all commands via the Command Palette: `Ctrl+Shift+P` (Windows/Linux) · `
 | Command | Description |
 |---------|-------------|
 | **LoopGuard: Show Dashboard** | Full session summary: loops, time wasted, tokens saved |
+| **LoopGuard: Focus Sidebar** | Open or focus the Activity Bar sidebar panel |
 | **LoopGuard: Reset Session** | Clear all session data and start fresh |
 | **LoopGuard: Toggle Detection** | Pause or resume loop detection |
 | **LoopGuard: Copy Optimized Context** | Compress current file and copy to clipboard |
@@ -570,6 +590,8 @@ Access all commands via the Command Palette: `Ctrl+Shift+P` (Windows/Linux) · `
 ## 11. Status Bar
 
 The LoopGuard status bar item lives in the **bottom-left** of VS Code. Click it at any time to open your session dashboard.
+
+For a persistent at-a-glance view, use the **Activity Bar sidebar panel** — it shows the same live metrics without requiring a click.
 
 | What you see | Meaning |
 |-------------|---------|

@@ -193,6 +193,10 @@ src/
     statusBar.ts         → Status bar item with real-time metrics
     alertPanel.ts        → Notification popups with action buttons
     dashboardPanel.ts    → Singleton WebviewPanel (live session metrics, loops list, token savings)
+    sidebarPanel.ts      → WebviewViewProvider for Activity Bar persistent panel
+                           VIEW_ID: loopguard.sidebar
+                           update(metrics, activeLoops, summary) — re-renders HTML
+                           setAuthState(), setEngineTier() for external state
 
   services/
     apiClient.ts         → Best-effort HTTP client for backend sync
@@ -310,13 +314,17 @@ apps/extension/
 
 5. VS Code URI handler fires (registered via vscode.window.registerUriHandler):
    a. Parses token + email from URI query params
-   b. authService.handleCallback(token, email)
+   b. Web app also passes refresh_token (stored in auth_codes DB row)
+   c. authService.handleCallback(token, email, refreshToken)
       - Stores JWT in vscode.SecretStorage (OS keychain — never localStorage)
-      - Sets token on ApiClient
+      - Stores refresh_token in SecretStorage (key: loopguard.auth.refreshToken)
+      - Sets both on ApiClient
       - Shows success notification
 
 6. All subsequent ApiClient calls include Bearer token
-7. On next VS Code launch: authService.initialize() restores JWT from SecretStorage
+7. On 401 response: ApiClient._tryRefresh() calls POST /api/v1/auth/refresh
+   with stored refreshToken → receives new JWT + refreshToken → auto-persists
+8. On next VS Code launch: authService.initialize() restores both from SecretStorage
 ```
 
 **JWT storage:** `vscode.SecretStorage` (OS keychain on macOS, Credential Manager on Windows, libsecret on Linux). Never stored in settings.json or localStorage.
@@ -599,7 +607,17 @@ Build order is enforced automatically by Turborepo dependency graph.
 **Rationale:** `SecretStorage` maps to the OS keychain (macOS Keychain, Windows Credential Manager, libsecret on Linux). Tokens in settings.json are plaintext on disk. `globalState` is also plaintext. SecretStorage is the VS Code-recommended mechanism for sensitive values.
 **Consequences:** Token survives VS Code restarts. Cannot be read by other extensions (namespaced). Cleared when extension is uninstalled. Cannot be bulk-exported in settings sync — users must re-authenticate on new machines.
 
+### ADR-012: SidebarPanel as WebviewViewProvider (Activity Bar)
+**Decision:** Implement the sidebar panel using `vscode.WebviewViewProvider` registered to `loopguard.sidebar` view, alongside the existing `DashboardPanel` WebviewPanel.
+**Rationale:** `WebviewViewProvider` gives a persistent Activity Bar slot that stays visible as the developer navigates files — no click required to keep metrics visible. `WebviewPanel` (DashboardPanel) is retained for the detailed tabbed view. Both update from the same `refreshLoopState()` call.
+**Consequences:** Two rendering surfaces sharing the same data source. `retainContextWhenHidden: true` keeps sidebar DOM alive when collapsed, at the cost of ~a few MB memory. Both panels must stay in sync via the same update call.
+
 ### ADR-011: ApiClient is fire-and-forget (never blocks extension)
 **Decision:** Every ApiClient method is async, swallows all errors internally, and is called with `void` prefix from `extension.ts`.
 **Rationale:** The extension's core value (loop detection, context copy) must work 100% of the time, regardless of backend availability, network conditions, or auth state. Sync failures are a degraded experience, not a broken one.
 **Consequences:** No retry logic in v1. Metrics may be lost if the user is offline during a session. Acceptable for analytics; unacceptable for billing (handled separately via Stripe).
+
+### ADR-013: Silent JWT refresh via stored refresh_token
+**Decision:** Store Supabase refresh_token alongside the access_token in SecretStorage. On 401, `ApiClient._tryRefresh()` calls `POST /api/v1/auth/refresh` to get a new token pair without user interaction.
+**Rationale:** Supabase JWTs expire in ~1 hour. Without refresh, authenticated sessions silently failed after the first hour, causing zero metrics to be written to the backend. The fix threads refresh_token through the entire auth chain: web auth page → auth_codes DB → exchange endpoint → extension SecretStorage → auto-retry on 401.
+**Consequences:** One extra network call on 401. Refresh token is also stored in OS keychain. New `/api/v1/auth/refresh` endpoint added to the API (proxies Supabase token refresh endpoint). `auth_codes` table gained a nullable `refresh_token` column (migration 20260404000001).

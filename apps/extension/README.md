@@ -22,6 +22,7 @@ LoopGuard watches your editor in real time. When you apply the same AI fix and h
 - **Status bar timer** — shows elapsed loop time so the cost of being stuck is always visible
 - **In-editor dashboard** — session overview with loop count, time wasted, and token savings
 - **Focused context copy** — copies only the lines relevant to the current error, not the whole file
+- **Sidebar panel** — persistent Activity Bar panel with live loop count, time wasted, token savings, and auth state
 - **MCP integration** — pairs with the optional `loopguard-ctx` native helper for Claude Code, Cursor, Windsurf, and Codex CLI
 - **Shell hooks** — cleans terminal output before it reaches AI models
 - **Optional sync** — anonymized session metrics can sync to your web dashboard; source code never leaves your device
@@ -34,6 +35,7 @@ LoopGuard watches your editor in real time. When you apply the same AI fix and h
 | `LoopGuard: Copy Optimized Context` | Copy focused context for the current file and error |
 | `LoopGuard: Configure MCP Server` | Set up the local MCP helper for your AI tool |
 | `LoopGuard: Install Shell Hooks` | Add shell hooks to clean output before AI calls |
+| `LoopGuard: Focus Sidebar` | Open or focus the sidebar panel in the Activity Bar |
 | `LoopGuard: Reset Session` | Clear loop state and timer |
 | `LoopGuard: Toggle Detection` | Pause or resume loop detection |
 | `LoopGuard: Sign In` | Optional — enables web dashboard sync |
@@ -52,7 +54,7 @@ LoopGuard watches your editor in real time. When you apply the same AI fix and h
 
 1. Install the extension — it activates automatically when a workspace opens.
 2. Work as usual. LoopGuard watches diagnostics in the background.
-3. When a loop is detected, the status bar updates and an alert fires.
+3. When a loop is detected, the status bar and sidebar panel update and an alert fires.
 4. Run **LoopGuard: Copy Optimized Context** to get a focused prompt instead of pasting the whole file.
 
 ### Add MCP / Agent Support (optional)
