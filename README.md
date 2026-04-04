@@ -75,6 +75,32 @@ Search `LoopGuard` in the Extensions sidebar, or install from the [Marketplace p
 | `LoopGuard: Toggle Detection` | Pause or resume loop detection |
 | `LoopGuard: Sign In` | Optional — enables web dashboard sync |
 
+## v3 MCP Tools (Intelligence Layer)
+
+Available via `loopguard-ctx` MCP to all supported tools (Claude Code, Cursor, Windsurf, Codex CLI):
+
+| Tool | What It Does |
+|---|---|
+| `ctx_loop_hint(error_text)` | Root cause hint — diagnoses the error pattern and returns a specific fix suggestion. No LLM call. |
+| `ctx_forecast(task, files?)` | Token cost estimator — classifies task complexity and shows cost across Sonnet, Haiku, GPT-4o, Gemini Flash |
+| `ctx_memory(action, ...)` | Local fix memory — record patterns that broke loops; query them on future sessions |
+| `ctx_predict(task, path?)` | Predictive file ranking — scores every file in the workspace by relevance before you read anything |
+
+**Session protocol (Claude Code / Cursor / Windsurf):**
+
+```
+1. ctx_session load     — restore previous task + findings
+2. ctx_forecast(task)   — estimate token cost before starting
+3. ctx_predict(task)    — rank relevant files before reading
+4. ctx_overview(task)   — get project map for context
+5. ctx_wrapped          — session savings summary at end
+```
+
+After resolving a loop:
+```
+ctx_memory(action="record", error_text="...", fix_file="file:line", fix_description="what fixed it")
+```
+
 ## Settings
 
 | Setting | Default | Description |
@@ -115,7 +141,7 @@ Full policy: [loopguard.vercel.app/privacy](https://loopguard.vercel.app/privacy
 |---|---|---|
 | **v1 — Extension Core** | Shipped | Loop detection, status bar, focused context copy, VS Code/Cursor/Windsurf |
 | **v2 — CLI + Sync Pipeline** | Current | loopguard-ctx binary, MCP tools, Homebrew, anonymous device sync, /wrapped |
-| **v3 — Intelligence Layer** | Up next | Root cause hints, predictive context, session memory, cost forecasting |
+| **v3 — Intelligence Layer** | In progress | Root cause hints, predictive context, session memory, cost forecasting |
 
 Full details at [loopguard.vercel.app/roadmap](https://loopguard.vercel.app/roadmap).
 

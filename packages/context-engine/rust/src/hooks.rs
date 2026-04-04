@@ -217,6 +217,26 @@ rm -f "${{HOME}}/.loopguard-ctx/.session-restored" 2>/dev/null || true
 rm -f "${{HOME}}/.loopguard-ctx/.session-start-injected" 2>/dev/null || true
 rm -f "${{HOME}}/.loopguard-ctx/.session-prompt-count" 2>/dev/null || true
 "{binary}" notify 2>/dev/null || true
+# Auto-memory prompt: if ctx_loop_hint ran this session, remind to record the fix
+HINT_COUNT=$(python3 -c "
+import json, glob, os
+sessions = sorted(glob.glob(os.path.expanduser('~/.loopguard-ctx/sessions/*.json')), key=os.path.getmtime, reverse=True)
+if not sessions:
+    print(0)
+    exit()
+try:
+    d = json.load(open(sessions[0]))
+    tool_history = d.get('tool_history', [])
+    print(sum(1 for t in tool_history if t.get('tool') == 'ctx_loop_hint'))
+except:
+    print(0)
+" 2>/dev/null || echo 0)
+if [ "${{HINT_COUNT:-0}}" -gt 0 ] 2>/dev/null; then
+    echo ""
+    echo "[LOOPGUARD AUTO-MEMORY] ctx_loop_hint ran ${{HINT_COUNT}}x this session."
+    echo "If you resolved the loop, record the fix so future sessions skip it:"
+    echo "  ctx_memory(action=\"record\", error_text=\"<error>\", fix_file=\"<file:line>\", fix_description=\"<what fixed it>\")"
+fi
 "{binary}" sync &>/dev/null &
 "#
     );

@@ -55,6 +55,15 @@ const NAV = [
     ],
   },
   {
+    group: 'v3 Intelligence',
+    items: [
+      { label: 'ctx_loop_hint', id: 'ctx-loop-hint' },
+      { label: 'ctx_forecast', id: 'ctx-forecast' },
+      { label: 'ctx_memory', id: 'ctx-memory' },
+      { label: 'ctx_predict', id: 'ctx-predict' },
+    ],
+  },
+  {
     group: 'Configuration',
     items: [
       { label: 'All settings', id: 'configuration' },
@@ -583,6 +592,100 @@ loopguard-ctx init`}</Pre>
             If you need it outside the extension, use the install script or download a release binary
             manually from GitHub.
           </P>
+
+          <H2 id="v3-intelligence">v3 Intelligence tools</H2>
+          <P>
+            These four tools shipped in v3 and are available to every agent that connects via the
+            MCP server — Claude Code, Cursor, Windsurf, and Codex CLI. They run entirely locally
+            with no LLM call.
+          </P>
+
+          <H3 id="ctx-loop-hint">ctx_loop_hint — Root cause hint engine</H3>
+          <P>
+            When you are stuck in a loop on the same error, <Code>ctx_loop_hint</Code> analyzes the
+            error text and returns a specific diagnosis and fix suggestion — no AI call, no network
+            request. It covers TypeScript, Rust, Python, Go, React, and generic syntax errors.
+          </P>
+          <Pre>{`ctx_loop_hint(error_text: "Cannot read properties of undefined (reading 'map')")`}</Pre>
+          <P>Example output:</P>
+          <Pre>{`ctx_loop_hint — 100% confidence · pattern: null_access
+─────────────────────────────────────────
+Diagnosis:   A value is undefined before it is accessed.
+Suggestion:  Add optional chaining (?.) or a null guard before the access.
+─────────────────────────────────────────
+Run ctx_memory(action="record", ...) after resolving.`}</Pre>
+          <CheckList
+            items={[
+              'Covers 20+ error patterns across six languages',
+              'Confidence score — low-confidence matches are filtered out',
+              'After resolving, record the fix with ctx_memory so future sessions skip it',
+              'Available to all MCP-connected tools, not just the VS Code extension',
+            ]}
+          />
+
+          <H3 id="ctx-forecast">ctx_forecast — Token cost estimator</H3>
+          <P>
+            Before starting a complex task, <Code>ctx_forecast</Code> estimates how many tokens it
+            will likely consume and what that costs across four models.
+          </P>
+          <Pre>{`ctx_forecast(task: "Refactor the auth middleware to use Zod validation")`}</Pre>
+          <P>Output includes a cost table comparing Sonnet, Haiku, GPT-4o, and Gemini Flash — with
+          and without focused reads. Use it to decide which model fits the budget before you start.</P>
+          <Table
+            headers={['Input', 'Description']}
+            rows={[
+              ['task', 'Task description — used to classify complexity'],
+              ['files', 'Optional list of files you plan to read'],
+            ]}
+          />
+
+          <H3 id="ctx-memory">ctx_memory — Local fix memory store</H3>
+          <P>
+            <Code>ctx_memory</Code> stores the patterns that worked when you broke a loop, keyed by
+            error fingerprint. On future sessions it surfaces matching fixes before you start
+            repeating the same cycle.
+          </P>
+          <Pre>{`# Record a fix after resolving a loop
+ctx_memory(
+  action="record",
+  error_text="Cannot find module '@loopguard/core'",
+  fix_file="packages/core/src/index.ts",
+  fix_description="Run npm run build in packages/core to rebuild dist/ first"
+)
+
+# Query for a similar error later
+ctx_memory(action="query", error_text="Cannot find module")`}</Pre>
+          <Table
+            headers={['Action', 'Description']}
+            rows={[
+              ['record', 'Store a new fix pattern'],
+              ['query', 'Find fixes matching the current error (fuzzy match)'],
+              ['list', 'Show all stored patterns for this project'],
+              ['stats', 'How many patterns stored, total hits avoided'],
+              ['clear', 'Remove all stored patterns'],
+            ]}
+          />
+          <Note>
+            Stored at <Code>~/.loopguard-ctx/memory.json</Code> — local only, never synced.
+          </Note>
+
+          <H3 id="ctx-predict">ctx_predict — Predictive file pre-selection</H3>
+          <P>
+            Before reading any file, <Code>ctx_predict</Code> ranks every file in the workspace by
+            predicted relevance to your task description. It uses keyword overlap, path matching, and
+            session history to score files so you read the right ones first.
+          </P>
+          <Pre>{`ctx_predict(task: "Fix the Zod validation on the auth route")`}</Pre>
+          <P>Returns a ranked list with read suggestions. Use it right after{' '}
+          <Code>ctx_session load</Code> and before any <Code>ctx_read</Code> calls.</P>
+          <CheckList
+            items={[
+              'No LLM call — pure keyword and path scoring',
+              'Session history boost — files touched this session rank higher',
+              'Respects workspace root and skips node_modules, .git, target',
+              'Configurable result limit (default: 10)',
+            ]}
+          />
 
           <H2 id="configuration">All settings</H2>
           <Table

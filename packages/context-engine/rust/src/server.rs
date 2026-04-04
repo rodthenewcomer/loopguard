@@ -423,6 +423,17 @@ impl ServerHandler for LoopguardCtxServer {
                         }),
                     ),
                     tool_def(
+                        "ctx_loop_hint",
+                        "Root cause hint engine — analyze an error message and get a specific diagnosis + fix suggestion. Runs locally, no LLM call. Covers TypeScript, Rust, Python, Go, React, and more. Use when stuck in a loop on the same error to break the cycle.",
+                        serde_json::json!({
+                            "type": "object",
+                            "properties": {
+                                "error_text": { "type": "string", "description": "The error message to analyze" }
+                            },
+                            "required": ["error_text"]
+                        }),
+                    ),
+                    tool_def(
                         "ctx_wrapped",
                         "Generate a LoopGuard CTX savings report card. Shows tokens saved, cost avoided, \
                         top commands, cache efficiency. Periods: week, month, all.",
@@ -855,6 +866,13 @@ impl ServerHandler for LoopguardCtxServer {
                 self.record_call("ctx_predict", 0, 0, Some("predict".to_string())).await;
                 result
             }
+            "ctx_loop_hint" => {
+                let error_text = get_str(args, "error_text")
+                    .ok_or_else(|| ErrorData::invalid_params("error_text is required", None))?;
+                let result = crate::tools::ctx_loop_hint::handle(&error_text, self.crp_mode);
+                self.record_call("ctx_loop_hint", 0, 0, Some("hint".to_string())).await;
+                result
+            }
             "ctx_wrapped" => {
                 let period = get_str(args, "period").unwrap_or_else(|| "week".to_string());
                 let result = crate::tools::ctx_wrapped::handle(&period);
@@ -881,6 +899,7 @@ impl ServerHandler for LoopguardCtxServer {
                 | "ctx_session"
                 | "ctx_wrapped"
                 | "ctx_overview"
+                | "ctx_loop_hint"
         );
 
         if !skip_checkpoint && self.increment_and_check() {
