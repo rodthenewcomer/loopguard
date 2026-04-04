@@ -1,7 +1,7 @@
 class LoopguardCtx < Formula
   desc "Local helper for focused reads, MCP setup, and smaller shell output"
   homepage "https://loopguard.vercel.app"
-  version "0.1.12"
+  version "2.7.0"
 
   on_macos do
     on_arm do
