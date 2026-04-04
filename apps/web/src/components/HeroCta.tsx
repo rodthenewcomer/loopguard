@@ -49,7 +49,7 @@ export default function HeroCta() {
 
   if (!ready) {
     // Invisible placeholder — same height, prevents layout shift
-    return <div className="mt-8 flex flex-wrap items-center gap-3 h-[48px]" aria-hidden="true" />;
+    return <div className="mt-8 flex flex-wrap items-center gap-3 min-h-[52px]" aria-hidden="true" />;
   }
 
   if (isLoggedIn) {
