@@ -49,12 +49,14 @@ function TopBar({ live, updatedAt }: { live: boolean; updatedAt: number | null }
               {timeAgo(updatedAt)}
             </span>
           )}
-          <Link
-            href="/login"
-            className="rounded-lg bg-[#0D1826] border border-[#1A2740] px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:border-[#22D3EE]/30 hover:text-slate-200"
-          >
-            Sign in
-          </Link>
+          {!live && (
+            <Link
+              href="/login"
+              className="rounded-lg bg-[#0D1826] border border-[#1A2740] px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:border-[#22D3EE]/30 hover:text-slate-200"
+            >
+              Sign in
+            </Link>
+          )}
         </div>
       </div>
     </header>
