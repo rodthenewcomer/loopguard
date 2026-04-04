@@ -184,11 +184,14 @@ except: pass
   fi
   echo "[LOOPGUARD SESSION PROTOCOL — run these now, before anything else]"
   [ -n "$LAST_TASK" ] && echo "  $LAST_TASK"
-  echo "1. ctx_session load          — restore previous session state"
-  echo "2. ctx_overview(task)        — get task-relevant project map"
-  echo "3. At end of session: ctx_wrapped(\"session\") — show tokens saved + dollars avoided"
+  echo "1. ctx_session load               — restore previous session state"
+  echo "2. ctx_forecast(task)             — estimate token cost before starting"
+  echo "3. ctx_predict(task)              — predict relevant files before reading"
+  echo "4. ctx_overview(task)             — get task-relevant project map"
+  echo "5. At end: ctx_wrapped(\"session\") — show tokens saved + dollars avoided"
   echo ""
-  echo "Do NOT skip these. They are mandatory, not optional."
+  echo "After fixing a loop: ctx_memory(action=\"record\", ...) — store the fix pattern"
+  echo "Do NOT skip 1-4. They are mandatory, not optional."
   exit 0
 fi
 

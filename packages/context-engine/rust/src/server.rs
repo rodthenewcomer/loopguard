@@ -371,6 +371,58 @@ impl ServerHandler for LoopguardCtxServer {
                         }),
                     ),
                     tool_def(
+                        "ctx_forecast",
+                        "Estimate token count and cost before a session starts.                         Given a task description and optional file list, returns a cost table                         across Claude Sonnet, Haiku, GPT-4o, and Gemini Flash —                         with and without LoopGuard focused reads.                         Use at session start to decide how aggressively to filter context.",
+                        json!({
+                            "type": "object",
+                            "properties": {
+                                "task": { "type": "string", "description": "Task description — used to estimate complexity and scope" },
+                                "files": {
+                                    "type": "array",
+                                    "items": { "type": "string" },
+                                    "description": "Optional absolute paths to files that will be read — improves estimate accuracy"
+                                },
+                                "model": { "type": "string", "description": "Filter to a specific model (e.g. 'sonnet', 'haiku', 'gpt4o', 'gemini')" }
+                            },
+                            "required": ["task"]
+                        }),
+                    ),
+                    tool_def(
+                        "ctx_memory",
+                        "Local session pattern memory — store and query error→fix mappings.                         After resolving a loop, record what the fix was.                         Next time the same error appears, LoopGuard surfaces it automatically.                         Data lives at ~/.loopguard-ctx/memory.json — never leaves the device.",
+                        json!({
+                            "type": "object",
+                            "properties": {
+                                "action": {
+                                    "type": "string",
+                                    "enum": ["record", "query", "list", "clear", "stats"],
+                                    "description": "record=store fix, query=search by error text, list=show recent, clear=wipe all, stats=summary"
+                                },
+                                "error_text": { "type": "string", "description": "Error message text (required for record and query)" },
+                                "fix_file":   { "type": "string", "description": "File where the fix was applied (required for record)" },
+                                "fix_line":   { "type": "integer", "description": "Line number of the fix (optional for record)" },
+                                "fix_description": { "type": "string", "description": "Short description of what was changed (optional for record)" },
+                                "project":    { "type": "string", "description": "Project name (optional, defaults to cwd dirname)" },
+                                "query":      { "type": "string", "description": "Search query (required for query action)" },
+                                "limit":      { "type": "integer", "description": "Max results to return (default: 5 for query, 20 for list)" }
+                            },
+                            "required": ["action"]
+                        }),
+                    ),
+                    tool_def(
+                        "ctx_predict",
+                        "Predictive context pre-selection — rank files by predicted relevance                         BEFORE reading anything. Given a task description, scores every file in the                         workspace by keyword overlap, path relevance, and session history.                         Returns a ranked list with suggested next steps.                         Use before ctx_read to avoid reading the wrong files first.",
+                        json!({
+                            "type": "object",
+                            "properties": {
+                                "task":  { "type": "string", "description": "Task description — keywords are extracted and matched against file paths" },
+                                "path":  { "type": "string", "description": "Workspace root to scan (default: current directory)" },
+                                "limit": { "type": "integer", "description": "Max files to return (default: 10)" }
+                            },
+                            "required": ["task"]
+                        }),
+                    ),
+                    tool_def(
                         "ctx_wrapped",
                         "Generate a LoopGuard CTX savings report card. Shows tokens saved, cost avoided, \
                         top commands, cache efficiency. Periods: week, month, all.",
@@ -763,6 +815,44 @@ impl ServerHandler for LoopguardCtxServer {
                 drop(cache);
                 self.record_call("ctx_overview", 0, 0, Some("overview".to_string()))
                     .await;
+                result
+            }
+            "ctx_forecast" => {
+                let task = get_str(args, "task")
+                    .ok_or_else(|| ErrorData::invalid_params("task is required", None))?;
+                let files = get_str_array(args, "files").unwrap_or_default();
+                let model = get_str(args, "model");
+                let result = crate::tools::ctx_forecast::handle(&task, &files, model.as_deref());
+                self.record_call("ctx_forecast", 0, 0, Some("forecast".to_string())).await;
+                result
+            }
+            "ctx_memory" => {
+                let action = get_str(args, "action")
+                    .ok_or_else(|| ErrorData::invalid_params("action is required", None))?;
+                let mut map = std::collections::HashMap::new();
+                for key in &["error_text","fix_file","fix_line","fix_description","project","query","limit"] {
+                    if let Some(v) = get_str(args, key) {
+                        map.insert(key.to_string(), v);
+                    } else if let Some(v) = get_int(args, key) {
+                        map.insert(key.to_string(), v.to_string());
+                    }
+                }
+                let result = crate::tools::ctx_memory::handle(&action, &map);
+                self.record_call("ctx_memory", 0, 0, Some(action)).await;
+                result
+            }
+            "ctx_predict" => {
+                let task = get_str(args, "task")
+                    .ok_or_else(|| ErrorData::invalid_params("task is required", None))?;
+                let root = get_str(args, "path").unwrap_or_else(|| ".".to_string());
+                let limit = get_int(args, "limit").unwrap_or(10) as usize;
+                let session = self.session.read().await;
+                let session_files: Vec<String> = session.files_touched.iter()
+                    .map(|f| f.path.clone())
+                    .collect();
+                drop(session);
+                let result = crate::tools::ctx_predict::handle(&task, &root, limit, &session_files);
+                self.record_call("ctx_predict", 0, 0, Some("predict".to_string())).await;
                 result
             }
             "ctx_wrapped" => {

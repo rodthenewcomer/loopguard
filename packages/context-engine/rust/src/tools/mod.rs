@@ -26,6 +26,9 @@ pub mod ctx_session;
 pub mod ctx_shell;
 pub mod ctx_smart_read;
 pub mod ctx_tree;
+pub mod ctx_forecast;
+pub mod ctx_memory;
+pub mod ctx_predict;
 pub mod ctx_wrapped;
 
 const DEFAULT_CACHE_TTL_SECS: u64 = 300;

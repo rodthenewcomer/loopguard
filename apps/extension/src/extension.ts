@@ -182,7 +182,8 @@ function _activate(context: vscode.ExtensionContext): void {
     const first = events[0];
     if (first === undefined) return;
 
-    const action = await alertPanel.showLoopAlert(first, metrics);
+    const hint = loopEngine.getHintForLoop(first);
+    const action = await alertPanel.showLoopAlert(first, metrics, hint);
 
     if (action === 'view-details') {
       await refreshAccountSummary();

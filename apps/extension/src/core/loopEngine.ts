@@ -4,6 +4,7 @@ import type { DiagnosticRecord, LoopEvent, LoopGuardConfig } from '@loopguard/ty
 import { SENSITIVITY_THRESHOLDS, DEFAULT_TIME_WINDOW_MS } from '@loopguard/types';
 import { hashString } from '@loopguard/utils';
 import { logger } from '../utils/logger';
+import { getHint, isHintUseful, type LoopHint } from '@loopguard/core';
 
 /**
  * VS Code adapter for the LoopDetector algorithm.
@@ -123,5 +124,14 @@ export class LoopEngine {
         this.detector.resolve(loop.errorHash);
       }
     }
+  }
+
+  /**
+   * Returns a root-cause hint for the given loop event if one is available.
+   * Returns null when no useful pattern was matched.
+   */
+  getHintForLoop(event: { errorMessage: string }): LoopHint | null {
+    const hint = getHint(event.errorMessage);
+    return isHintUseful(hint) ? hint : null;
   }
 }

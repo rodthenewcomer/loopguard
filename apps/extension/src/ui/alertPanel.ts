@@ -14,7 +14,7 @@ export class AlertPanel {
    * Shows a warning notification when a loop is detected.
    * Returns the action the user took.
    */
-  async showLoopAlert(event: LoopEvent, metrics: SessionMetrics): Promise<AlertAction> {
+  async showLoopAlert(event: LoopEvent, metrics: SessionMetrics, hint?: { diagnosis: string; suggestion: string } | null): Promise<AlertAction> {
     const timeWasted = formatDuration(event.lastSeen - event.firstSeen);
     const totalWasted = formatDuration(metrics.totalTimeWasted);
 
@@ -25,9 +25,13 @@ export class AlertPanel {
     const viewDetails = 'View Details';
     const ignore = 'Ignore';
 
+    const hintDetail = hint !== undefined && hint !== null
+      ? `${hint.diagnosis}\n\n💡 ${hint.suggestion}\n\nTotal wasted this session: ${totalWasted}`
+      : `Total wasted this session: ${totalWasted}`;
+
     const selection = await vscode.window.showWarningMessage(
       title,
-      { modal: false, detail: `Total wasted this session: ${totalWasted}` },
+      { modal: false, detail: hintDetail },
       tryNewApproach,
       viewDetails,
       ignore,

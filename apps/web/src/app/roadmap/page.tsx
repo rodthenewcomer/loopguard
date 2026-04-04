@@ -114,7 +114,7 @@ const VERSIONS = [
   {
     version: 'v3',
     label: 'Intelligence Layer',
-    status: 'next' as const,
+    status: 'inprogress' as const,
     summary:
       'Moving from observation to action. v3 acts on the data v1 and v2 collected — root cause hints, predictive context, session memory, and cost forecasting across every IDE and CLI.',
     sections: [
@@ -163,9 +163,10 @@ const VERSIONS = [
 ];
 
 const STATUS_CONFIG = {
-  shipped: { label: 'Shipped', color: '#22C55E' },
-  current: { label: 'Current', color: '#22D3EE' },
-  next:    { label: 'Up next', color: '#A78BFA' },
+  shipped:    { label: 'Shipped',     color: '#22C55E' },
+  current:    { label: 'Current',     color: '#22D3EE' },
+  inprogress: { label: 'In progress', color: '#F59E0B' },
+  next:       { label: 'Up next',     color: '#A78BFA' },
 };
 
 export default function RoadmapPage() {
