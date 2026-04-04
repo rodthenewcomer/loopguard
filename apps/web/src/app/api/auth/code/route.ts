@@ -15,6 +15,9 @@ const CODE_TTL_MS = 5 * 60 * 1000;
  * Called by ExtensionAuthClient after the user signs in.
  * Verifies the user's JWT, generates a one-time code, persists it,
  * and returns the code. The code is what the IDE receives — never the JWT.
+ *
+ * Both access_token and refresh_token are stored so the extension can
+ * silently refresh when the access token expires (~1 hour).
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -22,12 +25,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   let jwt: string;
+  let refreshToken: string;
   try {
-    const body = (await req.json()) as { jwt?: unknown };
+    const body = (await req.json()) as { jwt?: unknown; refreshToken?: unknown };
     if (typeof body.jwt !== 'string' || body.jwt.length === 0) {
       return NextResponse.json({ error: 'Missing jwt' }, { status: 400 });
     }
     jwt = body.jwt;
+    refreshToken = typeof body.refreshToken === 'string' ? body.refreshToken : '';
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
@@ -51,6 +56,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       code,
       user_id: user.id,
       jwt,
+      refresh_token: refreshToken,
       email: user.email ?? '',
       expires_at: expiresAt,
     });

@@ -46,7 +46,7 @@ export default function ExtensionAuthClient() {
   const [step, setStep] = useState<'idle' | 'signing-in' | 'authing' | 'done' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const sendCallbackToExtension = async (token: string, userEmail: string) => {
+  const sendCallbackToExtension = async (token: string, userEmail: string, refreshToken?: string) => {
     try {
       // Exchange the JWT for a short-lived one-time code.
       // The code (not the JWT) is what travels through the IDE URI callback,
@@ -54,7 +54,7 @@ export default function ExtensionAuthClient() {
       const res = await fetch('/api/auth/code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jwt: token }),
+        body: JSON.stringify({ jwt: token, refreshToken: refreshToken ?? '' }),
       });
 
       if (!res.ok) throw new Error(`code exchange failed: ${res.status}`);
@@ -77,7 +77,7 @@ export default function ExtensionAuthClient() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         setStep('authing');
-        void sendCallbackToExtension(session.access_token, session.user.email ?? '').then(
+        void sendCallbackToExtension(session.access_token, session.user.email ?? '', session.refresh_token ?? '').then(
           () => setTimeout(() => setStep('done'), 1500),
         );
       }

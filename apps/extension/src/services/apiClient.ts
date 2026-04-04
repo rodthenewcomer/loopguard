@@ -65,12 +65,27 @@ export interface DashboardSummary {
  * All calls are best-effort — the extension always works offline.
  * If auth token is missing, all calls are silently skipped.
  * Network errors are logged but never thrown to the caller.
+ *
+ * Token refresh: when the access token expires (~1 hour), the client
+ * automatically refreshes it via /api/v1/auth/refresh using the stored
+ * refresh token. The new token pair is persisted via the onTokenRefreshed
+ * callback so the user never needs to re-authenticate.
  */
 export class ApiClient {
   private _token: string | null = null;
+  private _refreshToken: string | null = null;
+  private _onTokenRefreshed?: (jwt: string, refreshToken: string) => void;
 
   setToken(token: string | null): void {
     this._token = token;
+  }
+
+  setRefreshToken(token: string | null): void {
+    this._refreshToken = token;
+  }
+
+  setOnTokenRefreshed(callback: (jwt: string, refreshToken: string) => void): void {
+    this._onTokenRefreshed = callback;
   }
 
   get isAuthenticated(): boolean {
@@ -82,7 +97,7 @@ export class ApiClient {
    * This call does NOT require a bearer token — the code is the credential.
    * Returns null on any failure so the caller can show a clear error.
    */
-  async exchangeCode(code: string): Promise<{ jwt: string; email: string } | null> {
+  async exchangeCode(code: string): Promise<{ jwt: string; email: string; refreshToken: string | null } | null> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
     try {
@@ -93,7 +108,7 @@ export class ApiClient {
         signal: controller.signal,
       });
       if (!res.ok) return null;
-      return (await res.json()) as { jwt: string; email: string };
+      return (await res.json()) as { jwt: string; email: string; refreshToken: string | null };
     } catch (err) {
       logger.warn('[ApiClient] exchangeCode failed', { err });
       return null;
@@ -115,32 +130,74 @@ export class ApiClient {
   async getSummary(days: number = 7): Promise<DashboardSummary | null> {
     if (this._token === null) return null;
 
+    const result = await this._getJson<DashboardSummary>(`/api/v1/metrics/summary?days=${days}`);
+    return result;
+  }
+
+  /** Attempt a silent token refresh. Returns true if successful. */
+  private async _tryRefresh(): Promise<boolean> {
+    if (this._refreshToken === null) return false;
+
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
-      const res = await fetch(`${API_BASE}/api/v1/metrics/summary?days=${days}`, {
-        headers: {
-          Authorization: `Bearer ${this._token}`,
-        },
+      const res = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: this._refreshToken }),
         signal: controller.signal,
       });
 
-      if (!res.ok) {
-        logger.warn(`[ApiClient] /api/v1/metrics/summary → ${res.status}`);
+      if (!res.ok) return false;
+
+      const data = (await res.json()) as { jwt: string; refreshToken: string };
+      this._token = data.jwt;
+      this._refreshToken = data.refreshToken;
+      this._onTokenRefreshed?.(data.jwt, data.refreshToken);
+      logger.info('[ApiClient] token refreshed successfully');
+      return true;
+    } catch {
+      return false;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private async _getJson<T>(path: string, isRetry = false): Promise<T | null> {
+    if (this._token === null) return null;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        headers: { Authorization: `Bearer ${this._token}` },
+        signal: controller.signal,
+      });
+
+      if (res.status === 401 && !isRetry) {
+        clearTimeout(timer);
+        const refreshed = await this._tryRefresh();
+        if (refreshed) return this._getJson<T>(path, true);
         return null;
       }
 
-      return (await res.json()) as DashboardSummary;
+      if (!res.ok) {
+        logger.warn(`[ApiClient] GET ${path} → ${res.status}`);
+        return null;
+      }
+
+      return (await res.json()) as T;
     } catch (err) {
-      logger.warn('[ApiClient] /api/v1/metrics/summary failed (network or timeout)', { err });
+      logger.warn(`[ApiClient] GET ${path} failed (network or timeout)`, { err });
       return null;
     } finally {
       clearTimeout(timer);
     }
   }
 
-  private async _post(path: string, body: unknown): Promise<void> {
+  private async _post(path: string, body: unknown, isRetry = false): Promise<void> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
@@ -155,9 +212,17 @@ export class ApiClient {
         signal: controller.signal,
       });
 
+      if (res.status === 401 && !isRetry) {
+        clearTimeout(timer);
+        const refreshed = await this._tryRefresh();
+        if (refreshed) {
+          await this._post(path, body, true);
+        }
+        return;
+      }
+
       if (!res.ok) {
         logger.warn(`[ApiClient] ${path} → ${res.status}`);
-        // 401 means token expired — could trigger refresh here
       }
     } catch (err) {
       // Never surface API errors to the user. Extension works offline.

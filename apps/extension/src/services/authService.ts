@@ -4,6 +4,7 @@ import type { ApiClient } from './apiClient';
 
 const JWT_SECRET_KEY = 'loopguard.auth.jwt';
 const EMAIL_SECRET_KEY = 'loopguard.auth.email';
+const REFRESH_TOKEN_KEY = 'loopguard.auth.refreshToken';
 
 const AUTH_BASE_URL = 'https://loopguard.vercel.app/auth/extension';
 
@@ -17,9 +18,10 @@ const AUTH_BASE_URL = 'https://loopguard.vercel.app/auth/extension';
  *      {scheme}://LoopGuard.loopguard/auth?code=RANDOM_CODE&email=user@example.com
  *      where {scheme} = vscode | cursor | windsurf (read from vscode.env.uriScheme)
  *   4. Extension URI handler calls handleCallback(code, email)
- *   5. Extension exchanges the code for a JWT via POST /api/v1/auth/exchange
- *   6. JWT stored in SecretStorage (OS keychain on macOS/Windows/Linux)
- *   7. Subsequent API calls include Bearer token
+ *   5. Extension exchanges the code for a JWT + refresh_token via POST /api/v1/auth/exchange
+ *   6. Both tokens stored in SecretStorage (OS keychain on macOS/Windows/Linux)
+ *   7. Access token used for all API calls; refresh token used to silently refresh
+ *      when the access token expires (~1 hour) — user never needs to re-authenticate
  *
  * The JWT never appears in browser history, server logs, or referrer headers.
  */
@@ -37,16 +39,25 @@ export class AuthService {
     this._secrets = secrets;
     this._apiClient = apiClient;
     this._onAuthStateChanged = onAuthStateChanged;
+
+    // Persist new tokens whenever the client silently refreshes them
+    apiClient.setOnTokenRefreshed((jwt, refreshToken) => {
+      void secrets.store(JWT_SECRET_KEY, jwt);
+      void secrets.store(REFRESH_TOKEN_KEY, refreshToken);
+    });
   }
 
   /**
-   * Called on extension activation — restores JWT from SecretStorage if present.
+   * Called on extension activation — restores JWT and refresh token from SecretStorage.
    */
   async initialize(): Promise<void> {
     const jwt = await this._secrets.get(JWT_SECRET_KEY);
     const email = await this._secrets.get(EMAIL_SECRET_KEY);
+    const refreshToken = await this._secrets.get(REFRESH_TOKEN_KEY);
+
     if (jwt !== undefined) {
       this._apiClient.setToken(jwt);
+      this._apiClient.setRefreshToken(refreshToken ?? null);
       this._email = email ?? null;
       logger.info('Auth: token restored', { email: this._email ?? 'unknown' });
       this._onAuthStateChanged?.(true);
@@ -80,8 +91,8 @@ export class AuthService {
    * Called by the URI handler when VS Code receives:
    * vscode://LoopGuard.loopguard/auth?code=ONE_TIME_CODE&email=user@example.com
    *
-   * Exchanges the code for a JWT server-side so the raw token never travels
-   * through the URL (and thus never lands in browser history or server logs).
+   * Exchanges the code for a JWT + refresh_token server-side so raw tokens
+   * never travel through the URL (and never land in browser history or logs).
    */
   async handleCallback(code: string, _email: string): Promise<void> {
     const result = await this._apiClient.exchangeCode(code);
@@ -96,7 +107,12 @@ export class AuthService {
 
     await this._secrets.store(JWT_SECRET_KEY, result.jwt);
     await this._secrets.store(EMAIL_SECRET_KEY, result.email);
+    if (result.refreshToken !== null) {
+      await this._secrets.store(REFRESH_TOKEN_KEY, result.refreshToken);
+    }
+
     this._apiClient.setToken(result.jwt);
+    this._apiClient.setRefreshToken(result.refreshToken);
     this._email = result.email;
 
     logger.info('Auth: signed in', { email: result.email });
@@ -109,7 +125,9 @@ export class AuthService {
   async signOut(): Promise<void> {
     await this._secrets.delete(JWT_SECRET_KEY);
     await this._secrets.delete(EMAIL_SECRET_KEY);
+    await this._secrets.delete(REFRESH_TOKEN_KEY);
     this._apiClient.setToken(null);
+    this._apiClient.setRefreshToken(null);
     this._email = null;
 
     logger.info('Auth: signed out');
