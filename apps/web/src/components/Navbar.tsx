@@ -12,6 +12,16 @@ const NAV_LINKS = [
 
 const SUPPORT_URL = 'https://buymeacoffee.com/rodthenewcomer';
 const MARKETPLACE_URL = '/setup';
+const GITHUB_URL = 'https://github.com/rodthenewcomer/loopguard';
+
+
+function StarIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+  );
+}
 
 export default function Navbar() {
   const [scrolled, setScrolled]     = useState(false);
@@ -73,6 +83,17 @@ export default function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden md:flex items-center gap-2">
+          {/* GitHub star — always visible */}
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-[#374151] hover:border-[#4B5563] text-sm text-[#9CA3AF] hover:text-white rounded-lg transition-colors duration-200"
+          >
+            <StarIcon />
+            Star
+          </a>
+
           {authReady && (
             isLoggedIn ? (
               <>
@@ -141,6 +162,16 @@ export default function Navbar() {
               </a>
             ))}
             <div className="border-t border-[#1F2937] mt-2 pt-4 flex flex-col gap-2">
+              <a
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileOpen(false)}
+                className="py-2.5 flex items-center justify-center gap-1.5 border border-[#374151] text-sm text-[#9CA3AF] rounded-lg"
+              >
+                <StarIcon />
+                Star on GitHub
+              </a>
               {isLoggedIn ? (
                 <>
                   <span className="py-2 text-xs text-[#4B5563] truncate">{userEmail}</span>
