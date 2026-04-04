@@ -158,7 +158,7 @@ mkdir -p "$LOOPGUARD_DIR"
 
 START_FLAG="$LOOPGUARD_DIR/.session-start-injected"
 COUNTER_FILE="$LOOPGUARD_DIR/.session-prompt-count"
-METRICS_INTERVAL=10
+METRICS_INTERVAL=5
 
 count=$(cat "$COUNTER_FILE" 2>/dev/null || echo 0)
 count=$((count + 1))
@@ -206,7 +206,10 @@ except: pass
 
   FORECAST_LINE=""
   if [ -n "$PROMPT_SNIPPET" ] && command -v "{binary}" &>/dev/null; then
-    FORECAST_LINE=$("{binary}" forecast "$PROMPT_SNIPPET" 2>/dev/null | head -3 | tr '\n' ' ' || true)
+    RAW=$("{binary}" forecast "$PROMPT_SNIPPET" 2>/dev/null | head -5 || true)
+    if echo "$RAW" | grep -q '\$\|tokens\|Complexity\|estimate'; then
+      FORECAST_LINE=$(echo "$RAW" | grep -E 'Complexity|estimate|Without|With LoopGuard' | head -2 | tr '\n' ' ')
+    fi
   fi
 
   echo "[LOOPGUARD SESSION PROTOCOL — run these now, before anything else]"
