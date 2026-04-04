@@ -105,9 +105,8 @@ const CONTEXT_LINES = [
   { kind: 'dim', text: '  return <InvoiceTable rows={rows} />;' },
 ];
 
-// Editors and AI tools you work inside — install methods (Homebrew, npm) are in the setup section
+// Editors where the extension installs
 const EDITORS = ['VS Code', 'Cursor', 'Windsurf'];
-const AI_TOOLS = ['Codex CLI', 'Claude Code', 'GitHub Copilot'];
 
 const FOOTER_COLS = [
   {
@@ -203,7 +202,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <p className="mb-4 text-sm font-semibold text-[#C4D4E4]">
-                A VS Code extension. Catches AI retry loops. Focuses your prompts. Free.
+                Runs in VS Code, Cursor, and Windsurf. Stops the loop. Cuts the spend. Free.
               </p>
               <h1 className="text-5xl font-black leading-[0.96] tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl">
                 Save the hour.
@@ -362,22 +361,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Works with — editors and AI tools only; install methods (Homebrew, npm) covered in setup section */}
+      {/* "Runs in" bar — editors only. Agent platform integrations are in the developer section. */}
       <div className="border-y border-white/8 bg-black/20">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-3 px-6 py-4 text-sm text-[#8095AA]">
-          <span className="text-xs uppercase tracking-[0.28em] text-[#7B95AE]">Editors</span>
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6 py-4">
+          <span className="text-xs uppercase tracking-[0.28em] text-[#7B95AE]">Runs in</span>
           {EDITORS.map((w) => (
             <span key={w} className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-[#A5B8CA]">
               {w}
             </span>
           ))}
-          <span className="hidden sm:block text-white/20">·</span>
-          <span className="text-xs uppercase tracking-[0.28em] text-[#7B95AE]">AI Tools</span>
-          {AI_TOOLS.map((w) => (
-            <span key={w} className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-[#A5B8CA]">
-              {w}
-            </span>
-          ))}
+          <span className="text-white/15">·</span>
+          <span className="text-xs text-[#4E6B88]">Free · no account required · works offline</span>
         </div>
       </div>
 
@@ -503,10 +497,10 @@ export default function LandingPage() {
 
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {[
-                  { title: 'Extension copy flow', copy: 'Use Copy Optimized Context when you need one fast, focused prompt.' },
-                  { title: 'MCP tools', copy: 'Compatible agents can call focused reads, search, tree, and shell tools directly.' },
-                  { title: 'Shell filtering', copy: 'Long terminal output gets reduced to the lines that actually explain the failure.' },
-                  { title: 'Local helper path', copy: 'The native helper can cut prompt volume dramatically when it is available.' },
+                  { title: 'One-click copy', copy: 'Use Copy Optimized Context to get a focused prompt instead of pasting the whole file.' },
+                  { title: 'Only what changed', copy: 'The same file is not resent twice. Only the lines that changed since the last read are included.' },
+                  { title: 'Error window first', copy: 'The failing lines, nearby definitions, and recent edits come first. Boilerplate is dropped.' },
+                  { title: 'Works in every session', copy: 'No setup. The context engine runs automatically when you copy context from the extension.' },
                 ].map((item) => (
                   <div key={item.title} className="border-t border-white/8 pt-4">
                     <div className="text-lg font-semibold tracking-[-0.03em] text-white">{item.title}</div>
@@ -615,41 +609,6 @@ export default function LandingPage() {
           </div>
         </ScrollReveal>
 
-        {/* Secondary path — CLI / agent integration */}
-        <ScrollReveal>
-          <div className="mt-6 rounded-[24px] border border-white/8 bg-black/20 p-6 lg:p-8">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <div className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#7B95AE]">
-                  Already have the extension?
-                </div>
-                <div className="text-lg font-semibold text-white">Add agent integration — Homebrew · npm · Codex CLI · Claude Code</div>
-              </div>
-              <a
-                href="/setup#codex"
-                className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white"
-              >
-                Agent setup guide
-                <Icon path={IC.arrow} size={14} />
-              </a>
-            </div>
-            <div className="grid gap-4 border-t border-white/8 pt-5 sm:grid-cols-3">
-              {[
-                { label: 'Claude Code', cmd: 'loopguard-ctx setup --agent=claude' },
-                { label: 'Cursor', cmd: 'loopguard-ctx setup --agent=cursor' },
-                { label: 'Codex CLI', cmd: 'loopguard-ctx setup --agent=codex' },
-              ].map((opt) => (
-                <div key={opt.label} className="rounded-[16px] border border-white/8 bg-white/3 px-4 py-3">
-                  <div className="mb-2 text-xs font-medium text-[#7B95AE]">{opt.label}</div>
-                  <code className="font-mono text-[11px] text-[#8AE8FF]">{opt.cmd}</code>
-                </div>
-              ))}
-            </div>
-            <p className="mt-4 text-xs text-[#4E6B88]">
-              Run <code className="text-[#8AE8FF]">loopguard-ctx doctor</code> after setup to verify every layer is green.
-            </p>
-          </div>
-        </ScrollReveal>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
@@ -816,7 +775,86 @@ export default function LandingPage() {
         </ScrollReveal>
       </section>
 
-      <footer className="border-t border-white/8 px-6 pb-10 pt-16 lg:px-10">
+      {/* ─── ICP divider — secondary audience: developers building with AI agents ─── */}
+      <div className="border-t border-white/8 bg-black/30">
+        <div className="mx-auto max-w-7xl px-6 py-8 lg:px-10">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="h-px flex-1 bg-white/8" />
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4E6B88]">For developers building with AI agents</span>
+            </div>
+            <div className="h-px flex-1 bg-white/8" />
+          </div>
+        </div>
+      </div>
+
+      <section id="agent-integration" className="mx-auto max-w-7xl px-6 pb-24 pt-4 lg:px-10">
+        <ScrollReveal>
+          <div className="mb-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+            <div>
+              <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Agent integration</div>
+              <h2 className="mt-3 text-3xl font-bold tracking-[-0.05em] text-white sm:text-4xl">
+                Wire LoopGuard into your
+                <br />
+                automated workflows.
+              </h2>
+              <p className="mt-4 max-w-lg text-sm leading-7 text-[#8CA1B8]">
+                Already using the VS Code extension? Add the local helper binary to give Claude Code, Cursor, Codex CLI, and other agents focused read, search, and shell compression tools via MCP — no cloud, no API key, no extra cost.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 lg:justify-end">
+              {[
+                { label: 'Claude Code', icon: IC.terminal },
+                { label: 'Cursor', icon: IC.code },
+                { label: 'Codex CLI', icon: IC.terminal },
+                { label: 'Windsurf', icon: IC.code },
+                { label: 'GitHub Copilot', icon: IC.code },
+              ].map(({ label, icon }) => (
+                <span key={label} className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-[#8CA1B8]">
+                  <Icon path={icon} size={11} />
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal>
+          <div className="overflow-hidden rounded-[28px] border border-white/8 bg-black/20">
+            <div className="border-b border-white/8 px-6 py-5">
+              <div className="text-xs uppercase tracking-[0.28em] text-[#7B95AE]">One command per agent</div>
+            </div>
+            <div className="grid gap-px bg-white/8 sm:grid-cols-3">
+              {[
+                { label: 'Claude Code', cmd: 'loopguard-ctx setup --agent=claude', detail: 'MCP + shell hook + guidance file' },
+                { label: 'Cursor', cmd: 'loopguard-ctx setup --agent=cursor', detail: 'MCP + cursor rule file' },
+                { label: 'Codex CLI', cmd: 'loopguard-ctx setup --agent=codex', detail: 'MCP + local instruction file' },
+              ].map((opt) => (
+                <div key={opt.label} className="bg-[#07111C] px-5 py-5">
+                  <div className="mb-1 text-xs font-semibold text-white">{opt.label}</div>
+                  <code className="block font-mono text-[11px] text-[#8AE8FF]">{opt.cmd}</code>
+                  <p className="mt-2 text-[11px] text-[#4E6B88]">{opt.detail}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/8 px-6 py-4">
+              <p className="text-xs text-[#4E6B88]">
+                Run <code className="text-[#8AE8FF]">loopguard-ctx doctor</code> to verify every layer is green.
+                Install via <code className="text-[#8AE8FF]">brew install loopguard-ctx</code> or <code className="text-[#8AE8FF]">npm i -g loopguard-ctx</code>.
+              </p>
+              <a
+                href="/setup#codex"
+                className="inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-semibold text-[#8AE8FF] transition hover:text-white"
+              >
+                Full agent setup guide
+                <Icon path={IC.arrow} size={14} />
+              </a>
+            </div>
+          </div>
+        </ScrollReveal>
+      </section>
+
+            <footer className="border-t border-white/8 px-6 pb-10 pt-16 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-10 md:grid-cols-[1.3fr_repeat(3,1fr)]">
             <div>
