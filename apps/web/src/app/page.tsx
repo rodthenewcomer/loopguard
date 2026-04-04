@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import LoopGuardLogo from '../components/LoopGuardLogo';
 import ScrollReveal from '../components/ScrollReveal';
 import HeroCta from '../components/HeroCta';
+import GitHubStars from '../components/GitHubStars';
 import { SUPPORT_URL } from '../lib/constants';
 
 export const metadata: Metadata = {
@@ -197,24 +198,28 @@ export default function LandingPage() {
                   LoopGuard
                 </div>
               </div>
+              <p className="mb-4 text-sm font-semibold text-[#C4D4E4]">
+                A VS Code extension. Catches AI retry loops. Focuses your prompts. Free.
+              </p>
               <h1 className="text-5xl font-black leading-[0.96] tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl">
                 Save the hour.
                 <br />
                 <span className="text-[#8AE8FF]">Cut the token bill.</span>
               </h1>
-              <p className="mt-4 text-sm font-medium italic text-[#5B8CA8]">
-                The local guardrail for AI coding sessions that start repeating instead of moving.
-              </p>
               <p className="mt-4 max-w-xl text-base leading-7 text-[#9FB0C4] sm:text-lg">
-                LoopGuard catches repeat-fix loops and shrinks the next prompt before it reaches the model,
-                so AI-heavy coding sessions waste less time, fewer tokens, and less money.
+                LoopGuard watches your coding session locally, fires when the same problem
+                keeps resurfacing, and trims the next prompt to only the context the model
+                actually needs — so each retry costs less and moves faster.
               </p>
             </div>
 
             <HeroCta />
-            <p className="mt-3 text-xs text-[#5B7A93]">
-              No account needed. Install in 30 seconds.
-            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <p className="text-xs text-[#5B7A93]">
+                Opens VS Code Marketplace · 1-click install · no account needed
+              </p>
+              <GitHubStars />
+            </div>
 
             <div className="mt-8 grid max-w-2xl gap-3 text-sm text-[#8CA1B8] sm:grid-cols-3">
               <div className="flex items-start gap-2">
@@ -655,9 +660,9 @@ export default function LandingPage() {
             <div>
               <div className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Roadmap</div>
               <h2 className="text-3xl font-bold tracking-[-0.05em] text-white sm:text-4xl">
-                v1 shipped. v2 live. v3 live.
+                Three versions shipped since launch.
                 <br />
-                <span className="text-[#F59E0B]">v4 — multi-session intelligence — in development.</span>
+                <span className="text-[#F59E0B]">v4 — multi-session memory — now in active development.</span>
               </h2>
               <p className="mt-4 max-w-xl text-sm leading-7 text-[#8CA1B8]">
                 See the full feature list for every version — what each one adds for VS Code, Cursor, Windsurf, Claude Code, Codex CLI, and GitHub Copilot. v4 brings cross-session pattern memory and proactive loop prediction.
@@ -692,6 +697,40 @@ export default function LandingPage() {
             </a>
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
+        <ScrollReveal>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                quote:
+                  "Caught the loop on turn 3 and pointed me at the actual root cause. Saved me from spending another hour on the same Prisma migration error.",
+                author: "Backend engineer, fintech startup",
+              },
+              {
+                quote:
+                  "The focused-read output is genuinely different from just copy-pasting a file. The model stops re-explaining things it already knows.",
+                author: "Solo developer, SaaS product",
+              },
+              {
+                quote:
+                  "Status bar showing '32 min lost in loops' was the wake-up call I needed. Didn't realise how much time was going into repetition.",
+                author: "Full-stack developer, agency",
+              },
+            ].map(({ quote, author }) => (
+              <div
+                key={author}
+                className="rounded-[24px] border border-white/8 bg-white/3 px-6 py-6"
+              >
+                <p className="text-sm leading-7 text-[#A8BECF]">
+                  &ldquo;{quote}&rdquo;
+                </p>
+                <p className="mt-4 text-xs font-medium text-[#5B7A93]">— {author}</p>
+              </div>
+            ))}
+          </div>
+        </ScrollReveal>
       </section>
 
       <section className="px-6 py-24 lg:px-10">
