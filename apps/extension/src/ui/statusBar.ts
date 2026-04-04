@@ -15,6 +15,7 @@ export class StatusBar {
   private activeLoops: number = 0;
   private metrics: SessionMetrics | null = null;
   private detectionEnabled: boolean = true;
+  private forecastTooltip: string | null = null;
 
   constructor() {
     this.item = vscode.window.createStatusBarItem(
@@ -35,6 +36,12 @@ export class StatusBar {
 
   setDetectionEnabled(enabled: boolean): void {
     this.detectionEnabled = enabled;
+    this.render();
+  }
+
+  setForecast(forecast: string): void {
+    // Store first line as tooltip hint (forecast can be multi-line)
+    this.forecastTooltip = forecast.split('\n')[0] ?? null;
     this.render();
   }
 
@@ -60,7 +67,9 @@ export class StatusBar {
     this.item.text = '$(check) LoopGuard';
     this.item.color = undefined;
     this.item.backgroundColor = undefined;
-    this.item.tooltip = 'LoopGuard — No loops detected. Click to view session summary.';
+    this.item.tooltip = this.forecastTooltip !== null
+      ? `LoopGuard — ${this.forecastTooltip}\nClick to view session summary.`
+      : 'LoopGuard — No loops detected. Click to view session summary.';
   }
 
   private renderWarning(): void {

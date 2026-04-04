@@ -99,6 +99,58 @@ export class ContextEngine {
     this.enabled = config.enableContextEngine;
   }
 
+  async runHint(errorText: string): Promise<string | null> {
+    const binary = await this.findBinary();
+    if (binary === null) return null;
+    try {
+      const { stdout } = await execFileAsync(binary, ['hint', errorText], { timeout: 5000 });
+      return stdout.trim();
+    } catch {
+      return null;
+    }
+  }
+
+  async runForecast(task: string): Promise<string | null> {
+    const binary = await this.findBinary();
+    if (binary === null) return null;
+    try {
+      const { stdout } = await execFileAsync(binary, ['forecast', task], { timeout: 5000 });
+      return stdout.trim();
+    } catch {
+      return null;
+    }
+  }
+
+  async runPredict(task: string, cwd: string, limit = 5): Promise<string | null> {
+    const binary = await this.findBinary();
+    if (binary === null) return null;
+    try {
+      const { stdout } = await execFileAsync(
+        binary,
+        ['predict', task, `--path=${cwd}`, `--limit=${limit}`],
+        { timeout: 8000 },
+      );
+      return stdout.trim();
+    } catch {
+      return null;
+    }
+  }
+
+  async queryMemory(errorText: string): Promise<string | null> {
+    const binary = await this.findBinary();
+    if (binary === null) return null;
+    try {
+      const { stdout } = await execFileAsync(
+        binary,
+        ['memory', 'query', errorText],
+        { timeout: 5000 },
+      );
+      return stdout.trim();
+    } catch {
+      return null;
+    }
+  }
+
   async isBinaryAvailable(): Promise<boolean> {
     return (await this.findBinary()) !== null;
   }

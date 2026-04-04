@@ -142,6 +142,46 @@ fn main() {
                 print_help();
                 return;
             }
+            "hint" => {
+                let error_text = rest.join(" ");
+                let crp_mode = tools::CrpMode::from_env();
+                println!("{}", tools::ctx_loop_hint::handle(&error_text, crp_mode));
+                return;
+            }
+            "forecast" => {
+                let task = rest.iter().filter(|a| !a.starts_with("--")).cloned().collect::<Vec<_>>().join(" ");
+                let files: Vec<String> = vec![];
+                println!("{}", tools::ctx_forecast::handle(&task, &files, None));
+                return;
+            }
+            "predict" => {
+                let task = rest.iter().filter(|a| !a.starts_with("--")).cloned().collect::<Vec<_>>().join(" ");
+                let path = rest.iter().find(|a| a.starts_with("--path=")).map(|a| a[7..].to_string()).unwrap_or_else(|| ".".to_string());
+                let limit = rest.iter().find(|a| a.starts_with("--limit=")).and_then(|a| a[8..].parse::<usize>().ok()).unwrap_or(10);
+                println!("{}", tools::ctx_predict::handle(&task, &path, limit, &[]));
+                return;
+            }
+            "memory" => {
+                let action = rest.first().map(|s| s.as_str()).unwrap_or("list").to_string();
+                let mut map = std::collections::HashMap::<String, String>::new();
+                map.insert("action".to_string(), action.clone());
+                if action == "query" || action == "record" {
+                    let text = rest[1..].iter().filter(|a| !a.starts_with("--")).cloned().collect::<Vec<_>>().join(" ");
+                    if !text.is_empty() {
+                        map.insert("error_text".to_string(), text);
+                    }
+                    for arg in &rest {
+                        if let Some(v) = arg.strip_prefix("--fix-file=") {
+                            map.insert("fix_file".to_string(), v.to_string());
+                        }
+                        if let Some(v) = arg.strip_prefix("--fix-desc=") {
+                            map.insert("fix_description".to_string(), v.to_string());
+                        }
+                    }
+                }
+                println!("{}", tools::ctx_memory::handle(&action, &map));
+                return;
+            }
             "mcp" => {
                 // fall through to MCP server startup below
             }

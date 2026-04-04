@@ -185,6 +185,33 @@ except: pass
   echo "[LOOPGUARD SESSION PROTOCOL — run these now, before anything else]"
   [ -n "$LAST_TASK" ] && echo "  $LAST_TASK"
   echo "1. ctx_session load               — restore previous session state"
+  # Run forecast on the incoming prompt
+  PROMPT_SNIPPET=$(python3 -c "
+import json,sys
+try:
+  data = json.load(sys.stdin)
+  prompt = (data.get('user_message') or data.get('prompt') or '')
+  if not prompt:
+    msgs = data.get('messages') or data.get('transcript') or []
+    for m in reversed(msgs):
+      if m.get('role','') == 'user':
+        content = m.get('content','')
+        if isinstance(content, list):
+          content = ' '.join(c.get('text','') for c in content if isinstance(c,dict))
+        prompt = str(content)
+        break
+  print(prompt[:120].replace('"','').replace('\n',' '))
+except: pass
+" 2>/dev/null || true)
+
+  FORECAST_LINE=""
+  if [ -n "$PROMPT_SNIPPET" ] && command -v "{binary}" &>/dev/null; then
+    FORECAST_LINE=$("{binary}" forecast "$PROMPT_SNIPPET" 2>/dev/null | head -3 | tr '\n' ' ' || true)
+  fi
+
+  echo "[LOOPGUARD SESSION PROTOCOL — run these now, before anything else]"
+  [ -n "$LAST_TASK" ] && echo "  $LAST_TASK"
+  [ -n "$FORECAST_LINE" ] && echo "  Forecast: $FORECAST_LINE"
   echo "2. ctx_forecast(task)             — estimate token cost before starting"
   echo "3. ctx_predict(task)              — predict relevant files before reading"
   echo "4. ctx_overview(task)             — get task-relevant project map"

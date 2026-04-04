@@ -77,6 +77,14 @@ function _activate(context: vscode.ExtensionContext): void {
   // Cache Rust engine availability and tell the dashboard panel which tier is active
   contextEngine.isBinaryAvailable().then((available) => {
     DashboardPanel.setEngineTier(available ? 'rust' : 'ts');
+    if (available) {
+      const workspaceName = vscode.workspace.workspaceFolders?.[0]?.name ?? 'current project';
+      contextEngine.runForecast(workspaceName).then((forecast) => {
+        if (forecast !== null) {
+          statusBar.setForecast(forecast);
+        }
+      }).catch(() => undefined);
+    }
   }).catch(() => undefined);
 
   // Restore auth token from SecretStorage — async, best-effort

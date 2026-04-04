@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { readFileSync } from 'fs';
+import { homedir } from 'os';
 import type { LoopEvent, SessionMetrics } from '@loopguard/types';
 import { formatDuration } from '@loopguard/utils';
 import type { DashboardSummary } from '../services/apiClient';
@@ -76,7 +78,29 @@ export class DashboardPanel {
       activeLoops,
       accountSummary,
       DashboardPanel._engineTier,
+      loadMemoryEntries(),
     );
+  }
+}
+
+interface MemoryEntry {
+  id: string;
+  error_fingerprint: string;
+  error_text: string;
+  fix_file: string;
+  fix_description: string;
+  seen_count: number;
+}
+
+function loadMemoryEntries(): MemoryEntry[] {
+  try {
+    const path = `${homedir()}/.loopguard-ctx/memory.json`;
+    const raw = readFileSync(path, 'utf-8');
+    const parsed = JSON.parse(raw) as { entries?: unknown[] };
+    if (!Array.isArray(parsed.entries)) return [];
+    return (parsed.entries as MemoryEntry[]).slice(-5).reverse();
+  } catch {
+    return [];
   }
 }
 
@@ -86,6 +110,7 @@ function buildHtml(
   activeLoops: LoopEvent[],
   accountSummary: DashboardSummary | null,
   engineTier: 'rust' | 'ts',
+  memoryEntries: MemoryEntry[] = [],
 ): string {
   const sessionDuration = formatDuration(Date.now() - metrics.startTime);
   const timeWasted = formatDuration(metrics.totalTimeWasted);
@@ -795,6 +820,17 @@ function buildHtml(
             <a class="button-secondary" href="command:loopguard.resetSession">Reset session</a>
           </div>
         </section>
+
+        ${memoryEntries.length > 0 ? `
+        <section class="rail-block">
+          <h2 class="rail-title">Past fixes (ctx_memory)</h2>
+          ${memoryEntries.map((e: MemoryEntry) => `
+          <div class="detail-row">
+            <div class="detail-label" style="max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(e.error_text)}">${escHtml(e.error_fingerprint)}</div>
+            <div class="detail-value c-green" style="font-size:10px;max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(e.fix_description)}">${escHtml(e.fix_file)}</div>
+          </div>`).join('')}
+          <p style="margin-top:8px;font-size:10px;color:var(--text-muted)">Record fixes with ctx_memory(action="record", ...)</p>
+        </section>` : ''}
 
         ${accountSnapshot}
       </aside>
