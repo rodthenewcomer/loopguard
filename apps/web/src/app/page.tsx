@@ -381,7 +381,7 @@ export default function LandingPage() {
               <div className="mt-8 space-y-4">
                 {[
                   'Diagnostic loops and repeated edit patterns are both tracked locally.',
-                  'Session metrics update live in the extension so you can see the cost building up.',
+                  'Session metrics update live in the sidebar panel and status bar as you code.',
                   'The web dashboard is optional. Core protection still works fully offline.',
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-3 border-t border-white/8 pt-4 text-sm leading-7 text-[#8CA1B8]">
@@ -488,7 +488,7 @@ export default function LandingPage() {
               <div className="space-y-5">
                 {[
                   'Install the LoopGuard extension and open any workspace.',
-                  'Loop detection and status bar metrics start automatically.',
+                  'Loop detection starts automatically — sidebar panel and status bar update live.',
                   'Sign in only if you want session history on the web dashboard.',
                 ].map((item, index) => (
                   <div key={item} className="grid grid-cols-[32px_1fr] gap-4 border-b border-white/8 pb-5 last:border-b-0 last:pb-0">

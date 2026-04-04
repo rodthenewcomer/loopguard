@@ -43,7 +43,8 @@ const NAV = [
   {
     group: 'Dashboard & Sync',
     items: [
-      { label: 'VS Code dashboard', id: 'dashboard' },
+      { label: 'Sidebar panel', id: 'sidebar' },
+      { label: 'Session dashboard', id: 'dashboard' },
       { label: 'Account & sync', id: 'sync' },
     ],
   },
@@ -488,9 +489,27 @@ loopguard-ctx setup`}</Pre>
             ]}
           />
 
-          <H2 id="dashboard">VS Code dashboard</H2>
+          <H2 id="sidebar">Sidebar panel</H2>
           <P>
-            Run <Code>LoopGuard: Show Dashboard</Code> to open the live in-editor view.
+            Click the LoopGuard icon in the Activity Bar (or run{' '}
+            <Code>LoopGuard: Focus Sidebar Panel</Code>) to open the persistent live panel.
+            It stays visible alongside your code without taking up an editor tab.
+          </P>
+          <CheckList
+            items={[
+              'Header: pulse dot (red = active loops, green = clean) and engine badge (Rust / TS)',
+              'KPI grid: session time, total loops, time lost, and tokens saved — updates on every change',
+              'Active loops list: hash, repeat count, and time wasted per loop',
+              'All-time savings (tokens + cost avoided) when signed in with web sync',
+              'Quick-action buttons: Copy Optimized Context, Open Dashboard, Reset Session',
+              'Auth row: signed-in email + Sign Out, or a Sign In CTA',
+            ]}
+          />
+
+          <H2 id="dashboard">Session dashboard</H2>
+          <P>
+            Run <Code>LoopGuard: Show Dashboard</Code> to open the full in-editor webview panel.
+            This opens beside your active editor and shows the complete session view.
           </P>
           <CheckList
             items={[
