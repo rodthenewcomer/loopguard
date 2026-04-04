@@ -31,7 +31,7 @@ export default function HeroCta() {
 
   useEffect(() => {
     // Race getSession against a 3-second timeout to avoid blocking the CTA render
-    const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+    const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 2000));
     const sessionFetch = supabase.auth.getSession().then(({ data }) => data.session);
 
     Promise.race([sessionFetch, timeout])
