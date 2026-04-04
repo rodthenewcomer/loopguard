@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
+import { SUPPORT_URL } from '../../lib/constants';
 
 export default function UpgradePage() {
-  redirect('https://buymeacoffee.com/rodthenewcomer');
+  redirect(SUPPORT_URL);
 }
