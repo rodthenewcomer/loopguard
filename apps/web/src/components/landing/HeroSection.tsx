@@ -160,7 +160,10 @@ export default function HeroSection() {
 
                 <div className="px-6 py-6">
                   <div className="mb-5 flex items-center justify-between">
-                    <div className="text-sm font-semibold text-white">Focused context</div>
+                    <div>
+                      <div className="text-sm font-semibold text-white">Focused context</div>
+                      <div className="mt-0.5 text-[11px] text-[#50657D]">340-line file · 24 lines kept</div>
+                    </div>
                     <div className="text-xs uppercase tracking-[0.22em] text-[#7B95AE]">7% kept</div>
                   </div>
                   <div className="rounded-[24px] border border-white/8 bg-black/20 p-4">
