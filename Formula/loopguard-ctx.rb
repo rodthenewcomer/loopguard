@@ -7,22 +7,22 @@ class LoopguardCtx < Formula
   on_macos do
     on_arm do
       url "https://github.com/rodthenewcomer/loopguard/releases/download/v#{version}/loopguard-ctx-aarch64-apple-darwin.tar.gz"
-      sha256 "PLACEHOLDER_AARCH64_APPLE"
+      sha256 "PLACEHOLDER_AARCH64_APPLE_DARWIN_SHA256"
     end
     on_intel do
       url "https://github.com/rodthenewcomer/loopguard/releases/download/v#{version}/loopguard-ctx-x86_64-apple-darwin.tar.gz"
-      sha256 "PLACEHOLDER_X86_64_APPLE"
+      sha256 "PLACEHOLDER_X86_64_APPLE_DARWIN_SHA256"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/rodthenewcomer/loopguard/releases/download/v#{version}/loopguard-ctx-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "PLACEHOLDER_AARCH64_LINUX"
+      sha256 "PLACEHOLDER_AARCH64_LINUX_SHA256"
     end
     on_intel do
       url "https://github.com/rodthenewcomer/loopguard/releases/download/v#{version}/loopguard-ctx-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "PLACEHOLDER_X86_64_LINUX"
+      sha256 "PLACEHOLDER_X86_64_LINUX_SHA256"
     end
   end
 
