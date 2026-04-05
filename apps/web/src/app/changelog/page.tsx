@@ -7,7 +7,86 @@ export const metadata: Metadata = {
   description: 'Every release, every fix, every improvement to LoopGuard.',
 };
 
-const RELEASES = [
+interface ReleaseSection {
+  label: string;
+  color: string;
+  items: string[];
+}
+
+interface Release {
+  version: string;
+  date: string;
+  tag: string;
+  tagColor: string;
+  summary: string;
+  sections: ReleaseSection[];
+}
+
+const RELEASES: Release[] = [
+  {
+    version: 'v2.8.0',
+    date: 'April 2026',
+    tag: 'New',
+    tagColor: '#22D3EE',
+    summary: 'Adds ctx_knowledge and ctx_agent — persistent project knowledge and multi-agent scratchpad. Any MCP-connected agent can now read and write shared facts, making handoffs between Claude Code, Cursor, Codex CLI, and Antigravity seamless. Adds full Antigravity IDE support. npm distribution now live.',
+    sections: [
+      {
+        label: 'ctx_knowledge — Project Knowledge Store',
+        color: '#22D3EE',
+        items: [
+          'Persistent categorized knowledge store at ~/.loopguard-ctx/knowledge.json',
+          'Actions: set, get, list, delete, clear — all scoped per project automatically',
+          'Fuzzy key matching on get — no exact spelling required',
+          'Grouped-by-category output on list for readable overviews',
+          'Capped at 2,000 entries with LRU eviction — never grows unbounded',
+          'All agents on the same machine share the same knowledge file',
+        ],
+      },
+      {
+        label: 'ctx_agent — Multi-Agent Scratchpad',
+        color: '#A78BFA',
+        items: [
+          'Shared scratchpad at ~/.loopguard-ctx/agent-scratchpad.json',
+          'Actions: write, read, list, delete, clear — notes scoped per project and labeled per agent',
+          'TTL support — notes auto-expire after a configurable number of hours',
+          'Fuzzy label matching on read — finds related notes even with inexact queries',
+          'Grouped-by-agent output on list so you can see what each agent last wrote',
+          'Hard cap at 500 notes with recency eviction',
+          'Enables start-in-one-agent, continue-in-another handoffs without re-explaining context',
+        ],
+      },
+      {
+        label: 'Antigravity IDE',
+        color: '#F59E0B',
+        items: [
+          'Full Antigravity IDE integration — MCP + instruction layer via ANTIGRAVITY.md',
+          'loopguard-ctx setup --agent=antigravity writes the MCP config and intelligence hooks',
+          'Automatic URI scheme detection for Antigravity fork (antigravity://) added to extension auth flow',
+        ],
+      },
+      {
+        label: 'Distribution',
+        color: '#22C55E',
+        items: [
+          'npm package loopguard-ctx-bin now published on every release tag — npm install -g loopguard-ctx-bin',
+          'Homebrew formula updated to homebrew-core compatible structure with real SHA256s',
+          'Release CI now auto-publishes to npm and auto-updates the Homebrew formula with checksums',
+          'GitHub Release notes now include npm install instructions alongside Homebrew and curl paths',
+        ],
+      },
+      {
+        label: 'Docs & Setup',
+        color: '#2563EB',
+        items: [
+          '"What you get in 60 seconds" callout added at the top of the setup page',
+          'Glossary callout defining token, MCP, and context added to docs page',
+          '"Zero-gap setup" renamed to "One-command agent setup" with plain-English description',
+          'Setup page subtitle and helper path cards rewritten to remove MCP jargon',
+          'ctx_knowledge and ctx_agent fully documented in docs page with usage examples',
+        ],
+      },
+    ],
+  },
   {
     version: 'v0.1.0',
     date: 'March 2026',
