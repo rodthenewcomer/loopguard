@@ -62,8 +62,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
 
   if (insertError !== null) {
-    console.error('[auth/code] Insert failed:', insertError.message);
-    return NextResponse.json({ error: 'Failed to create code' }, { status: 500 });
+    console.error('[auth/code] Insert failed:', insertError.message, insertError.code, insertError.details);
+    return NextResponse.json({ error: 'Failed to create code', detail: insertError.message, code: insertError.code }, { status: 500 });
   }
 
   return NextResponse.json({ code });
