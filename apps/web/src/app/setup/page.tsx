@@ -99,8 +99,18 @@ export default function SetupPage() {
           <h1 className="mb-3 text-4xl font-bold text-white">Set up LoopGuard</h1>
           <p className="mx-auto max-w-2xl text-lg text-[#6B7280]">
             Start with the extension if you want loop alerts inside your editor. Add the local helper
-            when you want focused MCP reads, agent integrations, and smaller shell output.
+            when you want your AI agent to read only the code that matters — not whole files — and get cleaner terminal output.
           </p>
+        </div>
+
+
+        <div className="mb-10 rounded-2xl border border-[#22D3EE]/20 bg-[#22D3EE]/5 px-6 py-5">
+          <p className="mb-1 text-xs font-bold uppercase tracking-widest text-[#22D3EE]">What you get in 60 seconds</p>
+          <ul className="mt-3 space-y-2 text-sm text-[#9CA3AF]">
+            <li className="flex items-start gap-2.5"><span className="mt-0.5 text-[#22D3EE]">→</span><span><strong className="text-white">Loop alerts</strong> — LoopGuard notices when you keep hitting the same error and tells you before you waste another hour.</span></li>
+            <li className="flex items-start gap-2.5"><span className="mt-0.5 text-[#22D3EE]">→</span><span><strong className="text-white">Focused context copy</strong> — instead of pasting an entire file into AI chat, copy only the few lines that actually matter.</span></li>
+            <li className="flex items-start gap-2.5"><span className="mt-0.5 text-[#22D3EE]">→</span><span><strong className="text-white">Smaller AI prompts</strong> — the helper trims noisy terminal output so your AI agent gets a compact, useful summary instead of 3,000 lines of npm logs.</span></li>
+          </ul>
         </div>
 
         <div className="mb-12 grid gap-3 rounded-3xl border border-[#1F2937] bg-[linear-gradient(160deg,#111827,#0d1727)] p-5 sm:grid-cols-2">
@@ -121,11 +131,11 @@ export default function SetupPage() {
               Helper path
             </div>
             <div className="mt-2 text-lg font-semibold text-white">
-              MCP tools, agent setup, cleaner terminal output
+              Smarter AI reads, agent setup, cleaner terminal output
             </div>
             <p className="mt-2 text-sm leading-6 text-[#6B7280]">
-              Install <code className="text-xs text-[#9CA3AF]">loopguard-ctx</code> when you want
-              LoopGuard outside the editor too.
+              Install <code className="text-xs text-[#9CA3AF]">loopguard-ctx</code> to let your AI agent
+              read only the relevant code, not whole files. Works with Claude Code, Cursor, Codex CLI, and more.
             </p>
           </div>
         </div>
@@ -423,16 +433,7 @@ export default function SetupPage() {
                 <Code>ctx_session load</Code>
               </Step>
 
-              <Step n={5} title="Share knowledge across agents">
-                <Lead>
-                  Store facts and hand off work to any other agent — Cursor, Codex CLI, Antigravity — without re-explaining context.
-                </Lead>
-                <Code>{`ctx_knowledge(action="set", key="arch.auth", value="Supabase JWT + RLS", category="architecture")
-ctx_agent(action="write", agent="claude-code", label="handoff", content="stopped at line 84 in authService.ts")`}</Code>
-                <p className="mt-2 text-xs text-[#4B5563]">
-                  Any MCP-connected agent in the same project can read these immediately.
-                </p>
-              </Step>
+
             </SectionCard>
           </div>
 

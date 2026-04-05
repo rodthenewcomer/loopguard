@@ -15,7 +15,7 @@ const NAV = [
       { label: 'Installation', id: 'installation' },
       { label: 'First launch', id: 'first-launch' },
       { label: 'Quick reference', id: 'commands' },
-      { label: 'Zero-gap setup', id: 'zero-gap' },
+      { label: 'One-command setup', id: 'zero-gap' },
     ],
   },
   {
@@ -261,13 +261,32 @@ export default function DocsPage() {
             </p>
           </div>
 
+
+          <div className="mb-10 rounded-2xl border border-[#374151] bg-[#111827]/60 px-6 py-5">
+            <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#6B7280]">New here? Three terms worth knowing</p>
+            <dl className="space-y-3 text-sm">
+              <div className="flex gap-3">
+                <dt className="w-20 flex-shrink-0 font-semibold text-white">Token</dt>
+                <dd className="text-[#9CA3AF]">The unit AI models charge per. Roughly 4 characters = 1 token. Sending a whole 500-line file costs ~3,000 tokens. LoopGuard trims that to the ~200 tokens that actually matter.</dd>
+              </div>
+              <div className="flex gap-3">
+                <dt className="w-20 flex-shrink-0 font-semibold text-white">MCP</dt>
+                <dd className="text-[#9CA3AF]">A standard protocol that lets AI agents call external tools. When LoopGuard is wired as an MCP server, your AI can ask it "read only the relevant lines" instead of reading the whole file itself.</dd>
+              </div>
+              <div className="flex gap-3">
+                <dt className="w-20 flex-shrink-0 font-semibold text-white">Context</dt>
+                <dd className="text-[#9CA3AF]">Everything sent to the AI in a single request. The smaller and more focused the context, the faster and cheaper the response — and the less likely the AI hallucinates from irrelevant noise.</dd>
+              </div>
+            </dl>
+          </div>
+
           <H2 id="installation">Installation</H2>
           <P>LoopGuard has two install paths. Pick the one that matches how you work today.</P>
           <Table
             headers={['Path', 'What you get', 'Account needed?']}
             rows={[
               ['VS Code extension', 'Loop alerts + focused context + dashboard', 'No (optional for sync)'],
-              ['Local helper', 'MCP tools + shell cleanup + agent setup', 'No — runs locally'],
+              ['Local helper', 'Focused reads for AI agents + cleaner terminal output', 'No — runs locally'],
             ]}
           />
           <Note>
@@ -312,10 +331,9 @@ loopguard-ctx --version`}</Pre>
             extension too.
           </Warning>
 
-          <H2 id="zero-gap">Zero-gap setup</H2>
+          <H2 id="zero-gap">One-command agent setup</H2>
           <P>
-            Once <Code>loopguard-ctx</Code> is installed, one command wires every layer for your AI
-            agent — MCP config, hook scripts, global CLAUDE.md rules, and shell aliases.
+            Once <Code>loopguard-ctx</Code> is installed, one command wires everything so your AI agent automatically uses focused reads instead of reading whole files. It sets up the connection config (MCP), adds the guidance rules, and installs the shell hooks — all in one shot.
           </P>
           <Pre>{`# Claude Code (installs MCP + PreToolUse hooks + CLAUDE.md + shell aliases)
 loopguard-ctx setup --agent=claude
