@@ -63,6 +63,8 @@ const NAV = [
       { label: 'ctx_forecast', id: 'ctx-forecast' },
       { label: 'ctx_memory', id: 'ctx-memory' },
       { label: 'ctx_predict', id: 'ctx-predict' },
+      { label: 'ctx_knowledge', id: 'ctx-knowledge' },
+      { label: 'ctx_agent', id: 'ctx-agent' },
     ],
   },
   {
@@ -786,6 +788,66 @@ loopguard-ctx predict "Fix the Zod validation on the auth route" --path=. --limi
               'Session history boost — files touched this session rank higher',
               'Respects workspace root and skips node_modules, .git, target',
               'Configurable result limit (default: 10)',
+            ]}
+          />
+
+          <H3 id="ctx-knowledge">ctx_knowledge — Project knowledge store</H3>
+          <P>
+            <Code>ctx_knowledge</Code> stores facts, architectural decisions, and team conventions by
+            category so any agent in the same project can retrieve them without re-deriving them.
+            Data lives at <Code>~/.loopguard-ctx/knowledge.json</Code> — never leaves the device.
+          </P>
+          <Pre>{`# MCP — store a fact any agent can retrieve
+ctx_knowledge(action="set", key="arch.auth", value="Supabase JWT + RLS on all tables", category="architecture")
+ctx_knowledge(action="set", key="api.style", value="REST, Zod validation on every route", category="convention")
+
+# Retrieve
+ctx_knowledge(action="get", key="arch.auth")
+
+# List all for this project, optionally filtered by category
+ctx_knowledge(action="list")
+ctx_knowledge(action="list", category="architecture")
+
+# Remove or wipe
+ctx_knowledge(action="delete", key="arch.auth")
+ctx_knowledge(action="clear")`}</Pre>
+          <CheckList
+            items={[
+              'Grouped by category — architecture, decision, convention, or any label you choose',
+              'Fuzzy key matching — ctx_knowledge(get, key="auth") finds "arch.auth" automatically',
+              'Capped at 2000 entries per project',
+              'Available to all MCP-connected tools — Claude Code, Cursor, Codex CLI, Antigravity',
+            ]}
+          />
+
+          <H3 id="ctx-agent">ctx_agent — Multi-agent scratchpad</H3>
+          <P>
+            <Code>ctx_agent</Code> is a shared read/write scratchpad that multiple agents can access
+            simultaneously. Start a task in Claude Code, hand it off to Cursor, and the second agent
+            picks up exactly where you left off.
+          </P>
+          <Pre>{`# Write a note before stopping work
+ctx_agent(action="write", agent="claude-code", label="current-task",
+  content="Refactoring auth middleware — stopped at line 84 in authService.ts, next: add Zod schema")
+
+# Another agent reads it to continue
+ctx_agent(action="read", label="current-task")
+
+# See all notes left by all agents for this project
+ctx_agent(action="list")
+
+# Auto-expire a note after 4 hours
+ctx_agent(action="write", agent="cursor", label="scratch", content="...", ttl_hours=4)
+
+# Clean up
+ctx_agent(action="delete", label="current-task")
+ctx_agent(action="clear")`}</Pre>
+          <CheckList
+            items={[
+              'Works across Claude Code, Cursor, Codex CLI, Antigravity — any MCP-connected agent',
+              'Optional TTL: notes auto-expire after N hours so the pad stays clean',
+              'List groups notes by agent so you can see who wrote what',
+              'Stored at ~/.loopguard-ctx/agent-scratchpad.json — local only, never synced',
             ]}
           />
 

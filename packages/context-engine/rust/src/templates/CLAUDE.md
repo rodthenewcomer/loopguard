@@ -52,3 +52,14 @@ These are NOT optional. The UserPromptSubmit hook will remind you on every new c
 | `ctx_wrapped("session")` | End of session or when user asks about savings/cost |
 | `ctx_wrapped("today")` | When user asks about today's usage |
 | `ctx_wrapped("week")` | When user asks about weekly usage |
+
+## Knowledge & multi-agent tools
+
+| Tool | When |
+|---|---|
+| `ctx_knowledge(action="set", key, value, category)` | Store an architectural decision, convention, or fact — any agent in this project can retrieve it |
+| `ctx_knowledge(action="get", key)` | Retrieve a stored fact before making a decision that depends on it |
+| `ctx_knowledge(action="list")` | See all stored facts for this project |
+| `ctx_agent(action="write", agent, label, content)` | Hand off work to another agent — write your current state so it can continue |
+| `ctx_agent(action="read", label)` | Pick up where another agent left off |
+| `ctx_agent(action="list")` | See all notes left by all agents for this project |

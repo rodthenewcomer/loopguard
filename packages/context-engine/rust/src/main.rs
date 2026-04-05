@@ -135,7 +135,7 @@ fn main() {
                 return;
             }
             "--version" | "-V" => {
-                println!("loopguard-ctx 2.7.0");
+                println!("loopguard-ctx 2.8.0");
                 return;
             }
             "--help" | "-h" => {
@@ -259,9 +259,9 @@ fn shell_quote(s: &str) -> String {
 
 fn print_help() {
     println!(
-        "loopguard-ctx 2.7.0 — Local helper for focused reads and smaller shell output
+        "loopguard-ctx 2.8.0 — Local helper for focused reads and smaller shell output
 
-90+ shell patterns | 21 MCP tools | optional session restore
+90+ shell patterns | 23 MCP tools | optional session restore
 
 USAGE:
     loopguard-ctx                       Start MCP server (stdio)

@@ -422,6 +422,17 @@ export default function SetupPage() {
                 </Lead>
                 <Code>ctx_session load</Code>
               </Step>
+
+              <Step n={5} title="Share knowledge across agents">
+                <Lead>
+                  Store facts and hand off work to any other agent — Cursor, Codex CLI, Antigravity — without re-explaining context.
+                </Lead>
+                <Code>{`ctx_knowledge(action="set", key="arch.auth", value="Supabase JWT + RLS", category="architecture")
+ctx_agent(action="write", agent="claude-code", label="handoff", content="stopped at line 84 in authService.ts")`}</Code>
+                <p className="mt-2 text-xs text-[#4B5563]">
+                  Any MCP-connected agent in the same project can read these immediately.
+                </p>
+              </Step>
             </SectionCard>
           </div>
 

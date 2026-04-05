@@ -27,10 +27,30 @@ Use LoopGuard MCP tools when you need to inspect a repo without dragging in unne
 
 ## Session restore
 
-If this project already has helper session state, you can restore it with:
+If this project already has helper session state, restore it with:
 
 ```text
 ctx_session load
 ```
 
-Use session restore when it helps. It is optional.
+## Project knowledge
+
+Store and retrieve facts, decisions, and conventions any agent can access:
+
+```text
+ctx_knowledge(action="set", key="arch.auth", value="Supabase JWT + RLS", category="architecture")
+ctx_knowledge(action="get", key="arch.auth")
+ctx_knowledge(action="list")
+```
+
+## Multi-agent handoff
+
+Hand off work between agents (Claude Code, Cursor, Codex, Antigravity):
+
+```text
+ctx_agent(action="write", agent="claude-code", label="current-task", content="stopped at auth middleware line 84")
+ctx_agent(action="read",  label="current-task")
+ctx_agent(action="list")
+```
+
+- `ctx_dedup` — analyze or apply cross-file deduplication

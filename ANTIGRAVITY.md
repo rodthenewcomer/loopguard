@@ -20,17 +20,32 @@
 As an Antigravity Agent working inside this repository, you must actively integrate LoopGuard into your own workflow!
 
 ### The Mandatory Setup & Usage Protocol
-Antigravity operates with LoopGuard integration active! Ensure you observe the following:
 
 - **Forecast Before You Act:**
   Before diving into any large refactoring or coding session, run `loopguard-ctx forecast "<task>"` natively via shell.
-  
+
 - **Context Memory Retrieval:**
-  If you notice repeated warnings/errors or get stuck in a "loop", query the local fix memory: `loopguard-ctx memory action="query" ...`.
-  Always record a breakthrough for the next agent: `loopguard-ctx memory action="record" --err="..." --fix="..."`.
+  If you notice repeated warnings/errors or get stuck in a "loop", query the local fix memory: `ctx_memory(action="query", query="...")`.
+  Always record a breakthrough: `ctx_memory(action="record", error_text="...", fix_file="...", fix_description="...")`.
+
+- **Project Knowledge:**
+  Store architectural decisions and conventions so any agent can retrieve them:
+  ```
+  ctx_knowledge(action="set", key="arch.auth", value="Supabase JWT + RLS on all tables", category="architecture")
+  ctx_knowledge(action="get", key="arch.auth")
+  ctx_knowledge(action="list")
+  ```
+
+- **Multi-Agent Handoff:**
+  Write your current state before stopping so another agent can continue:
+  ```
+  ctx_agent(action="write", agent="antigravity", label="current-task", content="Stopped at auth middleware line 84 — next step is adding Zod validation")
+  ctx_agent(action="read",  label="current-task")
+  ctx_agent(action="list")
+  ```
 
 - **Context Reading Limits:**
-  Do not use blind file dumps! Prefer standard Antigravity specific `view_file` reads rather than executing bare `cat` commands inside `run_command` bash strings. Loopguard shell compression `[loopguard-ctx]` implicitly monitors the commands and restricts heavy outputs natively, preventing token burn.
+  Do not use blind file dumps. Prefer `ctx_read` over bare `cat` commands. Loopguard shell compression monitors commands and restricts heavy outputs natively, preventing token burn.
 
 ### Strict Coding Directives
 When contributing code to the workspace, you write **production-level code only**.

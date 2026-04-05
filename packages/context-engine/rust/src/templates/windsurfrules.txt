@@ -17,8 +17,24 @@ Prefer LoopGuard MCP tools when you need smaller reads and cleaner command outpu
 - diff after changes
 - lines:N-M for exact ranges
 
-## Optional session restore
+## Session restore
 
 If you are coming back to a previous helper session:
 
   ctx_session load
+
+## Project knowledge
+
+Store and retrieve facts any agent can access:
+
+  ctx_knowledge(action="set", key="arch.db", value="Supabase Postgres with RLS", category="architecture")
+  ctx_knowledge(action="get", key="arch.db")
+  ctx_knowledge(action="list")
+
+## Multi-agent handoff
+
+Hand off work to another agent or pick up where one left off:
+
+  ctx_agent(action="write", agent="windsurf", label="current-task", content="...")
+  ctx_agent(action="read",  label="current-task")
+  ctx_agent(action="list")

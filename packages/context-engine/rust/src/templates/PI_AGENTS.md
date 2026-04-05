@@ -19,6 +19,26 @@ cargo test          # automatically compressed
 kubectl get pods    # automatically compressed
 ```
 
+## Project knowledge
+
+Store and retrieve facts, decisions, and conventions any agent can access:
+
+```text
+ctx_knowledge(action="set", key="arch.auth", value="Supabase JWT + RLS", category="architecture")
+ctx_knowledge(action="get", key="arch.auth")
+ctx_knowledge(action="list")
+```
+
+## Multi-agent handoff
+
+Hand off work between agents (Pi, Claude Code, Cursor, Codex):
+
+```text
+ctx_agent(action="write", agent="pi", label="current-task", content="stopped at auth middleware line 84")
+ctx_agent(action="read",  label="current-task")
+ctx_agent(action="list")
+```
+
 ## Checking status
 
 Use `/loopguard-ctx` in Pi to verify which binary is active.
