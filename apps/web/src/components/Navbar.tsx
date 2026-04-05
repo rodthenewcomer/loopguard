@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import LoopGuardLogo from './LoopGuardLogo';
 import { supabase } from '../lib/supabase';
-import { GITHUB_URL, MARKETPLACE_URL } from '../lib/constants';
+import { GITHUB_URL, MARKETPLACE_URL, SUPPORT_URL } from '../lib/constants';
 
 const NAV_LINKS = [
   { label: 'Features',     href: '/#features' },
@@ -125,7 +125,13 @@ export default function Navbar() {
                 Log in
               </Link>
               <a
-                href={MARKETPLACE_URL}
+                href={SUPPORT_URL}
+                className="text-sm font-medium text-[#F59E0B] transition hover:text-[#FBB535]"
+              >
+                ☕ Support
+              </a>
+              <a
+          href={MARKETPLACE_URL}
                 className="px-4 py-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-blue-900/30"
               >
                 Install free
