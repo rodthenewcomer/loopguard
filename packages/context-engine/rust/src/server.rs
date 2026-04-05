@@ -410,6 +410,43 @@ impl ServerHandler for LoopguardCtxServer {
                         }),
                     ),
                     tool_def(
+                        "ctx_knowledge",
+                        "Persistent categorised project knowledge store — store and retrieve facts, decisions, and conventions by category. Any agent in the same project can read entries. Data lives at ~/.loopguard-ctx/knowledge.json — never synced.",
+                        json!({
+                            "type": "object",
+                            "properties": {
+                                "action": {
+                                    "type": "string",
+                                    "enum": ["set", "get", "list", "delete", "clear"],
+                                    "description": "set=store fact, get=retrieve by key, list=all entries, delete=remove key, clear=wipe project"
+                                },
+                                "key":      { "type": "string",  "description": "Entry key (required for set, get, delete)" },
+                                "value":    { "type": "string",  "description": "Entry value (required for set)" },
+                                "category": { "type": "string",  "description": "Category label, e.g. 'architecture', 'decision', 'convention' (default: general)" },
+                                "project":  { "type": "string",  "description": "Project name (defaults to cwd dirname)" },
+                                "limit":    { "type": "integer", "description": "Max entries to return for list (default: 30)" }
+                            },
+                            "required": ["action"]
+                        }),
+                    ),
+                    tool_def(
+                        "ctx_agent",
+                        "Multi-agent shared scratchpad — write named notes and read each other's notes across agents (Claude Code, Cursor, Codex, Antigravity). Enables real-time handoff: start a task in one agent, continue in another. Data lives at ~/.loopguard-ctx/agent-scratchpad.json — local only.",
+                        json!({
+                            "type": "object",
+                            "properties": {
+                                "action":     { "type": "string",  "enum": ["write", "read", "list", "delete", "clear"], "description": "write=store note, read=retrieve by label, list=all notes, delete=remove, clear=wipe project" },
+                                "label":      { "type": "string",  "description": "Note label/name (required for write, read, delete)" },
+                                "content":    { "type": "string",  "description": "Note content (required for write)" },
+                                "agent":      { "type": "string",  "description": "Agent name writing this note, e.g. 'claude-code', 'cursor' (default: unknown)" },
+                                "project":    { "type": "string",  "description": "Project name (defaults to cwd dirname)" },
+                                "ttl_hours":  { "type": "integer", "description": "Auto-expire after N hours (optional)" },
+                                "limit":      { "type": "integer", "description": "Max notes to return for list (default: 20)" }
+                            },
+                            "required": ["action"]
+                        }),
+                    ),
+                    tool_def(
                         "ctx_predict",
                         "Predictive context pre-selection — rank files by predicted relevance                         BEFORE reading anything. Given a task description, scores every file in the                         workspace by keyword overlap, path relevance, and session history.                         Returns a ranked list with suggested next steps.                         Use before ctx_read to avoid reading the wrong files first.",
                         json!({
@@ -850,6 +887,36 @@ impl ServerHandler for LoopguardCtxServer {
                 }
                 let result = crate::tools::ctx_memory::handle(&action, &map);
                 self.record_call("ctx_memory", 0, 0, Some(action)).await;
+                result
+            }
+            "ctx_knowledge" => {
+                let action = get_str(args, "action")
+                    .ok_or_else(|| ErrorData::invalid_params("action is required", None))?;
+                let mut map = std::collections::HashMap::new();
+                for key in &["key", "value", "category", "project", "limit"] {
+                    if let Some(v) = get_str(args, key) {
+                        map.insert(key.to_string(), v);
+                    } else if let Some(v) = get_int(args, key) {
+                        map.insert(key.to_string(), v.to_string());
+                    }
+                }
+                let result = crate::tools::ctx_knowledge::handle(&action, &map);
+                self.record_call("ctx_knowledge", 0, 0, Some(action)).await;
+                result
+            }
+            "ctx_agent" => {
+                let action = get_str(args, "action")
+                    .ok_or_else(|| ErrorData::invalid_params("action is required", None))?;
+                let mut map = std::collections::HashMap::new();
+                for key in &["label", "content", "agent", "project", "ttl_hours", "limit"] {
+                    if let Some(v) = get_str(args, key) {
+                        map.insert(key.to_string(), v);
+                    } else if let Some(v) = get_int(args, key) {
+                        map.insert(key.to_string(), v.to_string());
+                    }
+                }
+                let result = crate::tools::ctx_agent::handle(&action, &map);
+                self.record_call("ctx_agent", 0, 0, Some(action)).await;
                 result
             }
             "ctx_predict" => {
