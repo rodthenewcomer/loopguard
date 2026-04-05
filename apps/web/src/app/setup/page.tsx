@@ -137,6 +137,7 @@ export default function SetupPage() {
             { label: 'Windsurf', anchor: '#windsurf' },
             { label: 'Codex CLI', anchor: '#codex' },
             { label: 'Claude Code', anchor: '#claude-code' },
+            { label: 'Antigravity', anchor: '#antigravity' },
             { label: 'Shell helper', anchor: '#shell-hooks' },
           ].map((tool) => (
             <a
@@ -420,6 +421,43 @@ export default function SetupPage() {
                   Run this inside Claude Code before starting work to restore context from the previous session:
                 </Lead>
                 <Code>ctx_session load</Code>
+              </Step>
+            </SectionCard>
+          </div>
+
+          <div id="antigravity">
+            <SectionCard
+              title="Antigravity"
+              badge="MCP"
+              icon={
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#22D3EE"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 2l3 7h7l-5 5 2 7-7-4-7 4 2-7-5-5h7z" />
+                </svg>
+              }
+            >
+              <Lead>
+                Antigravity uses LoopGuard as an MCP server for focused context reads and passive shell compression!
+              </Lead>
+
+              <Step n={1} title="Run the setup command">
+                <Code>loopguard-ctx setup --agent=antigravity</Code>
+                <Note>
+                  This adds the MCP entry in <code className="text-[#9CA3AF]">~/.gemini/settings/mcp.json</code> and injects the ANTIGRAVITY.md intelligence hooks.
+                </Note>
+              </Step>
+              
+              <Step n={2} title="Resume agent session">
+                <Lead>Antigravity will now natively leverage loop detection and forecasting tools automatically.</Lead>
               </Step>
             </SectionCard>
           </div>

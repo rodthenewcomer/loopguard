@@ -324,6 +324,9 @@ loopguard-ctx setup --agent=cursor
 # Codex CLI
 loopguard-ctx setup --agent=codex
 
+# Antigravity
+loopguard-ctx setup --agent=antigravity
+
 # All detected editors at once
 loopguard-ctx setup`}</Pre>
           <P>
@@ -629,6 +632,15 @@ args = []`}</Pre>
           <Note>
             Run <Code>ctx_session load</Code> at the start of every Claude Code session to restore the previous task context and saved findings.
           </Note>
+
+          <H3>Antigravity</H3>
+          <P>
+            To wire up Antigravity, simply run the setup tool:
+          </P>
+          <Pre>{`loopguard-ctx setup --agent=antigravity`}</Pre>
+          <P>
+            This configures the <Code>~/.gemini/settings/mcp.json</Code> file to inject the intelligent tools.
+          </P>
 
           <H2 id="shell-hooks">Shell helper</H2>
           <P>

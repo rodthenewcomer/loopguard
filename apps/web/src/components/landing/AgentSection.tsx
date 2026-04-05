@@ -7,12 +7,14 @@ const AGENT_BADGES = [
   { label: 'Codex CLI', icon: IC.terminal },
   { label: 'Windsurf', icon: IC.code },
   { label: 'GitHub Copilot', icon: IC.code },
+  { label: 'Antigravity', icon: IC.terminal },
 ];
 
 const AGENT_COMMANDS = [
   { label: 'Claude Code', cmd: 'loopguard-ctx setup --agent=claude', detail: 'MCP + shell hook + guidance file' },
   { label: 'Cursor', cmd: 'loopguard-ctx setup --agent=cursor', detail: 'MCP + cursor rule file' },
   { label: 'Codex CLI', cmd: 'loopguard-ctx setup --agent=codex', detail: 'MCP + local instruction file' },
+  { label: 'Antigravity', cmd: 'loopguard-ctx setup --agent=antigravity', detail: 'MCP + instruction layer' },
 ];
 
 export default function AgentSection() {
@@ -61,7 +63,7 @@ export default function AgentSection() {
             <div className="border-b border-white/8 px-6 py-5">
               <div className="text-xs uppercase tracking-[0.28em] text-[#7B95AE]">One command per agent</div>
             </div>
-            <div className="grid gap-px bg-white/8 sm:grid-cols-3">
+            <div className="grid gap-px bg-white/8 sm:grid-cols-2 lg:grid-cols-4">
               {AGENT_COMMANDS.map((opt) => (
                 <div key={opt.label} className="bg-[#07111C] px-5 py-5">
                   <div className="mb-1 text-xs font-semibold text-white">{opt.label}</div>
