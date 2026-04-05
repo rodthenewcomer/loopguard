@@ -403,6 +403,8 @@ export default function SetupPage() {
                 <Lead>Choose the method that suits you.</Lead>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Homebrew (macOS / Linux)</p>
                 <Code>{'brew tap rodthenewcomer/loopguard https://github.com/rodthenewcomer/loopguard\nbrew install loopguard-ctx'}</Code>
+                <p className="mt-4 mb-2 text-xs font-semibold uppercase tracking-widest text-[#6B7280]">npm (any platform with Node 16+)</p>
+                <Code>npm install -g loopguard-ctx-bin</Code>
                 <p className="mt-4 mb-2 text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Or curl installer</p>
                 <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download</Code>
                 <p className="mt-3 text-sm text-[#6B7280]">Verify:</p>

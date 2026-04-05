@@ -313,7 +313,7 @@ export default function DocsPage() {
           <Pre>{`brew tap rodthenewcomer/loopguard https://github.com/rodthenewcomer/loopguard
 brew install loopguard-ctx`}</Pre>
           <P>npm (any platform with Node 18+):</P>
-          <Pre>{`npm install -g loopguard-ctx`}</Pre>
+          <Pre>{`npm install -g loopguard-ctx-bin`}</Pre>
           <P>Or curl installer:</P>
           <Pre>{`curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download
 

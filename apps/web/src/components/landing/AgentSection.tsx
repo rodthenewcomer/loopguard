@@ -75,7 +75,7 @@ export default function AgentSection() {
             <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/8 px-6 py-4">
               <p className="text-xs text-[#7B95AE]">
                 Run <code className="text-[#8AE8FF]">loopguard-ctx doctor</code> to verify every layer is green.
-                Install via <code className="text-[#8AE8FF]">brew install loopguard-ctx</code> or <code className="text-[#8AE8FF]">npm i -g loopguard-ctx</code>.
+                Install via <code className="text-[#8AE8FF]">brew install loopguard-ctx</code> or <code className="text-[#8AE8FF]">npm i -g loopguard-ctx-bin</code>.
               </p>
               <a
                 href="/setup#codex"
