@@ -218,8 +218,37 @@ function Skeleton() {
 
 // ─── main dashboard body ──────────────────────────────────────────────────────
 
-function DashboardBody({ data }: { data: SummaryData }) {
+function NoActivityYet() {
+  return (
+    <div className="rounded-2xl border border-[#1A2740] bg-[#0D1826] p-6">
+      <div className="flex items-start gap-4">
+        <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-[#22D3EE]/20 bg-[#22D3EE]/5 text-[#22D3EE]">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div>
+          <div className="text-sm font-semibold text-slate-300">No activity recorded yet</div>
+          <p className="mt-1 text-xs leading-5 text-slate-600">
+            LoopGuard is connected and watching. Metrics appear here as you work:
+          </p>
+          <ul className="mt-2 space-y-1 text-xs text-slate-600">
+            <li className="flex items-center gap-2">
+              <span className="text-amber-400">→</span>
+              <span><strong className="text-slate-500">Loop detection:</strong> trigger the same diagnostic error 3× in one session</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#22D3EE]">→</span>
+              <span><strong className="text-slate-500">Token savings:</strong> use <code className="rounded bg-[#1A2740] px-1 text-[10px]">Copy Optimized Context</code> from the LoopGuard sidebar</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DashboardBody({ data, isLive }: { data: SummaryData; isLive: boolean }) {
   const activeCount = data.recentLoops.filter((l) => l.status === 'active').length;
+  const hasActivity = data.allTime.loops > 0 || data.allTime.tokensSaved > 0;
 
   return (
     <div className="mx-auto max-w-6xl space-y-5 px-6 py-8">
@@ -250,6 +279,9 @@ function DashboardBody({ data }: { data: SummaryData }) {
           accent="text-emerald-400"
         />
       </div>
+
+      {/* no activity yet — only in live mode with no data */}
+      {isLive && !hasActivity && <NoActivityYet />}
 
       {/* active loops alert */}
       <ActiveAlert count={activeCount} />
@@ -311,7 +343,7 @@ export default function DashboardClient() {
     <div className="min-h-screen bg-[#050B14]">
       <TopBar live={isLive} updatedAt={updatedAt} />
       {showBanner && <DemoBanner error={error} />}
-      <DashboardBody data={data} />
+      <DashboardBody data={data} isLive={isLive} />
       <footer className="mx-auto flex max-w-6xl items-center justify-between border-t border-[#1A2740] px-6 py-6 text-xs text-slate-700">
         <span>Your code never leaves your machine.</span>
         <Link href="/privacy" className="transition hover:text-slate-500">Privacy</Link>
