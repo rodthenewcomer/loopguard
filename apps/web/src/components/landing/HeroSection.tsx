@@ -107,7 +107,7 @@ export default function HeroSection() {
               ))}
             </div>
             <div className="border-t border-white/8 px-5 py-3">
-              <p className="text-[11px] leading-5 text-[#4E6B88]">
+              <p className="text-[11px] leading-5 text-[#7B95AE]">
                 <sup>1</sup> Based on 2 h/day heavy AI coding at GPT-4o pricing with 70% prompt reduction applied.{' '}
                 <sup>2</sup> Measured across sessions where LoopGuard detected 3+ repeat loops per day.
               </p>

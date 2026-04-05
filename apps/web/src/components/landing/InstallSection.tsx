@@ -53,7 +53,7 @@ export default function InstallSection() {
                 View setup guide
                 <Icon path={IC.arrow} size={16} />
               </a>
-              <p className="text-center text-xs text-[#4E6B88]">Opens VS Code Marketplace</p>
+              <p className="text-center text-xs text-[#7B95AE]">Opens VS Code Marketplace</p>
             </div>
           </div>
         </div>

@@ -11,7 +11,7 @@ export default function RunsInBar() {
           </span>
         ))}
         <span className="text-white/15">·</span>
-        <span className="text-xs text-[#4E6B88]">Free · no account required · works offline</span>
+        <span className="text-xs text-[#7B95AE]">Free · no account required · works offline</span>
       </div>
     </div>
   );

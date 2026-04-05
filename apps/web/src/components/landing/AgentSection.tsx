@@ -23,7 +23,7 @@ export default function AgentSection() {
         <div className="mx-auto max-w-7xl px-6 py-8 lg:px-10">
           <div className="flex flex-wrap items-center gap-4">
             <div className="h-px flex-1 bg-white/8" />
-            <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4E6B88]">
+            <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#7B95AE]">
               For developers building with AI agents
             </span>
             <div className="h-px flex-1 bg-white/8" />
@@ -66,12 +66,12 @@ export default function AgentSection() {
                 <div key={opt.label} className="bg-[#07111C] px-5 py-5">
                   <div className="mb-1 text-xs font-semibold text-white">{opt.label}</div>
                   <code className="block font-mono text-[11px] text-[#8AE8FF]">{opt.cmd}</code>
-                  <p className="mt-2 text-[11px] text-[#4E6B88]">{opt.detail}</p>
+                  <p className="mt-2 text-[11px] text-[#7B95AE]">{opt.detail}</p>
                 </div>
               ))}
             </div>
             <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/8 px-6 py-4">
-              <p className="text-xs text-[#4E6B88]">
+              <p className="text-xs text-[#7B95AE]">
                 Run <code className="text-[#8AE8FF]">loopguard-ctx doctor</code> to verify every layer is green.
                 Install via <code className="text-[#8AE8FF]">brew install loopguard-ctx</code> or <code className="text-[#8AE8FF]">npm i -g loopguard-ctx</code>.
               </p>
