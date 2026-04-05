@@ -99,8 +99,8 @@ function H2({ id, children }: { id: string; children: React.ReactNode }) {
   );
 }
 
-function H3({ children }: { children: React.ReactNode }) {
-  return <h3 className="mt-8 mb-3 text-lg font-semibold text-[#F9FAFB]">{children}</h3>;
+function H3({ id, children }: { id?: string; children: React.ReactNode }) {
+  return <h3 id={id} className="mt-8 mb-3 text-lg font-semibold text-[#F9FAFB]">{children}</h3>;
 }
 
 function P({ children }: { children: React.ReactNode }) {
