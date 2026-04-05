@@ -45,6 +45,7 @@ export default function ExtensionAuthClient() {
   const [password, setPassword] = useState('');
   const [step, setStep] = useState<'idle' | 'signing-in' | 'authing' | 'done' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [fallbackUrl, setFallbackUrl] = useState('');
 
   const sendCallbackToExtension = async (token: string, userEmail: string, refreshToken?: string) => {
     try {
@@ -64,9 +65,16 @@ export default function ExtensionAuthClient() {
         `${ideScheme}://LoopGuard.loopguard/auth` +
         `?code=${encodeURIComponent(code)}&email=${encodeURIComponent(userEmail)}`;
       window.location.href = callbackUrl;
+      // Give the OS 2s to handle the URI scheme; if the page is still here, show fallback
+      setTimeout(() => {
+        setFallbackUrl(callbackUrl);
+        setStep('error');
+        setErrorMsg('');
+      }, 2000);
     } catch (err) {
       console.error('[ExtensionAuth] sendCallback failed:', err);
-      setErrorMsg('Failed to connect to IDE. Please try again.');
+      setFallbackUrl('');
+      setErrorMsg('Failed to reach the auth API. Please try again.');
       setStep('error');
     }
   };
@@ -177,8 +185,32 @@ export default function ExtensionAuthClient() {
                   className="w-full px-3.5 py-2.5 bg-[#0B1220] border border-[#374151] hover:border-[#4B5563] focus:border-[#2563EB] focus:outline-none rounded-xl text-white text-sm placeholder-[#4B5563] transition-colors"
                 />
 
-                {step === 'error' && (
+                {step === 'error' && errorMsg && (
                   <p className="text-xs text-[#EF4444]">{errorMsg}</p>
+                )}
+                {step === 'error' && fallbackUrl && (
+                  <div className="rounded-xl border border-[#F59E0B]/30 bg-[#F59E0B]/8 p-4 text-left">
+                    <p className="mb-2 text-xs font-semibold text-[#F59E0B]">
+                      URI scheme not registered — open manually
+                    </p>
+                    <p className="mb-3 text-xs leading-5 text-[#D1D5DB]">
+                      Your IDE ({ideScheme}://) wasn&apos;t recognized by the OS. Copy this URL and
+                      open it in your IDE via <strong>Help › Open URL</strong> or paste it into the
+                      address bar of a browser with your IDE installed.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <code className="flex-1 truncate rounded-lg bg-black/40 px-3 py-2 font-mono text-[10px] text-[#8AE8FF]">
+                        {fallbackUrl}
+                      </code>
+                      <button
+                        type="button"
+                        className="shrink-0 rounded-lg bg-[#F59E0B] px-3 py-2 text-xs font-semibold text-black transition hover:bg-[#FBB535]"
+                        onClick={() => void navigator.clipboard.writeText(fallbackUrl)}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
                 )}
 
                 <button
