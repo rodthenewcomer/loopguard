@@ -33,7 +33,9 @@ function NavSkeleton() {
 export default function Navbar() {
   const [scrolled, setScrolled]     = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [userEmail, setUserEmail]   = useState<string | null>(null);
+  // Sourced from supabase.auth.session().user.email — always an RFC 5321 address.
+  // React text nodes are escaped; no XSS risk, but never render via dangerouslySetInnerHTML.
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [authReady, setAuthReady]   = useState(false);
 
   useEffect(() => {
