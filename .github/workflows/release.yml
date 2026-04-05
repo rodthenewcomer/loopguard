@@ -230,6 +230,11 @@ jobs:
             brew install loopguard-ctx
             ```
 
+            **npm (Node 16+, any platform):**
+            ```bash
+            npm install -g loopguard-ctx-bin
+            ```
+
             **One-liner:**
             ```bash
             curl -fsSL https://raw.githubusercontent.com/rodthenewcomer/loopguard/main/packages/context-engine/install.sh | sh -s -- --download
@@ -324,3 +329,27 @@ jobs:
             npx @vscode/vsce publish --packagePath "$vsix" \
               --pat "${{ secrets.VSCE_TOKEN }}"
           done
+
+  # ── Publish npm package ──────────────────────────────────────────
+  publish-npm:
+    name: Publish to npm
+    needs: release
+    runs-on: ubuntu-22.04
+    if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Bump package version and publish
+        working-directory: packages/context-engine/packages/loopguard-ctx-bin
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION_NUM="${VERSION#v}"
+          npm version "$VERSION_NUM" --no-git-tag-version --allow-same-version
+          npm publish --access public
