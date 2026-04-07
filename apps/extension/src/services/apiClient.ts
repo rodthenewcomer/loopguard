@@ -70,11 +70,16 @@ export interface DashboardSummary {
  * automatically refreshes it via /api/v1/auth/refresh using the stored
  * refresh token. The new token pair is persisted via the onTokenRefreshed
  * callback so the user never needs to re-authenticate.
+ *
+ * Auth failure: when a 401 occurs AND the refresh token is also invalid/expired,
+ * onAuthFailed is fired so the extension can sign out and prompt re-auth instead
+ * of silently dropping all metric syncs while still showing "connected".
  */
 export class ApiClient {
   private _token: string | null = null;
   private _refreshToken: string | null = null;
   private _onTokenRefreshed?: (jwt: string, refreshToken: string) => void;
+  private _onAuthFailed?: () => void;
 
   setToken(token: string | null): void {
     this._token = token;
@@ -86,6 +91,11 @@ export class ApiClient {
 
   setOnTokenRefreshed(callback: (jwt: string, refreshToken: string) => void): void {
     this._onTokenRefreshed = callback;
+  }
+
+  /** Called when a 401 is received AND the refresh token is also invalid/expired. */
+  setOnAuthFailed(callback: () => void): void {
+    this._onAuthFailed = callback;
   }
 
   get isAuthenticated(): boolean {
@@ -129,9 +139,7 @@ export class ApiClient {
 
   async getSummary(days: number = 7): Promise<DashboardSummary | null> {
     if (this._token === null) return null;
-
-    const result = await this._getJson<DashboardSummary>(`/api/v1/metrics/summary?days=${days}`);
-    return result;
+    return this._getJson<DashboardSummary>(`/api/v1/metrics/summary?days=${days}`);
   }
 
   /** Attempt a silent token refresh. Returns true if successful. */
@@ -180,6 +188,9 @@ export class ApiClient {
         clearTimeout(timer);
         const refreshed = await this._tryRefresh();
         if (refreshed) return this._getJson<T>(path, true);
+        // Refresh also failed — token is permanently dead
+        logger.warn(`[ApiClient] GET ${path}: 401 and refresh failed, firing onAuthFailed`);
+        this._onAuthFailed?.();
         return null;
       }
 
@@ -217,7 +228,11 @@ export class ApiClient {
         const refreshed = await this._tryRefresh();
         if (refreshed) {
           await this._post(path, body, true);
+          return;
         }
+        // Refresh also failed — token is permanently dead
+        logger.warn(`[ApiClient] POST ${path}: 401 and refresh failed, firing onAuthFailed`);
+        this._onAuthFailed?.();
         return;
       }
 

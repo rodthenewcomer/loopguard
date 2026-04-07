@@ -76,43 +76,23 @@ async function fetchSummary(token: string): Promise<SummaryData> {
   return res.json() as Promise<SummaryData>;
 }
 
+/**
+ * Always get a fresh access token from Supabase before fetching.
+ * Supabase auto-refreshes the browser session in the background, but the
+ * cached session in sessionRef may hold a stale token after ~1 hour.
+ * Calling getSession() here returns the latest token without a network round-trip
+ * (Supabase uses in-memory + localStorage caching).
+ */
+async function fetchSummaryFresh(): Promise<{ data: SummaryData; session: Session } | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session === null) return null;
+  const data = await fetchSummary(session.access_token);
+  return { data, session };
+}
+
 export function useDashboardData(): State {
   const [state, setState] = useState<State>({ status: 'loading' });
   const sessionRef = useRef<Session | null>(null);
-  const refreshDashboardRef = useRef<(sessionOverride?: Session | null) => Promise<void>>(
-    async () => undefined,
-  );
-
-  refreshDashboardRef.current = async (sessionOverride?: Session | null) => {
-    const session = sessionOverride === undefined ? sessionRef.current : sessionOverride;
-    sessionRef.current = session ?? null;
-
-    if (session === null) {
-      startTransition(() => setState({ status: 'not-authed' }));
-      return;
-    }
-
-    if (session === undefined) return;
-
-    try {
-      const data = await fetchSummary(session.access_token);
-      startTransition(() => setState({ status: 'live', data, updatedAt: Date.now() }));
-    } catch (err) {
-      const error = err instanceof Error ? err.message : 'Unknown API error';
-      console.warn('[DashboardData] API fetch failed, using demo data:', error);
-      startTransition(() =>
-        setState((current) => {
-          if (current.status === 'live') return current;
-          return {
-            status: 'demo',
-            data: DEMO_DATA,
-            error,
-            updatedAt: Date.now(),
-          };
-        }),
-      );
-    }
-  };
 
   useEffect(() => {
     let disposed = false;
@@ -125,12 +105,34 @@ export function useDashboardData(): State {
       }
     };
 
+    const refresh = async (): Promise<void> => {
+      try {
+        const result = await fetchSummaryFresh();
+        if (disposed) return;
+        if (result === null) {
+          startTransition(() => setState({ status: 'not-authed' }));
+          clearPollTimer();
+          return;
+        }
+        sessionRef.current = result.session;
+        startTransition(() => setState({ status: 'live', data: result.data, updatedAt: Date.now() }));
+      } catch (err) {
+        if (disposed) return;
+        const error = err instanceof Error ? err.message : 'Unknown API error';
+        console.warn('[DashboardData] API fetch failed:', error);
+        startTransition(() =>
+          setState((current) => {
+            // Keep live data if we already have it; only fall to demo on first failure
+            if (current.status === 'live') return current;
+            return { status: 'demo', data: DEMO_DATA, error, updatedAt: Date.now() };
+          }),
+        );
+      }
+    };
+
     const ensurePolling = (): void => {
       if (pollTimer !== undefined) return;
-      pollTimer = setInterval(() => {
-        if (sessionRef.current === null) return;
-        void refreshDashboardRef.current();
-      }, POLL_INTERVAL_MS);
+      pollTimer = setInterval(() => { void refresh(); }, POLL_INTERVAL_MS);
     };
 
     const bootstrap = async (): Promise<void> => {
@@ -144,7 +146,7 @@ export function useDashboardData(): State {
       }
 
       ensurePolling();
-      await refreshDashboardRef.current(session);
+      await refresh();
     };
 
     void bootstrap();
@@ -158,12 +160,12 @@ export function useDashboardData(): State {
       }
 
       ensurePolling();
-      void refreshDashboardRef.current(session);
+      void refresh();
     });
 
     const handleVisibilityChange = (): void => {
       if (document.visibilityState === 'visible' && sessionRef.current !== null) {
-        void refreshDashboardRef.current();
+        void refresh();
       }
     };
 

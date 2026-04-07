@@ -63,21 +63,31 @@ function TopBar({ live, updatedAt }: { live: boolean; updatedAt: number | null }
   );
 }
 
-function DemoBanner({ error }: { error?: string }) {
+function DemoBanner({ error, signedIn }: { error?: string; signedIn: boolean }) {
   return (
     <div className="border-b border-amber-500/15 bg-amber-500/[0.04]">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
         <p className="text-xs text-amber-400/70">
-          {error
-            ? `Could not reach the API — showing demo data.`
+          {signedIn && error
+            ? 'Could not reach the API — showing demo data. Your extension is still running locally.'
             : 'Showing demo data. Sign in to see your real session metrics.'}
         </p>
-        <Link
-          href="/login"
-          className="flex-shrink-0 rounded-lg border border-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-400 transition hover:border-amber-500/40 hover:text-amber-300"
-        >
-          Sign in →
-        </Link>
+        {signedIn && error ? (
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="flex-shrink-0 rounded-lg border border-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-400 transition hover:border-amber-500/40 hover:text-amber-300"
+          >
+            Retry
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            className="flex-shrink-0 rounded-lg border border-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-400 transition hover:border-amber-500/40 hover:text-amber-300"
+          >
+            Sign in →
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -335,6 +345,7 @@ export default function DashboardClient() {
 
   const isLive = state.status === 'live';
   const showBanner = state.status === 'demo' || state.status === 'not-authed';
+  const signedIn = state.status === 'demo';  // demo + error means signed in but API failing
   const error = state.status === 'demo' ? state.error : undefined;
   const updatedAt = state.status !== 'not-authed' ? state.updatedAt : null;
   const data = state.status === 'live' || state.status === 'demo' ? state.data : DEMO_DATA;
@@ -342,7 +353,7 @@ export default function DashboardClient() {
   return (
     <div className="min-h-screen bg-[#050B14]">
       <TopBar live={isLive} updatedAt={updatedAt} />
-      {showBanner && <DemoBanner error={error} />}
+      {showBanner && <DemoBanner error={error} signedIn={signedIn} />}
       <DashboardBody data={data} isLive={isLive} />
       <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 border-t border-[#1A2740] px-4 py-5 text-xs text-slate-700 sm:px-6 sm:py-6">
         <span>Your code never leaves your machine.</span>

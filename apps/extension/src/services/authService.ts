@@ -6,14 +6,14 @@ const JWT_SECRET_KEY = 'loopguard.auth.jwt';
 const EMAIL_SECRET_KEY = 'loopguard.auth.email';
 const REFRESH_TOKEN_KEY = 'loopguard.auth.refreshToken';
 
-const AUTH_BASE_URL = 'https://loopguard.vercel.app/auth/extension';
+const AUTH_BASE_URL = 'https://loopguard.dev/auth/extension';
 
 /**
  * AuthService — manages Supabase JWT lifecycle for the extension.
  *
  * Sign-in flow:
  *   1. User runs "LoopGuard: Sign In"
- *   2. Browser opens → user authenticates on loopguard.vercel.app
+ *   2. Browser opens → user authenticates on loopguard.dev
  *   3. Web app creates a one-time code in Supabase (5-min TTL) and redirects to:
  *      {scheme}://LoopGuard.loopguard/auth?code=RANDOM_CODE&email=user@example.com
  *      where {scheme} = vscode | cursor | windsurf (read from vscode.env.uriScheme)
@@ -22,6 +22,12 @@ const AUTH_BASE_URL = 'https://loopguard.vercel.app/auth/extension';
  *   6. Both tokens stored in SecretStorage (OS keychain on macOS/Windows/Linux)
  *   7. Access token used for all API calls; refresh token used to silently refresh
  *      when the access token expires (~1 hour) — user never needs to re-authenticate
+ *
+ * Auth failure:
+ *   If a 401 is received AND the refresh token is also invalid/expired, the ApiClient
+ *   fires onAuthFailed. AuthService clears stored tokens and notifies the user to
+ *   sign in again, rather than silently dropping all metric syncs while still showing
+ *   "connected" in the UI.
  *
  * The JWT never appears in browser history, server logs, or referrer headers.
  */
@@ -44,6 +50,12 @@ export class AuthService {
     apiClient.setOnTokenRefreshed((jwt, refreshToken) => {
       void secrets.store(JWT_SECRET_KEY, jwt);
       void secrets.store(REFRESH_TOKEN_KEY, refreshToken);
+    });
+
+    // Handle permanent auth failure (401 + refresh also failed).
+    // Clear stored tokens and notify user so they can re-authenticate.
+    apiClient.setOnAuthFailed(() => {
+      void this._handleAuthExpired();
     });
   }
 
@@ -123,17 +135,34 @@ export class AuthService {
   }
 
   async signOut(): Promise<void> {
+    await this._clearTokens();
+    logger.info('Auth: signed out');
+    this._onAuthStateChanged?.(false);
+    vscode.window.showInformationMessage(
+      'LoopGuard: Signed out. Session data will no longer sync.',
+    );
+  }
+
+  /** Called when the API returns 401 and the refresh token is also dead. */
+  private async _handleAuthExpired(): Promise<void> {
+    logger.warn('Auth: session expired — clearing tokens and prompting re-auth');
+    await this._clearTokens();
+    this._onAuthStateChanged?.(false);
+    const action = await vscode.window.showWarningMessage(
+      'LoopGuard: Your session has expired. Sign in again to resume syncing.',
+      'Sign In',
+    );
+    if (action === 'Sign In') {
+      await this.signIn();
+    }
+  }
+
+  private async _clearTokens(): Promise<void> {
     await this._secrets.delete(JWT_SECRET_KEY);
     await this._secrets.delete(EMAIL_SECRET_KEY);
     await this._secrets.delete(REFRESH_TOKEN_KEY);
     this._apiClient.setToken(null);
     this._apiClient.setRefreshToken(null);
     this._email = null;
-
-    logger.info('Auth: signed out');
-    this._onAuthStateChanged?.(false);
-    vscode.window.showInformationMessage(
-      'LoopGuard: Signed out. Session data will no longer sync.',
-    );
   }
 }
