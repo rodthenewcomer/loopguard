@@ -88,7 +88,7 @@ export default function SupportPage() {
     <div className="min-h-screen bg-[#0B1220]">
       {/* Header */}
       <div className="border-b border-[#1F2937]">
-        <div className="max-w-4xl mx-auto px-6 py-6 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between sm:px-6 sm:py-6">
           <Link href="/" className="flex items-center gap-2.5">
             <LoopGuardLogo showWordmark size={28} />
           </Link>
@@ -98,11 +98,11 @@ export default function SupportPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-16">
+      <div className="max-w-4xl mx-auto px-4 py-10 sm:px-6 sm:py-16">
         {/* Hero */}
         <div className="mb-16">
-          <h1 className="text-4xl font-bold text-white mb-4">Support</h1>
-          <p className="text-[#6B7280] text-lg max-w-xl">
+          <h1 className="text-3xl font-bold text-white mb-4 sm:text-4xl">Support</h1>
+          <p className="text-[#6B7280] text-base max-w-xl sm:text-lg">
             Having trouble? Check the FAQ below or reach out directly — we respond within 24 hours.
           </p>
         </div>
@@ -162,7 +162,7 @@ export default function SupportPage() {
             href="https://github.com/rodthenewcomer/loopguard/issues/new"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-colors"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1D4ED8] sm:w-auto"
           >
             Open a GitHub Issue
           </a>

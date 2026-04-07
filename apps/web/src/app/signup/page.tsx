@@ -54,7 +54,7 @@ export default function SignupPage() {
       </header>
 
       {/* Main */}
-      <main className="flex-1 flex items-center justify-center px-6 py-16">
+      <main className="flex-1 flex items-center justify-center px-4 py-10 sm:px-6 sm:py-16">
         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
 
           {/* Left — what you actually get */}
@@ -63,7 +63,7 @@ export default function SignupPage() {
               Free · No credit card
             </div>
 
-            <h1 className="text-4xl font-bold text-white leading-tight mb-3">
+            <h1 className="text-3xl font-bold text-white leading-tight mb-3 sm:text-4xl">
               What does a free account give you?
             </h1>
             <p className="text-[#6B7280] text-sm leading-relaxed mb-8">

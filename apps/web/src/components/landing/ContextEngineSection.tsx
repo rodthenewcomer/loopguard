@@ -9,12 +9,12 @@ const CTX_BULLETS = [
 
 export default function ContextEngineSection() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
+    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10">
       <div className="grid gap-16 lg:grid-cols-[0.92fr_1fr] lg:items-start">
         <ScrollReveal direction="left">
           <div>
             <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Context engine</div>
-            <h2 className="mt-3 text-4xl font-bold tracking-[-0.05em] text-white sm:text-5xl">
+            <h2 className="mt-3 text-3xl font-bold tracking-[-0.05em] text-white sm:text-4xl lg:text-5xl">
               Smaller prompts.
               <br />
               Cleaner answers.

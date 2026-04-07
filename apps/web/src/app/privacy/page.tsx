@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-[#0B1220]">
       <div className="border-b border-[#1F2937]">
-        <div className="max-w-3xl mx-auto px-6 py-6 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 py-5 flex items-center justify-between sm:px-6 sm:py-6">
           <Link href="/" className="flex items-center gap-2.5">
             <LoopGuardLogo showWordmark size={28} />
           </Link>
@@ -21,8 +21,8 @@ export default function PrivacyPage() {
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="text-4xl font-bold text-white mb-2">Privacy Policy</h1>
+      <div className="max-w-3xl mx-auto px-4 py-10 sm:px-6 sm:py-16">
+        <h1 className="text-3xl font-bold text-white mb-2 sm:text-4xl">Privacy Policy</h1>
         <p className="text-[#4B5563] text-sm mb-16">Last updated: March 2026</p>
 
         <div className="space-y-12 text-[#9CA3AF] text-sm leading-relaxed">
@@ -147,7 +147,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold text-white mb-4">8. Changes to this policy</h2>
             <p>
-              If we make material changes to what data we collect, we will notify signed-in users by email at least 14 days before the change takes effect. The current version is always available at loopguard.vercel.app/privacy.
+              If we make material changes to what data we collect, we will notify signed-in users by email at least 14 days before the change takes effect. The current version is always available at loopguard.dev/privacy.
             </p>
           </section>
 

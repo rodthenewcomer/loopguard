@@ -37,7 +37,7 @@ function StatusDot({ live }: { live: boolean }) {
 function TopBar({ live, updatedAt }: { live: boolean; updatedAt: number | null }) {
   return (
     <header className="sticky top-0 z-30 border-b border-[#1A2740] bg-[#050B14]/95 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="flex items-center gap-3">
           <LoopGuardLogo showWordmark size={22} />
           <span className="hidden text-xs text-slate-600 sm:inline">/ dashboard</span>
@@ -251,7 +251,7 @@ function DashboardBody({ data, isLive }: { data: SummaryData; isLive: boolean })
   const hasActivity = data.allTime.loops > 0 || data.allTime.tokensSaved > 0;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 px-6 py-8">
+    <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 sm:py-8">
       {/* KPI row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
@@ -344,7 +344,7 @@ export default function DashboardClient() {
       <TopBar live={isLive} updatedAt={updatedAt} />
       {showBanner && <DemoBanner error={error} />}
       <DashboardBody data={data} isLive={isLive} />
-      <footer className="mx-auto flex max-w-6xl items-center justify-between border-t border-[#1A2740] px-6 py-6 text-xs text-slate-700">
+      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 border-t border-[#1A2740] px-4 py-5 text-xs text-slate-700 sm:px-6 sm:py-6">
         <span>Your code never leaves your machine.</span>
         <Link href="/privacy" className="transition hover:text-slate-500">Privacy</Link>
       </footer>

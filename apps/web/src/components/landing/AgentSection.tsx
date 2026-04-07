@@ -22,7 +22,7 @@ export default function AgentSection() {
     <>
       {/* ICP divider — secondary audience: developers building with AI agents */}
       <div className="border-t border-white/8 bg-black/30">
-        <div className="mx-auto max-w-7xl px-6 py-8 lg:px-10">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
           <div className="flex flex-wrap items-center gap-4">
             <div className="h-px flex-1 bg-white/8" />
             <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[#7B95AE]">
@@ -33,7 +33,7 @@ export default function AgentSection() {
         </div>
       </div>
 
-      <section id="agent-integration" className="mx-auto max-w-7xl px-6 pb-24 pt-4 lg:px-10">
+      <section id="agent-integration" className="mx-auto max-w-7xl px-4 pb-16 pt-4 sm:px-6 sm:pb-24 lg:px-10">
         <ScrollReveal>
           <div className="mb-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
             <div>

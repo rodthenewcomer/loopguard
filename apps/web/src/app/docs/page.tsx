@@ -210,7 +210,7 @@ export default function DocsPage() {
   return (
     <div className="min-h-screen bg-[#0B1220]">
       <header className="sticky top-0 z-40 border-b border-[#1F2937] bg-[#0B1220]/95 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-3">
             <LoopGuardLogo showWordmark size={28} />
             <span className="hidden text-sm text-[#6B7280] sm:inline">Docs</span>
@@ -232,7 +232,7 @@ export default function DocsPage() {
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-6xl gap-12 px-6 py-12">
+      <div className="mx-auto flex max-w-6xl gap-12 px-4 py-10 sm:px-6 sm:py-12">
         <nav className="sticky top-24 hidden max-h-[calc(100vh-6rem)] w-56 flex-shrink-0 self-start overflow-y-auto pr-2 lg:block">
           {NAV.map((group) => (
             <div key={group.group} className="mb-6">
@@ -254,8 +254,8 @@ export default function DocsPage() {
 
         <main className="min-w-0 flex-1">
           <div className="mb-10">
-            <h1 className="mb-3 text-4xl font-bold text-white">Documentation</h1>
-            <p className="text-lg text-[#6B7280]">
+            <h1 className="mb-3 text-3xl font-bold text-white sm:text-4xl">Documentation</h1>
+            <p className="text-base text-[#6B7280] sm:text-lg">
               Install it, understand what it does locally, and wire the helper into the tools you
               already use.
             </p>
@@ -265,16 +265,16 @@ export default function DocsPage() {
           <div className="mb-10 rounded-2xl border border-[#374151] bg-[#111827]/60 px-6 py-5">
             <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#6B7280]">New here? Three terms worth knowing</p>
             <dl className="space-y-3 text-sm">
-              <div className="flex gap-3">
-                <dt className="w-20 flex-shrink-0 font-semibold text-white">Token</dt>
+              <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
+                <dt className="font-semibold text-white sm:w-20 sm:flex-shrink-0">Token</dt>
                 <dd className="text-[#9CA3AF]">The unit AI models charge per. Roughly 4 characters = 1 token. Sending a whole 500-line file costs ~3,000 tokens. LoopGuard trims that to the ~200 tokens that actually matter.</dd>
               </div>
-              <div className="flex gap-3">
-                <dt className="w-20 flex-shrink-0 font-semibold text-white">MCP</dt>
+              <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
+                <dt className="font-semibold text-white sm:w-20 sm:flex-shrink-0">MCP</dt>
                 <dd className="text-[#9CA3AF]">A standard protocol that lets AI agents call external tools. When LoopGuard is wired as an MCP server, your AI can ask it "read only the relevant lines" instead of reading the whole file itself.</dd>
               </div>
-              <div className="flex gap-3">
-                <dt className="w-20 flex-shrink-0 font-semibold text-white">Context</dt>
+              <div className="flex flex-col gap-1 sm:flex-row sm:gap-3">
+                <dt className="font-semibold text-white sm:w-20 sm:flex-shrink-0">Context</dt>
                 <dd className="text-[#9CA3AF]">Everything sent to the AI in a single request. The smaller and more focused the context, the faster and cheaper the response — and the less likely the AI hallucinates from irrelevant noise.</dd>
               </div>
             </dl>
@@ -315,7 +315,7 @@ brew install loopguard-ctx`}</Pre>
           <P>npm (any platform with Node 18+):</P>
           <Pre>{`npm install -g loopguard-ctx-bin`}</Pre>
           <P>Or curl installer:</P>
-          <Pre>{`curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download
+          <Pre>{`curl -fsSL https://loopguard.dev/install.sh | sh -s -- --download
 
 loopguard-ctx --version`}</Pre>
           <P>
@@ -559,7 +559,7 @@ loopguard-ctx setup`}</Pre>
           <P>
             View and share your stats card at{' '}
             <a href="/wrapped" className="text-sky-400 underline underline-offset-4 hover:text-sky-300">
-              loopguard.vercel.app/wrapped
+              loopguard.dev/wrapped
             </a>
             . Paste your device ID to generate a shareable link.
           </P>
@@ -939,7 +939,7 @@ ctx_agent(action="clear")`}</Pre>
           </P>
           <P>
             <a href="/roadmap" className="text-sky-400 underline underline-offset-4 hover:text-sky-300">
-              loopguard.vercel.app/roadmap →
+              loopguard.dev/roadmap →
             </a>
           </P>
 
@@ -966,7 +966,7 @@ ctx_agent(action="clear")`}</Pre>
       </div>
 
       <footer className="mt-8 border-t border-[#1F2937]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-6 sm:px-6 sm:py-8">
           <p className="text-xs text-[#4B5563]">© 2026 LoopGuard. MIT License.</p>
           <div className="flex items-center gap-4 text-xs text-[#4B5563]">
             <Link href="/" className="transition-colors hover:text-[#6B7280]">

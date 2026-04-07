@@ -21,7 +21,7 @@ const FAQS = [
 
 export default function FaqSection() {
   return (
-    <section id="faq" className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
+    <section id="faq" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-10">
       <ScrollReveal className="mb-10 max-w-2xl">
         <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Common questions</div>
         <h2 className="mt-3 text-3xl font-bold tracking-[-0.05em] text-white sm:text-4xl">
@@ -31,7 +31,7 @@ export default function FaqSection() {
       <ScrollReveal>
         <div className="grid overflow-hidden rounded-[28px] gap-px bg-white/8 sm:grid-cols-2">
           {FAQS.map(({ q, a }) => (
-            <div key={q} className="bg-[#07111C] px-7 py-6">
+            <div key={q} className="bg-[#07111C] px-5 py-5 sm:px-7 sm:py-6">
               <div className="mb-2 text-sm font-semibold text-white">{q}</div>
               <div className="text-sm leading-7 text-[#8CA1B8]">{a}</div>
             </div>

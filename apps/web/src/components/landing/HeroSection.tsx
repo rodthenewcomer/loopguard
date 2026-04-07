@@ -18,7 +18,7 @@ export default function HeroSection() {
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto grid min-h-[calc(100svh-4rem)] max-w-7xl gap-16 px-6 py-14 lg:grid-cols-[1.02fr_0.98fr] lg:items-end lg:px-10 lg:py-20">
+      <div className="relative mx-auto grid min-h-[calc(100svh-4rem)] max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:gap-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-end lg:px-10 lg:py-20">
         <div className="flex flex-col justify-center">
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-[#9FB0C4] backdrop-blur">
@@ -48,7 +48,7 @@ export default function HeroSection() {
             <p className="mb-4 text-sm font-medium text-[#7B95AE]">
               Runs in VS Code, Cursor, and Windsurf. Free.
             </p>
-            <h1 className="text-5xl font-black leading-[0.96] tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl">
+            <h1 className="text-4xl font-black leading-[0.96] tracking-[-0.06em] text-white sm:text-5xl lg:text-7xl">
               Save the hour.
               <br />
               <span className="text-[#8AE8FF]">Cut the token bill.</span>
@@ -87,7 +87,7 @@ export default function HeroSection() {
             {/* $77/mo — primary metric, full-width */}
             <div className="border-b border-white/8 bg-[#08121D] px-6 py-5">
               <div className="flex flex-wrap items-baseline gap-3">
-                <div className="text-5xl font-black tracking-[-0.06em]" style={{ color: METRICS[0].tone }}>
+                <div className="text-4xl font-black tracking-[-0.06em] sm:text-5xl" style={{ color: METRICS[0].tone }}>
                   {METRICS[0].value}
                 </div>
                 <div className="text-sm leading-6 text-[#8CA1B8]">{METRICS[0].label}</div>

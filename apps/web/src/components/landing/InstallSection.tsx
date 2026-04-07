@@ -9,10 +9,10 @@ const STEPS = [
 
 export default function InstallSection() {
   return (
-    <section id="install" className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
+    <section id="install" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10">
       <ScrollReveal className="mb-12 max-w-2xl">
         <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Install</div>
-        <h2 className="mt-3 text-4xl font-bold tracking-[-0.05em] text-white sm:text-5xl">
+        <h2 className="mt-3 text-3xl font-bold tracking-[-0.05em] text-white sm:text-4xl lg:text-5xl">
           One click in the editor.
           <br />
           No terminal required.
@@ -41,14 +41,14 @@ export default function InstallSection() {
             <div className="flex flex-col gap-3 lg:pt-1">
               <a
                 href="/setup"
-                className="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(37,99,235,0.3)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(37,99,235,0.3)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8] sm:w-auto"
               >
                 <Icon path={IC.spark} size={16} />
                 Install extension
               </a>
               <a
                 href="/setup#vscode"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 px-6 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/12 px-6 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white sm:w-auto"
               >
                 View setup guide
                 <Icon path={IC.arrow} size={16} />

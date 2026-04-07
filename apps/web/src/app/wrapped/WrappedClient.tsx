@@ -126,7 +126,7 @@ function StatsCard({ stats, shareUrl }: { stats: DeviceStats; shareUrl: string }
 
         {/* Footer */}
         <div className="border-t border-white/8 px-8 py-5 flex items-center justify-between gap-3">
-          <div className="text-[11px] text-slate-600">loopguard.vercel.app</div>
+          <div className="text-[11px] text-slate-600">loopguard.dev</div>
           <button
             onClick={() => void copy()}
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10"
@@ -184,7 +184,7 @@ function LookupForm() {
   }, []);
 
   if (stats !== null) {
-    const shareUrl = `https://loopguard.vercel.app/wrapped?device_id=${encodeURIComponent(stats.deviceId)}`;
+    const shareUrl = `https://loopguard.dev/wrapped?device_id=${encodeURIComponent(stats.deviceId)}`;
     return <StatsCard stats={stats} shareUrl={shareUrl} />;
   }
 
@@ -244,7 +244,7 @@ interface Props {
 
 export default function WrappedClient({ deviceId, initialStats }: Props) {
   const shareUrl = deviceId
-    ? `https://loopguard.vercel.app/wrapped?device_id=${encodeURIComponent(deviceId)}`
+    ? `https://loopguard.dev/wrapped?device_id=${encodeURIComponent(deviceId)}`
     : '';
 
   return (
@@ -252,14 +252,14 @@ export default function WrappedClient({ deviceId, initialStats }: Props) {
       {/* Background glows */}
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute inset-x-0 top-0 h-[500px] bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.15),transparent_55%)]" />
-        <div className="absolute right-[-15%] top-[30%] h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.12),transparent_60%)] blur-3xl" />
+        <div className="absolute right-0 top-[30%] h-[400px] w-[400px] rounded-full sm:right-[-15%] bg-[radial-gradient(circle,rgba(37,99,235,0.12),transparent_60%)] blur-3xl" />
       </div>
 
-      <main className="relative mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-8 px-5 py-16">
+      <main className="relative mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-8 px-4 py-12 sm:px-5 sm:py-16">
         {/* Page header */}
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-2 text-sm text-slate-500 transition hover:text-slate-300">
-            ← loopguard.vercel.app
+            ← loopguard.dev
           </Link>
           <h1 className="mt-6 text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl">
             LoopGuard <span className="text-cyan-400">Wrapped</span>

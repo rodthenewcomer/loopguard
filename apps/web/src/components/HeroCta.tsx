@@ -49,16 +49,16 @@ export default function HeroCta() {
 
   if (!ready) {
     // Invisible placeholder — same height, prevents layout shift
-    return <div className="mt-8 flex flex-wrap items-center gap-3 min-h-[52px]" aria-hidden="true" />;
+    return <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center min-h-[52px]" aria-hidden="true" />;
   }
 
   if (isLoggedIn) {
     return (
-      <div className="mt-8 flex flex-wrap items-center gap-3">
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <Link
           href="/dashboard"
           onClick={() => trackCtaClick('dashboard')}
-          className="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(37,99,235,0.35)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(37,99,235,0.35)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8] sm:w-auto"
         >
           <Icon path={IC_GRID} />
           Go to dashboard
@@ -66,7 +66,7 @@ export default function HeroCta() {
         <Link
           href="/docs"
           onClick={() => trackCtaClick('docs_logged_in')}
-          className="inline-flex items-center gap-2 rounded-full border border-white/12 px-6 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/12 px-6 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white sm:w-auto"
         >
           Read the docs
           <Icon path={IC_ARROW} />
@@ -76,11 +76,11 @@ export default function HeroCta() {
   }
 
   return (
-    <div className="mt-8 flex flex-wrap items-center gap-3">
+    <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
       <a
         href="/setup"
         onClick={() => trackCtaClick('install_extension')}
-        className="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(37,99,235,0.35)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(37,99,235,0.35)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8] sm:w-auto"
       >
         <Icon path={IC_SPARK} />
         Install extension
@@ -88,7 +88,7 @@ export default function HeroCta() {
       <Link
         href="/docs"
         onClick={() => trackCtaClick('docs_logged_out')}
-        className="inline-flex items-center gap-2 rounded-full border border-white/12 px-6 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/12 px-6 py-3 text-sm font-semibold text-[#D6E3F1] transition hover:border-white/25 hover:text-white sm:w-auto"
       >
         Read the docs
         <Icon path={IC_ARROW} />

@@ -119,7 +119,7 @@ export default function ExtensionAuthClient() {
   };
 
   return (
-      <div className="min-h-screen bg-[#0B1220] flex flex-col items-center justify-center px-6 py-16">
+      <div className="min-h-screen bg-[#0B1220] flex flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-16">
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-10">
           <LoopGuardLogo showWordmark size={28} wordmarkClassName="text-xl font-bold text-white" />

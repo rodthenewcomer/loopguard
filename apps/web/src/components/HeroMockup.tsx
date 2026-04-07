@@ -177,7 +177,7 @@ export default function HeroMockup() {
         {/* LoopGuard Alert */}
         {phase >= 2 && (
           <div
-            className="absolute bottom-8 right-3 w-[240px] rounded-lg border border-[#F59E0B]/40 shadow-2xl overflow-hidden"
+            className="absolute bottom-3 right-2 w-[200px] rounded-lg sm:bottom-8 sm:right-3 sm:w-[240px] border border-[#F59E0B]/40 shadow-2xl overflow-hidden"
             style={{
               background: 'linear-gradient(145deg, #1a1f2e, #111827)',
               animation: 'alert-in 0.45s cubic-bezier(0.16,1,0.3,1) forwards',

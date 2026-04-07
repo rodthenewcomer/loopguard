@@ -80,7 +80,7 @@ export default function SetupPage() {
   return (
     <div className="min-h-screen bg-[#0B1220]">
       <header className="sticky top-0 z-40 border-b border-[#1F2937] bg-[#0B1220]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-3">
             <LoopGuardLogo showWordmark size={28} />
             <span className="hidden text-sm text-[#6B7280] sm:inline">Setup</span>
@@ -94,10 +94,10 @@ export default function SetupPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-6 py-16">
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-16">
         <div className="mb-12 text-center">
-          <h1 className="mb-3 text-4xl font-bold text-white">Set up LoopGuard</h1>
-          <p className="mx-auto max-w-2xl text-lg text-[#6B7280]">
+          <h1 className="mb-3 text-3xl font-bold text-white sm:text-4xl">Set up LoopGuard</h1>
+          <p className="mx-auto max-w-2xl text-base text-[#6B7280] sm:text-lg">
             Start with the extension if you want loop alerts inside your editor. Add the local helper
             when you want your AI agent to read only the code that matters — not whole files — and get cleaner terminal output.
           </p>
@@ -406,7 +406,7 @@ export default function SetupPage() {
                 <p className="mt-4 mb-2 text-xs font-semibold uppercase tracking-widest text-[#6B7280]">npm (any platform with Node 16+)</p>
                 <Code>npm install -g loopguard-ctx-bin</Code>
                 <p className="mt-4 mb-2 text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Or curl installer</p>
-                <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download</Code>
+                <Code>curl -fsSL https://loopguard.dev/install.sh | sh -s -- --download</Code>
                 <p className="mt-3 text-sm text-[#6B7280]">Verify:</p>
                 <Code>loopguard-ctx --version</Code>
               </Step>
@@ -503,7 +503,7 @@ export default function SetupPage() {
 
               <Step n={1} title="Install the helper">
                 <Lead>If you do not already have loopguard-ctx, install it:</Lead>
-                <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download</Code>
+                <Code>curl -fsSL https://loopguard.dev/install.sh | sh -s -- --download</Code>
                 <p className="mt-2 text-xs text-[#4B5563]">Then verify: <code className="text-[#9CA3AF]">loopguard-ctx --version</code></p>
               </Step>
 

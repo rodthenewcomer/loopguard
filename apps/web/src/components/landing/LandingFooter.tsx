@@ -2,7 +2,7 @@ import { FOOTER_COLS } from '../../lib/landingData';
 
 export default function LandingFooter() {
   return (
-    <footer className="border-t border-white/8 px-6 pb-10 pt-16 lg:px-10">
+    <footer className="border-t border-white/8 px-4 pb-10 pt-12 sm:px-6 sm:pt-16 lg:px-10">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-10 md:grid-cols-[1.3fr_repeat(3,1fr)]">
           <div>

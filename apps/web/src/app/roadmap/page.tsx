@@ -174,7 +174,7 @@ export default function RoadmapPage() {
   return (
     <div className="min-h-screen bg-[#0B1220]">
       <header className="sticky top-0 z-40 border-b border-[#1F2937] bg-[#0B1220]/95 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/" className="flex items-center gap-3">
             <LoopGuardLogo showWordmark size={28} />
           </Link>
@@ -187,11 +187,11 @@ export default function RoadmapPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-4xl px-6 py-16">
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-16">
         <div className="mb-16">
           <div className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#4B5563]">LoopGuard</div>
-          <h1 className="mb-4 text-5xl font-bold tracking-[-0.05em] text-white">Roadmap</h1>
-          <p className="max-w-xl text-lg leading-8 text-[#6B7280]">
+          <h1 className="mb-4 text-4xl font-bold tracking-[-0.05em] text-white sm:text-5xl">Roadmap</h1>
+          <p className="max-w-xl text-base leading-7 text-[#6B7280] sm:text-lg sm:leading-8">
             Three versions. What shipped, what is live now, and what is coming — with the full
             feature list for every IDE and CLI tool.
           </p>

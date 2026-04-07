@@ -4,13 +4,13 @@ import { SUPPORT_URL } from '../../lib/constants';
 
 export default function SupportSection() {
   return (
-    <section className="px-6 py-24 lg:px-10">
+    <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-10">
       <ScrollReveal>
         <div className="mx-auto max-w-5xl overflow-hidden rounded-[36px] border border-white/10 bg-[linear-gradient(160deg,rgba(10,20,32,0.96),rgba(7,16,25,0.9))] px-8 py-10 shadow-[0_35px_100px_rgba(0,0,0,0.35)] sm:px-12">
           <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
             <div>
               <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Support the project</div>
-              <h2 className="mt-3 text-4xl font-bold tracking-[-0.05em] text-white sm:text-5xl">
+              <h2 className="mt-3 text-3xl font-bold tracking-[-0.05em] text-white sm:text-4xl lg:text-5xl">
                 LoopGuard stays free.
                 <br />
                 Back the build if it helped.

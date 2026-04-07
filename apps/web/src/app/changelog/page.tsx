@@ -150,7 +150,7 @@ const RELEASES: Release[] = [
         label: 'Auth & Sync',
         color: '#2563EB',
         items: [
-          'Sign In command — opens browser to loopguard.vercel.app/auth/extension',
+          'Sign In command — opens browser to loopguard.dev/auth/extension',
           'Google OAuth and email + password sign-in supported',
           'JWT stored in VS Code SecretStorage (macOS Keychain / Windows Credential Manager / Linux libsecret)',
           'Session metrics sync to API every 5 minutes and on session end',
@@ -178,7 +178,7 @@ export default function ChangelogPage() {
     <div className="min-h-screen bg-[#0B1220]">
       {/* Header */}
       <div className="border-b border-[#1F2937]">
-        <div className="max-w-3xl mx-auto px-6 py-6 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 py-5 flex items-center justify-between sm:px-6 sm:py-6">
           <Link href="/" className="flex items-center gap-2.5">
             <LoopGuardLogo showWordmark size={28} />
           </Link>
@@ -188,15 +188,15 @@ export default function ChangelogPage() {
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="text-4xl font-bold text-white mb-2">Changelog</h1>
+      <div className="max-w-3xl mx-auto px-4 py-10 sm:px-6 sm:py-16">
+        <h1 className="text-3xl font-bold text-white mb-2 sm:text-4xl">Changelog</h1>
         <p className="text-[#6B7280] mb-16">Every release, every fix, every improvement.</p>
 
         <div className="space-y-16">
           {RELEASES.map((release) => (
             <div key={release.version}>
               {/* Release header */}
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex flex-wrap items-center gap-3 mb-8">
                 <span className="text-2xl font-black text-white font-mono">{release.version}</span>
                 <span
                   className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"

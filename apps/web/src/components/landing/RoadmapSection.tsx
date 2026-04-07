@@ -7,7 +7,7 @@ const VERSIONS = [
 
 export default function RoadmapSection() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-20 lg:px-10">
+    <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-10">
       <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(160deg,rgba(9,18,30,0.9),rgba(5,12,20,0.88))] px-8 py-10 sm:px-12">
         <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
@@ -38,7 +38,7 @@ export default function RoadmapSection() {
           </div>
           <a
             href="/roadmap"
-            className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border border-white/12 bg-white/[0.07] px-6 py-3 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/10"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/[0.07] px-6 py-3 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/10 sm:w-auto sm:flex-shrink-0"
           >
             View full roadmap
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

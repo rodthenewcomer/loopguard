@@ -15,7 +15,7 @@ const FEATURE_BULLETS = [
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
+    <section id="features" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10">
       <div className="grid gap-16 lg:grid-cols-[1fr_0.92fr] lg:items-start">
         <ScrollReveal direction="left">
           <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,18,30,0.9),rgba(5,12,20,0.9))]">
@@ -59,7 +59,7 @@ export default function FeaturesSection() {
         <ScrollReveal direction="right">
           <div>
             <div className="text-sm font-semibold uppercase tracking-[0.3em] text-[#7B95AE]">Why it matters</div>
-            <h2 className="mt-3 text-4xl font-bold tracking-[-0.05em] text-white sm:text-5xl">
+            <h2 className="mt-3 text-3xl font-bold tracking-[-0.05em] text-white sm:text-4xl lg:text-5xl">
               Stop the retry spiral
               <br />
               before it hardens.
