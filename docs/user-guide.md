@@ -356,7 +356,7 @@ Optional support link for users who want to back the project while the core prod
 
 ### Web Dashboard
 
-The web dashboard at `https://loopguard.vercel.app/dashboard` shows your
+The web dashboard at `https://loopguard.dev/dashboard` shows your
 aggregated metrics across all sessions. Requires signing in — see
 [Account & Sync](#7-account--sync).
 
@@ -371,7 +371,7 @@ Signing in is **optional**. LoopGuard works fully offline without an account. An
 ### Signing In
 
 1. Press `Ctrl+Shift+P` → **LoopGuard: Sign In**
-2. Your browser opens `https://loopguard.vercel.app/auth/extension`
+2. Your browser opens `https://loopguard.dev/auth/extension`
 3. Sign in with your email or Google account
 4. VS Code opens automatically with your session — you're connected
 
@@ -734,7 +734,7 @@ After resolving, **reload VS Code** (`Ctrl+Shift+P` → **Developer: Reload Wind
 
 ### Sign In doesn't work
 
-1. Verify your browser opened `https://loopguard.vercel.app/auth/extension`
+1. Verify your browser opened `https://loopguard.dev/auth/extension`
 2. After authenticating, VS Code should receive a `vscode://` URI callback automatically
 3. If VS Code doesn't open, the browser may have blocked the deep link — click "Open VS Code" if prompted
 
@@ -805,7 +805,7 @@ DASHBOARD
 ACCOUNT & SYNC — optional
   Sign in:  Ctrl+Shift+P → "LoopGuard: Sign In"
   Sign out: Ctrl+Shift+P → "LoopGuard: Sign Out"
-  Web dashboard: https://loopguard.vercel.app/dashboard
+  Web dashboard: https://loopguard.dev/dashboard
 
 MCP SERVER — one-time setup
   Ctrl+Shift+P → "LoopGuard: Configure MCP Server" → pick your AI tool

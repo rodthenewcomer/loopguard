@@ -31,4 +31,4 @@ The most important security property of `loopguard-ctx` is simple:
 
 If you are evaluating the broader LoopGuard privacy model, also read:
 
-- [https://loopguard.vercel.app/privacy](https://loopguard.vercel.app/privacy)
+- [https://loopguard.dev/privacy](https://loopguard.dev/privacy)

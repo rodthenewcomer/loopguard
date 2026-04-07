@@ -1,6 +1,6 @@
 class LoopguardCtx < Formula
   desc "Local MCP context server for focused reads, shell compression, and AI agent handoff"
-  homepage "https://loopguard.vercel.app"
+  homepage "https://loopguard.dev"
   version "2.8.0"
   license "MIT"
 

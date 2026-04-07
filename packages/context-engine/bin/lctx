@@ -29,7 +29,7 @@ find_loopguard_ctx() {
   else
     echo "Error: loopguard-ctx not found."
     echo "Install: cargo install loopguard-ctx"
-    echo "     or: curl -fsSL https://loopguard.vercel.app/install.sh | sh"
+    echo "     or: curl -fsSL https://loopguard.dev/install.sh | sh"
     exit 1
   fi
 }

@@ -1,6 +1,6 @@
 # pi-loopguard-ctx
 
-[Pi Coding Agent](https://github.com/badlogic/pi-mono) extension that routes all tool output through [loopguard-ctx](https://loopguard.vercel.app) for **60-90% token savings**.
+[Pi Coding Agent](https://github.com/badlogic/pi-mono) extension that routes all tool output through [loopguard-ctx](https://loopguard.dev) for **60-90% token savings**.
 
 ## What it does
 
@@ -58,5 +58,5 @@ Use `/loopguard-ctx` in Pi to check which binary is being used.
 
 ## Links
 
-- [loopguard-ctx](https://loopguard.vercel.app) — Local context tools for LoopGuard
+- [loopguard-ctx](https://loopguard.dev) — Local context tools for LoopGuard
 - [GitHub](https://github.com/rodthenewcomer/loopguard)

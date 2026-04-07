@@ -305,7 +305,7 @@ apps/extension/
 1. User runs: Ctrl+Shift+P → "LoopGuard: Sign In"
 
 2. AuthService.signIn() opens browser:
-   vscode.env.openExternal('https://loopguard.vercel.app/auth/extension')
+   vscode.env.openExternal('https://loopguard.dev/auth/extension')
 
 3. User authenticates on /auth/extension (Supabase OAuth / email)
 

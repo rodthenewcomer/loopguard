@@ -140,7 +140,7 @@ impl WrappedReport {
         let row_top    = format!("{dim}Top:{rst} {white}{}{rst}", top_str);
         let row_cache  = format!("{dim}Cache efficiency:{rst} {green}{bold}{:.1}%{rst}", self.cache_hit_rate);
         let row_quote  = format!("{dim}\"Your AI saw only what mattered.\"{rst}");
-        let row_url    = format!("{dim}loopguard.vercel.app{rst}");
+        let row_url    = format!("{dim}loopguard.dev{rst}");
 
         let mut lines = vec![
             String::new(),
@@ -197,7 +197,7 @@ impl WrappedReport {
         };
 
         format!(
-            "◆ LoopGuard CTX Wrapped ({period_label}): {saved_str} tokens saved · {cost_str} avoided · {} sessions · {} cmds · Top: {} · Cache: {:.1}% — loopguard.vercel.app",
+            "◆ LoopGuard CTX Wrapped ({period_label}): {saved_str} tokens saved · {cost_str} avoided · {} sessions · {} cmds · Top: {} · Cache: {:.1}% — loopguard.dev",
             self.sessions_count,
             self.total_commands,
             if top_str.is_empty() { "n/a".to_string() } else { top_str },

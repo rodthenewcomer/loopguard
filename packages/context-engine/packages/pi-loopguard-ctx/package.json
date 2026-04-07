@@ -10,7 +10,7 @@
     "url": "https://github.com/rodthenewcomer/loopguard.git",
     "directory": "packages/context-engine/packages/pi-loopguard-ctx"
   },
-  "homepage": "https://loopguard.vercel.app",
+  "homepage": "https://loopguard.dev",
   "bugs": {
     "url": "https://github.com/rodthenewcomer/loopguard/issues"
   },

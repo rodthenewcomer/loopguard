@@ -174,7 +174,7 @@ pub fn run_setup() {
     if configured.is_empty() && skipped.is_empty() {
         println!(
             "  \x1b[33m⚠\x1b[0m No editors detected. \
-             Configure manually: https://loopguard.vercel.app/docs"
+             Configure manually: https://loopguard.dev/docs"
         );
     }
 

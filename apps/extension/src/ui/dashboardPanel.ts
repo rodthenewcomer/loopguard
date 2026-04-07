@@ -424,7 +424,7 @@ a { color: inherit; text-decoration: none; }
     <div class="actions">
       <a class="btn btn-primary" href="command:loopguard.copyContext">Copy focused context</a>
       <a class="btn btn-secondary" href="command:loopguard.resetSession">Reset session</a>
-      <a class="btn btn-ghost" href="https://loopguard.vercel.app/dashboard">Web dashboard →</a>
+      <a class="btn btn-ghost" href="https://loopguard.dev/dashboard">Web dashboard →</a>
     </div>
   </section>
 

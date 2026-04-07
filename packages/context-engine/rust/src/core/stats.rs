@@ -845,7 +845,7 @@ pub fn format_gain() -> String {
     o.push(String::new());
     o.push(format!("  {DIM}{ln56}{RST}"));
     o.push(format!(
-        "  {DIM}loopguard-ctx v{}  |  loopguard.vercel.app  |  loopguard-ctx dashboard{RST}",
+        "  {DIM}loopguard-ctx v{}  |  loopguard.dev  |  loopguard-ctx dashboard{RST}",
         env!("CARGO_PKG_VERSION")
     ));
     o.push(String::new());

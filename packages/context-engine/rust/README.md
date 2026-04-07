@@ -31,4 +31,4 @@ target/release/loopguard-ctx
 For user-facing setup and install guidance, use the parent docs:
 
 - [../README.md](../README.md)
-- [https://loopguard.vercel.app/setup](https://loopguard.vercel.app/setup)
+- [https://loopguard.dev/setup](https://loopguard.dev/setup)

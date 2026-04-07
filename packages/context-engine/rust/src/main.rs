@@ -356,7 +356,7 @@ EXAMPLES:
     loopguard-ctx grep \"pub fn\" src/
     loopguard-ctx deps .
 
-WEBSITE: https://loopguard.vercel.app
+WEBSITE: https://loopguard.dev
 GITHUB:  https://github.com/rodthenewcomer/loopguard
 "
     );
