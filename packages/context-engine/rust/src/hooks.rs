@@ -764,17 +764,43 @@ fn install_codex_hook() {
     let loopguard_ctx_md = codex_dir.join("LOOPGUARD-CTX.md");
     let binary = resolve_binary_path();
     let loopguard_ctx_content = format!(
-        r#"# LoopGuard CTX — Shell Compression
+        r#"# LoopGuard CTX — Codex Workflow
 
-Prefix all shell commands with `{binary} -c` for compressed output:
+Use LoopGuard MCP tools whenever they are available so Codex reads less code and spends fewer tokens.
+
+## Prefer these mappings
+
+- Read file content → `ctx_read`
+- Search code → `ctx_search`
+- Inspect directories → `ctx_tree`
+- Compress shell output → `ctx_shell`
+
+## `ctx_read` modes
+
+- `full` for files you will edit
+- `map` for structure, imports, and dependencies
+- `signatures` for API surface
+- `diff` after edits
+- `lines:N-M` for specific ranges
+
+## Default pattern
+
+1. Start broad with `ctx_tree` or `ctx_search`
+2. Use `ctx_read(path, mode=\"map\")` for context files
+3. Use `ctx_read(path, mode=\"full\")` only for files you will change
+4. Use `ctx_shell` for noisy commands instead of raw shell dumps
+
+## Shell fallback
+
+If you need raw terminal output outside MCP, prefix long commands with `{binary} -c`:
 
 ```bash
-{binary} -c git status    # instead of: git status
-{binary} -c cargo test    # instead of: cargo test
-{binary} -c ls src/       # instead of: ls src/
+{binary} -c git status
+{binary} -c cargo test
+{binary} -c npm install
 ```
 
-This keeps terminal output smaller and easier to paste into an AI tool. Works with: git, cargo, npm, pnpm, docker, kubectl, pip, ruff, go, curl, grep, find, ls, aws, helm, and more.
+This keeps Codex focused on the useful parts of the repo instead of full-file dumps and noisy terminal logs.
 "#
     );
 

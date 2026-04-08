@@ -135,7 +135,7 @@ fn main() {
                 return;
             }
             "--version" | "-V" => {
-                println!("loopguard-ctx 2.8.0");
+                println!("loopguard-ctx {}", env!("CARGO_PKG_VERSION"));
                 return;
             }
             "--help" | "-h" => {

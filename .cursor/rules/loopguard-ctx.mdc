@@ -1,0 +1,36 @@
+---
+description: LoopGuard focused reads and shell cleanup
+globs: **/*
+alwaysApply: true
+---
+
+# LoopGuard tools
+
+Use LoopGuard MCP tools when you need to inspect a repo without dragging in unnecessary context.
+
+## Prefer these mappings
+
+| Instead of | Use |
+|---|---|
+| `Read` | `ctx_read` |
+| `Grep` | `ctx_search` |
+| terminal commands with long output | `ctx_shell` |
+| `ls` / `find` | `ctx_tree` |
+
+## Read modes
+
+- `full` for files you are about to edit
+- `map` for quick structure and dependencies
+- `signatures` for API surface
+- `diff` after changes
+- `lines:N-M` for specific ranges
+
+## Session restore
+
+If this project already has helper session state, you can restore it with:
+
+```text
+ctx_session load
+```
+
+Use session restore when it helps. It is optional.

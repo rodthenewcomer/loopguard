@@ -1,0 +1,24 @@
+# loopguard-ctx tools
+
+Prefer LoopGuard MCP tools when you need smaller reads and cleaner command output.
+
+## Use these mappings
+
+- Read -> ctx_read
+- Grep / rg -> ctx_search
+- terminal commands with long output -> ctx_shell
+- ls / find -> ctx_tree
+
+## Read modes
+
+- full for edits
+- map for structure
+- signatures for API surface
+- diff after changes
+- lines:N-M for exact ranges
+
+## Optional session restore
+
+If you are coming back to a previous helper session:
+
+  ctx_session load

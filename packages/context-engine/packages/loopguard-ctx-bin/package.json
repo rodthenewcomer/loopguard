@@ -12,7 +12,7 @@
     "ai",
     "token-optimization"
   ],
-  "homepage": "https://loopguard.dev",
+  "homepage": "https://loopguard.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/rodthenewcomer/loopguard.git",
