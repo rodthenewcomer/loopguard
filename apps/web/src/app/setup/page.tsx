@@ -464,7 +464,7 @@ export default function SetupPage() {
               </Lead>
 
               <Step n={1} title="Run the setup command">
-                <Code>loopguard-ctx setup --agent=antigravity</Code>
+                <Code>loopguard-ctx setup --agent=gemini</Code>
                 <Note>
                   This adds the MCP entry in <code className="text-[#9CA3AF]">~/.gemini/settings/mcp.json</code> and injects the ANTIGRAVITY.md intelligence hooks.
                 </Note>
