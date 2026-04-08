@@ -2,7 +2,7 @@
   "name": "loopguard",
   "displayName": "LoopGuard",
   "description": "Detect repeated diagnostics in VS Code and copy focused local context from the active file.",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "publisher": "LoopGuard",
   "icon": "icon.png",
   "license": "SEE LICENSE IN LICENSE",

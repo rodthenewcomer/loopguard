@@ -147,7 +147,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold text-white mb-4">8. Changes to this policy</h2>
             <p>
-              If we make material changes to what data we collect, we will notify signed-in users by email at least 14 days before the change takes effect. The current version is always available at loopguard.dev/privacy.
+              If we make material changes to what data we collect, we will notify signed-in users by email at least 14 days before the change takes effect. The current version is always available at loopguard.vercel.app/privacy.
             </p>
           </section>
 

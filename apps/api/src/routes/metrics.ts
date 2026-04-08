@@ -62,7 +62,7 @@ router.post('/session', requireAuth, async (req: AuthRequest, res: Response): Pr
         time_wasted_ms: d.timeWastedMs,
         tokens_saved: d.tokensSaved,
         file_types: d.fileTypes,
-        extension_version: d.extensionVersion ?? '0.1.0',
+        extension_version: d.extensionVersion ?? '2.8.1',
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'session_id' },

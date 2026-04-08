@@ -24,11 +24,47 @@ interface Release {
 
 const RELEASES: Release[] = [
   {
+    version: 'v2.8.1',
+    date: 'April 2026',
+    tag: 'Latest',
+    tagColor: '#22C55E',
+    summary: 'Cleans up first-run onboarding: one public site domain, clearer setup/docs flows, corrected Gemini/Windsurf/Codex guidance, and dashboard/account totals that are easier to trust.',
+    sections: [
+      {
+        label: 'New-user onboarding',
+        color: '#2563EB',
+        items: [
+          'Normalized the public site and install links around loopguard.vercel.app so setup, docs, and auth all point to the same place',
+          'Rewrote the setup/docs comparison points so extension-first users can get started without reading the advanced helper sections first',
+          'Clarified the helper-only path for Claude Code, Codex CLI, Windsurf, and Gemini-family tools',
+        ],
+      },
+      {
+        label: 'Dashboard and sync trust',
+        color: '#22D3EE',
+        items: [
+          'All-time totals are now surfaced consistently in the signed-in dashboard flows',
+          'Web dashboard auth and API surfaces are aligned with the live public site origin',
+          'Extension and web docs now explain exactly which features are local-only versus synced',
+        ],
+      },
+      {
+        label: 'Release cleanup',
+        color: '#F59E0B',
+        items: [
+          'LoopGuard helper help text and install surfaces now report the current 2.8.1 version line',
+          'Windsurf and Gemini-family setup paths no longer get skipped during helper setup',
+          'Project-level agent guidance files are ready to commit for Cursor and Windsurf users',
+        ],
+      },
+    ],
+  },
+  {
     version: 'v2.8.0',
     date: 'April 2026',
     tag: 'New',
     tagColor: '#22D3EE',
-    summary: 'Adds ctx_knowledge and ctx_agent — persistent project knowledge and multi-agent scratchpad. Any MCP-connected agent can now read and write shared facts, making handoffs between Claude Code, Cursor, Codex CLI, and Antigravity seamless. Adds full Antigravity IDE support. npm distribution now live.',
+    summary: 'Adds ctx_knowledge and ctx_agent — persistent project knowledge and multi-agent scratchpad. Any MCP-connected agent can now read and write shared facts, making handoffs between Claude Code, Cursor, Codex CLI, and Gemini-family tools seamless. Adds Gemini CLI / Antigravity support. npm distribution now live.',
     sections: [
       {
         label: 'ctx_knowledge — Project Knowledge Store',
@@ -56,12 +92,12 @@ const RELEASES: Release[] = [
         ],
       },
       {
-        label: 'Antigravity IDE',
+        label: 'Gemini CLI / Antigravity',
         color: '#F59E0B',
         items: [
-          'Full Antigravity IDE integration — MCP + instruction layer via ANTIGRAVITY.md',
-          'loopguard-ctx setup --agent=antigravity writes the MCP config and intelligence hooks',
-          'Automatic URI scheme detection for Antigravity fork (antigravity://) added to extension auth flow',
+          'Gemini-family integration — MCP + instruction layer via the local helper guidance file',
+          'loopguard-ctx setup --agent=gemini writes the MCP config and intelligence hooks',
+          'Automatic URI scheme detection for Gemini-family forks was added to the extension auth flow',
         ],
       },
       {
@@ -150,7 +186,7 @@ const RELEASES: Release[] = [
         label: 'Auth & Sync',
         color: '#2563EB',
         items: [
-          'Sign In command — opens browser to loopguard.dev/auth/extension',
+          'Sign In command — opens browser to loopguard.vercel.app/auth/extension',
           'Google OAuth and email + password sign-in supported',
           'JWT stored in VS Code SecretStorage (macOS Keychain / Windows Credential Manager / Linux libsecret)',
           'Session metrics sync to API every 5 minutes and on session end',

@@ -7,7 +7,7 @@
 #   ./install.sh --build-only   # build only, don't install
 #
 # One-liner (no Rust required):
-#   curl -fsSL https://loopguard.dev/install.sh | sh
+#   curl -fsSL https://loopguard.vercel.app/install.sh | sh
 set -euo pipefail
 
 REPO="rodthenewcomer/loopguard"

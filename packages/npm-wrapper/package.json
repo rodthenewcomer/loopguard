@@ -1,6 +1,6 @@
 {
   "name": "loopguard-ctx",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "description": "Context-aware MCP server and local helper for AI coding assistants \u2014 loop detection, focused reads, and shell compression",
   "keywords": [
     "mcp",

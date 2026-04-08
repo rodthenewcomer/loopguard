@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     description:
       'Detects repeat-fix loops and shrinks AI prompts before they hit the model. Free VS Code extension. Your code never leaves your machine.',
     type: 'website',
-    url: 'https://loopguard.dev',
+    url: 'https://loopguard.vercel.app',
     siteName: 'LoopGuard',
   },
   twitter: {

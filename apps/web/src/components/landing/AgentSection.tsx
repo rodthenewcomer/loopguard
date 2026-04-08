@@ -7,14 +7,14 @@ const AGENT_BADGES = [
   { label: 'Codex CLI', icon: IC.terminal },
   { label: 'Windsurf', icon: IC.code },
   { label: 'GitHub Copilot', icon: IC.code },
-  { label: 'Antigravity', icon: IC.terminal },
+  { label: 'Gemini CLI', icon: IC.terminal },
 ];
 
 const AGENT_COMMANDS = [
   { label: 'Claude Code', cmd: 'loopguard-ctx setup --agent=claude', detail: 'MCP + shell hook + guidance file' },
   { label: 'Cursor', cmd: 'loopguard-ctx setup --agent=cursor', detail: 'MCP + cursor rule file' },
   { label: 'Codex CLI', cmd: 'loopguard-ctx setup --agent=codex', detail: 'MCP + local instruction file' },
-  { label: 'Antigravity', cmd: 'loopguard-ctx setup --agent=antigravity', detail: 'MCP + instruction layer' },
+  { label: 'Gemini CLI', cmd: 'loopguard-ctx setup --agent=gemini', detail: 'MCP + instruction layer' },
 ];
 
 export default function AgentSection() {

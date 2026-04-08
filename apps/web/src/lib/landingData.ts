@@ -83,5 +83,5 @@ export const JSON_LD = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   description:
     'VS Code extension that detects AI retry loops and optimizes prompt context to save time and token spend.',
-  url: 'https://loopguard.dev',
+  url: 'https://loopguard.vercel.app',
 };

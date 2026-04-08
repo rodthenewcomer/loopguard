@@ -64,7 +64,7 @@ Install the local helper binary:
 ```bash
 brew install rodthenewcomer/loopguard/loopguard-ctx
 # or
-curl -fsSL https://loopguard.dev/install.sh | sh
+curl -fsSL https://loopguard.vercel.app/install.sh | sh
 ```
 
 Then run **LoopGuard: Configure MCP Server** and restart your AI tool.
@@ -77,7 +77,7 @@ All loop detection and context filtering runs locally inside the extension. If y
 
 ## Resources
 
-- Homepage: [loopguard.dev](https://loopguard.dev)
-- Docs: [loopguard.dev/docs](https://loopguard.dev/docs)
+- Homepage: [loopguard.vercel.app](https://loopguard.vercel.app)
+- Docs: [loopguard.vercel.app/docs](https://loopguard.vercel.app/docs)
 - Issues: [github.com/rodthenewcomer/loopguard/issues](https://github.com/rodthenewcomer/loopguard/issues)
 - Repository: [github.com/rodthenewcomer/loopguard](https://github.com/rodthenewcomer/loopguard)

@@ -1,6 +1,6 @@
 {
   "name": "pi-loopguard-ctx",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "description": "Pi Coding Agent extension that routes bash, read, grep, find, and ls through loopguard-ctx for 60-90% token savings",
   "keywords": ["pi-package", "loopguard-ctx", "token-optimization", "compression"],
   "license": "MIT",

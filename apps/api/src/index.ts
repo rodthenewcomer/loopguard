@@ -6,7 +6,7 @@ import authRouter from './routes/auth';
 const PORT = Number(process.env['PORT'] ?? 3001);
 
 const ALLOWED_ORIGINS = [
-  'https://loopguard.dev',
+  'https://loopguard.vercel.app',
   'https://loopguard.dev',
   'https://www.loopguard.dev',
   'http://localhost:3000',   // web dev
@@ -34,7 +34,7 @@ app.use(express.json({ limit: '64kb' }));
 
 // ── Health check ───────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, service: 'loopguard-api', version: '0.1.0' });
+  res.json({ ok: true, service: 'loopguard-api', version: '2.8.1' });
 });
 
 // ── Routes ─────────────────────────────────────────────────────────

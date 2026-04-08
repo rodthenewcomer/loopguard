@@ -21,7 +21,7 @@ This is a local binary, not a hosted service. It does not send your code to Loop
 The safest public install path today is the installer script:
 
 ```bash
-curl -fsSL https://loopguard.dev/install.sh | sh
+curl -fsSL https://loopguard.vercel.app/install.sh | sh
 loopguard-ctx --version
 ```
 
@@ -117,8 +117,8 @@ This is optional. LoopGuard still works without session restore.
 
 ## Related Docs
 
-- Product docs: [https://loopguard.dev/docs](https://loopguard.dev/docs)
-- Setup guide: [https://loopguard.dev/setup](https://loopguard.dev/setup)
+- Product docs: [https://loopguard.vercel.app/docs](https://loopguard.vercel.app/docs)
+- Setup guide: [https://loopguard.vercel.app/setup](https://loopguard.vercel.app/setup)
 - Repo: [https://github.com/rodthenewcomer/loopguard](https://github.com/rodthenewcomer/loopguard)
 
 ## Development

@@ -22,7 +22,11 @@ pub fn run_setup_for_agents(args: &[String]) {
     let agent = args
         .iter()
         .find_map(|a| a.strip_prefix("--agent="))
-        .map(str::to_lowercase);
+        .map(str::to_lowercase)
+        .map(|name| match name.as_str() {
+            "antigravity" => "gemini".to_string(),
+            other => other.to_string(),
+        });
 
     match agent.as_deref() {
         Some(name) => run_setup_for_single_agent(name),
@@ -57,7 +61,7 @@ fn run_setup_for_single_agent(agent: &str) {
         Some(t) => t,
         None => {
             eprintln!(
-                "Unknown agent '{}'. Known: claude, cursor, windsurf, codex, zed, vscode",
+                "Unknown agent '{}'. Known: claude, cursor, windsurf, codex, gemini, zed, vscode, copilot",
                 agent
             );
             std::process::exit(1);
@@ -98,7 +102,7 @@ fn run_setup_for_single_agent(agent: &str) {
 
     match agent {
         "claude" | "claude-code" | "cursor" | "codex" | "windsurf" | "cline" | "roo"
-        | "copilot" => crate::hooks::install_agent_hook(agent, false),
+        | "copilot" | "gemini" => crate::hooks::install_agent_hook(agent, false),
         _ => {}
     }
 
@@ -174,7 +178,7 @@ pub fn run_setup() {
     if configured.is_empty() && skipped.is_empty() {
         println!(
             "  \x1b[33m⚠\x1b[0m No editors detected. \
-             Configure manually: https://loopguard.dev/docs"
+             Configure manually: https://loopguard.vercel.app/docs"
         );
     }
 
@@ -246,7 +250,7 @@ fn build_targets(home: &std::path::Path, _binary: &str) -> Vec<EditorTarget> {
         },
         EditorTarget {
             name: "Windsurf",
-            agent_key: "",
+            agent_key: "windsurf",
             config_path: home.join(".codeium/windsurf/mcp_config.json"),
             detect_path: home.join(".codeium/windsurf"),
             config_type: ConfigType::McpJson,
@@ -260,7 +264,7 @@ fn build_targets(home: &std::path::Path, _binary: &str) -> Vec<EditorTarget> {
         },
         EditorTarget {
             name: "Gemini CLI",
-            agent_key: "",
+            agent_key: "gemini",
             config_path: home.join(".gemini/settings/mcp.json"),
             detect_path: home.join(".gemini"),
             config_type: ConfigType::McpJson,

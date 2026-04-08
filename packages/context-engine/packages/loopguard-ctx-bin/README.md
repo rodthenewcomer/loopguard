@@ -30,7 +30,7 @@ This auto-detects your shell and editors, installs shell aliases, creates MCP co
 
 ```bash
 # Universal installer (no Rust needed)
-curl -fsSL https://loopguard.dev/install.sh | sh
+curl -fsSL https://loopguard.vercel.app/install.sh | sh
 
 # Homebrew (macOS/Linux)
 brew tap rodthenewcomer/tap/loopguard-ctx && brew install rodthenewcomer/tap/loopguard-ctx
@@ -41,6 +41,6 @@ cargo install loopguard-ctx
 
 ## Links
 
-- [Documentation](https://loopguard.dev/docs)
+- [Documentation](https://loopguard.vercel.app/docs)
 - [GitHub](https://github.com/rodthenewcomer/loopguard)
 - [crates.io](https://crates.io/crates/loopguard-ctx)

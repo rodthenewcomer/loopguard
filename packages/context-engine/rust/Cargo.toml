@@ -1,6 +1,6 @@
 [package]
 name = "loopguard-ctx"
-version = "2.8.0"
+version = "2.8.1"
 edition = "2021"
 description = "LoopGuard Context Engine — token compression, shell hooks, MCP server, loop-aware context selection."
 license = "MIT"

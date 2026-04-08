@@ -30,7 +30,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-bold text-white mb-4">1. Acceptance</h2>
             <p>
-              By installing the LoopGuard VS Code extension or creating an account on loopguard.dev, you agree to these terms. If you do not agree, do not install the extension or create an account. Using LoopGuard without an account is always available and these terms still apply to the extension itself.
+              By installing the LoopGuard VS Code extension or creating an account on loopguard.vercel.app, you agree to these terms. If you do not agree, do not install the extension or create an account. Using LoopGuard without an account is always available and these terms still apply to the extension itself.
             </p>
           </section>
 

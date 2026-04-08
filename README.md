@@ -61,11 +61,11 @@ Search `LoopGuard` in the Extensions sidebar, or install from the [Marketplace p
    brew tap rodthenewcomer/loopguard https://github.com/rodthenewcomer/loopguard
    brew install loopguard-ctx
 
-   # npm (any platform with Node 18+)
+   # npm (any platform with Node 16+)
    npm install -g loopguard-ctx
 
    # curl
-   curl -fsSL https://loopguard.dev/install.sh | sh
+   curl -fsSL https://loopguard.vercel.app/install.sh | sh
    ```
 2. Wire your agent in one command — installs MCP config, hooks, CLAUDE.md rules, and shell aliases:
    ```bash
@@ -92,7 +92,7 @@ Search `LoopGuard` in the Extensions sidebar, or install from the [Marketplace p
 | `LoopGuard: Toggle Detection` | Pause or resume loop detection |
 | `LoopGuard: Sign In` | Optional — enables web dashboard sync |
 
-## v3 MCP Tools (Intelligence Layer)
+## Advanced Helper Tools
 
 Available via `loopguard-ctx` MCP to all supported tools (Claude Code, Cursor, Windsurf, Codex CLI):
 
@@ -143,7 +143,7 @@ ctx_memory(action="record", error_text="...", fix_file="file:line", fix_descript
 
 Loop detection and context selection run entirely locally. If you sign in, the backend stores only anonymized metrics — loop counts, session durations, token-saved estimates. No source code, no file contents.
 
-Full policy: [loopguard.dev/privacy](https://loopguard.dev/privacy)
+Full policy: [loopguard.vercel.app/privacy](https://loopguard.vercel.app/privacy)
 
 ## Honest Positioning
 
@@ -161,7 +161,7 @@ Full policy: [loopguard.dev/privacy](https://loopguard.dev/privacy)
 | **v3 — Intelligence Layer** | Shipped | Root cause hints, predictive context, session memory, cost forecasting, sidebar panel |
 | **v4 — Multi-session Memory** | In development | Cross-session pattern memory, proactive loop prediction, smarter context recall |
 
-Full details at [loopguard.dev/roadmap](https://loopguard.dev/roadmap).
+Full details at [loopguard.vercel.app/roadmap](https://loopguard.vercel.app/roadmap).
 
 ## Architecture
 
@@ -199,9 +199,9 @@ cd packages/context-engine/rust && cargo check  # Rust binary
 
 ## Links
 
-- Homepage: [loopguard.dev](https://loopguard.dev)
-- Docs: [loopguard.dev/docs](https://loopguard.dev/docs)
-- Roadmap: [loopguard.dev/roadmap](https://loopguard.dev/roadmap)
+- Homepage: [loopguard.vercel.app](https://loopguard.vercel.app)
+- Docs: [loopguard.vercel.app/docs](https://loopguard.vercel.app/docs)
+- Roadmap: [loopguard.vercel.app/roadmap](https://loopguard.vercel.app/roadmap)
 - Issues: [github.com/rodthenewcomer/loopguard/issues](https://github.com/rodthenewcomer/loopguard/issues)
 - Support: [buymeacoffee.com/rodthenewcomer](https://buymeacoffee.com/rodthenewcomer)
 

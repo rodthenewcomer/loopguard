@@ -6,7 +6,7 @@ export function GET() {
   return NextResponse.json({
     ok: true,
     service: 'loopguard-web',
-    version: '0.1.0',
+    version: '2.8.1',
     ts: Date.now(),
   });
 }

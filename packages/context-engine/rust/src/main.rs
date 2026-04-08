@@ -259,7 +259,7 @@ fn shell_quote(s: &str) -> String {
 
 fn print_help() {
     println!(
-        "loopguard-ctx 2.8.0 — Local helper for focused reads and smaller shell output
+        "loopguard-ctx {} — Local helper for focused reads and smaller shell output
 
 90+ shell patterns | 23 MCP tools | optional session restore
 
@@ -356,8 +356,9 @@ EXAMPLES:
     loopguard-ctx grep \"pub fn\" src/
     loopguard-ctx deps .
 
-WEBSITE: https://loopguard.dev
+WEBSITE: https://loopguard.vercel.app
 GITHUB:  https://github.com/rodthenewcomer/loopguard
-"
+",
+        env!("CARGO_PKG_VERSION")
     );
 }

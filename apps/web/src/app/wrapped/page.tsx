@@ -65,7 +65,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       title,
       description,
       type: 'website',
-      url: `https://loopguard.dev/wrapped?device_id=${deviceId}`,
+      url: `https://loopguard.vercel.app/wrapped?device_id=${deviceId}`,
       images: [{ url: '/og-image.png', width: 1200, height: 630 }],
     },
     twitter: {

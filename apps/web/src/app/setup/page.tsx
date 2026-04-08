@@ -147,7 +147,7 @@ export default function SetupPage() {
             { label: 'Windsurf', anchor: '#windsurf' },
             { label: 'Codex CLI', anchor: '#codex' },
             { label: 'Claude Code', anchor: '#claude-code' },
-            { label: 'Antigravity', anchor: '#antigravity' },
+            { label: 'Gemini CLI', anchor: '#antigravity' },
             { label: 'Shell helper', anchor: '#shell-hooks' },
           ].map((tool) => (
             <a
@@ -406,7 +406,7 @@ export default function SetupPage() {
                 <p className="mt-4 mb-2 text-xs font-semibold uppercase tracking-widest text-[#6B7280]">npm (any platform with Node 16+)</p>
                 <Code>npm install -g loopguard-ctx-bin</Code>
                 <p className="mt-4 mb-2 text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Or curl installer</p>
-                <Code>curl -fsSL https://loopguard.dev/install.sh | sh -s -- --download</Code>
+                <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download</Code>
                 <p className="mt-3 text-sm text-[#6B7280]">Verify:</p>
                 <Code>loopguard-ctx --version</Code>
               </Step>
@@ -441,7 +441,7 @@ export default function SetupPage() {
 
           <div id="antigravity">
             <SectionCard
-              title="Antigravity"
+              title="Gemini CLI"
               badge="MCP"
               icon={
                 <svg
@@ -459,19 +459,24 @@ export default function SetupPage() {
                 </svg>
               }
             >
-              <Lead>
-                Antigravity uses LoopGuard as an MCP server for focused context reads and passive shell compression!
-              </Lead>
+                <Lead>
+                  Gemini CLI and compatible Gemini-family tools such as Antigravity can use
+                  LoopGuard as an MCP server for focused context reads and smaller shell output.
+                </Lead>
 
               <Step n={1} title="Run the setup command">
                 <Code>loopguard-ctx setup --agent=gemini</Code>
                 <Note>
-                  This adds the MCP entry in <code className="text-[#9CA3AF]">~/.gemini/settings/mcp.json</code> and injects the ANTIGRAVITY.md intelligence hooks.
+                  This adds the MCP entry in <code className="text-[#9CA3AF]">~/.gemini/settings/mcp.json</code>{' '}
+                  and installs the local guidance file the Gemini-family tools use.
                 </Note>
               </Step>
               
               <Step n={2} title="Resume agent session">
-                <Lead>Antigravity will now natively leverage loop detection and forecasting tools automatically.</Lead>
+                <Lead>
+                  Restart the tool after setup so it reloads the MCP list and starts using LoopGuard’s
+                  focused helper tools.
+                </Lead>
               </Step>
             </SectionCard>
           </div>
@@ -503,7 +508,7 @@ export default function SetupPage() {
 
               <Step n={1} title="Install the helper">
                 <Lead>If you do not already have loopguard-ctx, install it:</Lead>
-                <Code>curl -fsSL https://loopguard.dev/install.sh | sh -s -- --download</Code>
+                <Code>curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download</Code>
                 <p className="mt-2 text-xs text-[#4B5563]">Then verify: <code className="text-[#9CA3AF]">loopguard-ctx --version</code></p>
               </Step>
 

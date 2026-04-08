@@ -57,14 +57,14 @@ const NAV = [
     ],
   },
   {
-    group: 'v3 Intelligence',
+    group: 'Advanced helper tools',
     items: [
-      { label: 'ctx_loop_hint', id: 'ctx-loop-hint' },
-      { label: 'ctx_forecast', id: 'ctx-forecast' },
-      { label: 'ctx_memory', id: 'ctx-memory' },
-      { label: 'ctx_predict', id: 'ctx-predict' },
-      { label: 'ctx_knowledge', id: 'ctx-knowledge' },
-      { label: 'ctx_agent', id: 'ctx-agent' },
+      { label: 'Loop hints', id: 'ctx-loop-hint' },
+      { label: 'Forecast', id: 'ctx-forecast' },
+      { label: 'Memory', id: 'ctx-memory' },
+      { label: 'Predict', id: 'ctx-predict' },
+      { label: 'Project knowledge', id: 'ctx-knowledge' },
+      { label: 'Agent scratchpad', id: 'ctx-agent' },
     ],
   },
   {
@@ -312,10 +312,10 @@ export default function DocsPage() {
           <P>Homebrew (macOS / Linux):</P>
           <Pre>{`brew tap rodthenewcomer/loopguard https://github.com/rodthenewcomer/loopguard
 brew install loopguard-ctx`}</Pre>
-          <P>npm (any platform with Node 18+):</P>
+          <P>npm (any platform with Node 16+):</P>
           <Pre>{`npm install -g loopguard-ctx-bin`}</Pre>
           <P>Or curl installer:</P>
-          <Pre>{`curl -fsSL https://loopguard.dev/install.sh | sh -s -- --download
+          <Pre>{`curl -fsSL https://loopguard.vercel.app/install.sh | sh -s -- --download
 
 loopguard-ctx --version`}</Pre>
           <P>
@@ -344,8 +344,8 @@ loopguard-ctx setup --agent=cursor
 # Codex CLI
 loopguard-ctx setup --agent=codex
 
-# Antigravity
-loopguard-ctx setup --agent=antigravity
+# Gemini CLI
+loopguard-ctx setup --agent=gemini
 
 # All detected editors at once
 loopguard-ctx setup`}</Pre>
@@ -557,11 +557,11 @@ loopguard-ctx setup`}</Pre>
             ]}
           />
           <P>
-            View and share your stats card at{' '}
-            <a href="/wrapped" className="text-sky-400 underline underline-offset-4 hover:text-sky-300">
-              loopguard.dev/wrapped
-            </a>
-            . Paste your device ID to generate a shareable link.
+             View and share your stats card at{' '}
+             <a href="/wrapped" className="text-sky-400 underline underline-offset-4 hover:text-sky-300">
+               loopguard.vercel.app/wrapped
+             </a>
+             . Paste your device ID to generate a shareable link.
           </P>
           <Pre>{`# Get your device ID
 cat ~/.loopguard-ctx/device.json
@@ -571,8 +571,8 @@ loopguard-ctx wrapped`}</Pre>
 
           <H2 id="sync">Account and session sync</H2>
           <P>
-            If you sign in, LoopGuard syncs your session metrics to the web dashboard every few
-            minutes and again at session end.
+            If you sign in, LoopGuard syncs your session metrics to the web dashboard within
+            moments after changes, periodically in the background, and again at session end.
           </P>
           <P>
             The web dashboard refreshes periodically, so it feels close to live, but it still
@@ -653,13 +653,15 @@ args = []`}</Pre>
             Run <Code>ctx_session load</Code> at the start of every Claude Code session to restore the previous task context and saved findings.
           </Note>
 
-          <H3>Antigravity</H3>
+          <H3>Gemini CLI</H3>
           <P>
-            To wire up Antigravity, simply run the setup tool:
+            To wire up Gemini CLI and compatible Gemini-family tools such as Antigravity, run the
+            setup tool:
           </P>
-          <Pre>{`loopguard-ctx setup --agent=antigravity`}</Pre>
+          <Pre>{`loopguard-ctx setup --agent=gemini`}</Pre>
           <P>
-            This configures the <Code>~/.gemini/settings/mcp.json</Code> file to inject the intelligent tools.
+            This configures <Code>~/.gemini/settings/mcp.json</Code> and installs the local guidance file
+            those tools use for LoopGuard MCP workflows.
           </P>
 
           <H2 id="shell-hooks">Shell helper</H2>
@@ -690,7 +692,7 @@ loopguard-ctx init`}</Pre>
             manually from GitHub.
           </P>
 
-          <H2 id="v3-intelligence">v3 Intelligence tools</H2>
+          <H2 id="v3-intelligence">Advanced helper tools</H2>
           <P>
             These four tools shipped in v3 and are available to every agent that connects via the
             MCP server — Claude Code, Cursor, Windsurf, and Codex CLI. They run entirely locally
@@ -834,7 +836,7 @@ ctx_knowledge(action="clear")`}</Pre>
               'Grouped by category — architecture, decision, convention, or any label you choose',
               'Fuzzy key matching — ctx_knowledge(get, key="auth") finds "arch.auth" automatically',
               'Capped at 2000 entries per project',
-              'Available to all MCP-connected tools — Claude Code, Cursor, Codex CLI, Antigravity',
+              'Available to all MCP-connected tools — Claude Code, Cursor, Codex CLI, and Gemini-family tools',
             ]}
           />
 
@@ -862,7 +864,7 @@ ctx_agent(action="delete", label="current-task")
 ctx_agent(action="clear")`}</Pre>
           <CheckList
             items={[
-              'Works across Claude Code, Cursor, Codex CLI, Antigravity — any MCP-connected agent',
+              'Works across Claude Code, Cursor, Codex CLI, and Gemini-family tools',
               'Optional TTL: notes auto-expire after N hours so the pad stays clean',
               'List groups notes by agent so you can see who wrote what',
               'Stored at ~/.loopguard-ctx/agent-scratchpad.json — local only, never synced',
@@ -939,7 +941,7 @@ ctx_agent(action="clear")`}</Pre>
           </P>
           <P>
             <a href="/roadmap" className="text-sky-400 underline underline-offset-4 hover:text-sky-300">
-              loopguard.dev/roadmap →
+              loopguard.vercel.app/roadmap →
             </a>
           </P>
 
