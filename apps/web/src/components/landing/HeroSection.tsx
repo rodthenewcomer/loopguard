@@ -23,7 +23,7 @@ export default function HeroSection() {
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-[#9FB0C4] backdrop-blur">
               <span className="h-2 w-2 rounded-full bg-[#22C55E]" />
-              v2.8.1 live — easier setup, clearer savings totals
+              v2.8.2 live — easier setup, clearer savings totals
             </div>
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#22C55E]/20 bg-[#22C55E]/8 px-3 py-1.5 text-xs font-medium text-[#86EFAC] backdrop-blur">
               <LoopGuardLogo size={14} className="shrink-0" wordmarkClassName="hidden" />

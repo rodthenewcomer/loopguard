@@ -24,7 +24,7 @@ interface Release {
 
 const RELEASES: Release[] = [
   {
-    version: 'v2.8.1',
+    version: 'v2.8.2',
     date: 'April 2026',
     tag: 'Latest',
     tagColor: '#22C55E',
@@ -52,7 +52,7 @@ const RELEASES: Release[] = [
         label: 'Release cleanup',
         color: '#F59E0B',
         items: [
-          'LoopGuard helper help text and install surfaces now report the current 2.8.1 version line',
+          'LoopGuard helper help text and install surfaces now report the current 2.8.2 version line',
           'Windsurf and Gemini-family setup paths no longer get skipped during helper setup',
           'Project-level agent guidance files are ready to commit for Cursor and Windsurf users',
         ],

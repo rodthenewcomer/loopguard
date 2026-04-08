@@ -34,7 +34,7 @@ app.use(express.json({ limit: '64kb' }));
 
 // ── Health check ───────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, service: 'loopguard-api', version: '2.8.1' });
+  res.json({ ok: true, service: 'loopguard-api', version: '2.8.2' });
 });
 
 // ── Routes ─────────────────────────────────────────────────────────
