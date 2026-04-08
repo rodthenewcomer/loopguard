@@ -79,10 +79,10 @@ export class SidebarPanel implements vscode.WebviewViewProvider {
     const sessionTime = m !== null ? formatDuration(Date.now() - m.startTime) : '—';
     const totalLoops = m !== null ? m.totalLoopsDetected : 0;
     const timeWasted = m !== null ? this._fmtMs(m.totalTimeWasted) : '—';
-    const tokSaved = m !== null ? this._fmt(m.tokensSaved) : '—';
-
-    // All-time savings from web summary if available, else fall back to session
-    const allTimeTokens = sum !== null ? this._fmt(sum.allTime.tokensSaved) : tokSaved;
+    // All-time savings from web summary; fall back to current session while loading
+    const allTimeTokens = sum !== null
+      ? this._fmt(sum.allTime.tokensSaved)
+      : m !== null ? this._fmt(m.tokensSaved) : '—';
     const allTimeCost = sum !== null ? `$${sum.allTime.costSaved.toFixed(2)}` : null;
 
     const activeCount = loops.length;
@@ -326,7 +326,7 @@ export class SidebarPanel implements vscode.WebviewViewProvider {
   </div>
   <div class="kpi">
     <div class="kpi-label">Tok saved</div>
-    <div class="kpi-value cyan">${this._esc(tokSaved)}</div>
+    <div class="kpi-value cyan">${this._esc(allTimeTokens)}</div>
   </div>
 </div>
 
@@ -340,10 +340,11 @@ export class SidebarPanel implements vscode.WebviewViewProvider {
 
 <div class="divider"></div>
 
-<!-- All-time savings (only if signed in + data available) -->
-${sum !== null ? `
+<!-- All-time savings (always shown when authenticated, syncing state if no data yet) -->
+${this._isAuthenticated ? `
 <div class="section">
   <div class="section-title">All-time savings</div>
+  ${sum !== null ? `
   <div class="savings-row">
     <span class="savings-label">Tokens saved</span>
     <span class="savings-value">${this._esc(allTimeTokens)}</span>
@@ -352,7 +353,10 @@ ${sum !== null ? `
   <div class="savings-row">
     <span class="savings-label">Cost avoided</span>
     <span class="savings-value green">${this._esc(allTimeCost)}</span>
-  </div>` : ''}
+  </div>` : ''}` : `
+  <div class="savings-row">
+    <span class="savings-label" style="color:#475569;font-style:italic">Syncing from dashboard…</span>
+  </div>`}
 </div>
 <div class="divider"></div>` : ''}
 
