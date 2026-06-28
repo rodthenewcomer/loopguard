@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import metricsRouter from './routes/metrics';
 import authRouter from './routes/auth';
+import { logger } from './lib/logger';
 
 const PORT = Number(process.env['PORT'] ?? 3001);
 
@@ -15,6 +18,17 @@ const ALLOWED_ORIGINS = [
 ];
 
 const app = express();
+
+app.use(helmet());
+
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 200,
+    standardHeaders: true,
+    legacyHeaders: false,
+  }),
+);
 
 app.use(
   cors({
@@ -34,7 +48,11 @@ app.use(express.json({ limit: '64kb' }));
 
 // ── Health check ───────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, service: 'loopguard-api', version: '2.8.2' });
+  res.json({
+    ok: true,
+    service: 'loopguard-api',
+    version: process.env['npm_package_version'] ?? 'unknown',
+  });
 });
 
 // ── Routes ─────────────────────────────────────────────────────────
@@ -56,13 +74,16 @@ app.use(
     res: express.Response,
     _next: express.NextFunction,
   ) => {
-    console.error('[LoopGuard API] Unhandled error:', err.message);
+    logger.error({ err: err.message }, 'Unhandled error');
     res.status(500).json({ error: 'Internal server error' });
   },
 );
 
 // ── Start ───────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`[LoopGuard API] Listening on :${PORT}`);
-  console.log(`[LoopGuard API] Supabase: ${process.env['SUPABASE_URL'] ? '✓ configured' : '✗ not configured'}`);
+  logger.info({ port: PORT }, '[LoopGuard API] Listening');
+  logger.info(
+    { supabase: process.env['SUPABASE_URL'] ? 'configured' : 'not configured' },
+    '[LoopGuard API] Supabase status',
+  );
 });

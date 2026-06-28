@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../lib/supabase';
+import { logger } from '../lib/logger';
 import type { Request, Response } from 'express';
 
 const router = Router();
@@ -121,7 +122,7 @@ router.post('/refresh', async (req: Request, res: Response): Promise<void> => {
 
     res.json({ jwt: data.access_token, refreshToken: data.refresh_token });
   } catch (err) {
-    console.error('[auth/refresh] Error:', err);
+    logger.error({ err }, '[auth/refresh] Token refresh failed');
     res.status(500).json({ error: 'Token refresh failed' });
   }
 });

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.sessions (
   started_at        TIMESTAMPTZ NOT NULL,
   ended_at          TIMESTAMPTZ,                        -- null while session is active
   loops_detected    INTEGER     NOT NULL DEFAULT 0,
-  time_wasted_ms    INTEGER     NOT NULL DEFAULT 0,
+  time_wasted_ms    BIGINT      NOT NULL DEFAULT 0,
   tokens_saved      INTEGER     NOT NULL DEFAULT 0,
   file_types        TEXT[]      NOT NULL DEFAULT '{}',  -- ['ts', 'py'] — no paths
   extension_version TEXT        NOT NULL DEFAULT '0.1.0',
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS public.loops (
   session_id    TEXT        NOT NULL,                  -- references sessions.session_id
   error_hash    TEXT        NOT NULL,                  -- djb2 hash — no recoverable content
   occurrences   INTEGER     NOT NULL DEFAULT 1,
-  time_wasted_ms INTEGER    NOT NULL DEFAULT 0,
+  time_wasted_ms BIGINT     NOT NULL DEFAULT 0,
   file_type     TEXT        NOT NULL DEFAULT '',       -- 'ts', 'py' etc — no path
   status        TEXT        NOT NULL DEFAULT 'active'
                             CHECK (status IN ('active', 'resolved', 'ignored')),

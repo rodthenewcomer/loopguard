@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import LoopGuardLogo from '../../components/LoopGuardLogo';
+import LandingFooter from '../../components/landing/LandingFooter';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — LoopGuard',
@@ -23,7 +24,7 @@ export default function PrivacyPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-10 sm:px-6 sm:py-16">
         <h1 className="text-3xl font-bold text-white mb-2 sm:text-4xl">Privacy Policy</h1>
-        <p className="text-[#4B5563] text-sm mb-16">Last updated: March 2026</p>
+        <p className="text-[#4B5563] text-sm mb-16">Last updated: June 28, 2026</p>
 
         <div className="space-y-12 text-[#9CA3AF] text-sm leading-relaxed">
 
@@ -162,6 +163,7 @@ export default function PrivacyPage() {
           </section>
         </div>
       </div>
+      <LandingFooter />
     </div>
   );
 }

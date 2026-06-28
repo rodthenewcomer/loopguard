@@ -1,12 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
+import { logger } from './logger';
 
 const SUPABASE_URL = process.env['SUPABASE_URL'] ?? '';
 const SUPABASE_SERVICE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY'] ?? '';
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-  console.warn(
-    '[LoopGuard API] Supabase credentials not configured. ' +
-      'Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your environment.',
+  logger.warn(
+    'Supabase credentials not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your environment.',
   );
 }
 

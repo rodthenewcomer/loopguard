@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { supabase } from '../lib/supabase';
+import { logger } from '../lib/logger';
 import { requireAuth, type AuthRequest } from '../middleware/auth';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 
 const router = Router();
 
@@ -36,6 +38,61 @@ const LoopSchema = z.object({
   status: z.enum(['active', 'resolved', 'ignored']),
 });
 
+const FunnelEventSchema = z.object({
+  eventName: z.enum([
+    'extension_activated',
+    'first_loop_detected',
+    'context_copied',
+    'signed_in',
+    'dashboard_viewed',
+  ]),
+  deviceId: z.string().uuid().optional(),
+  properties: z.record(z.unknown()).optional(),
+});
+
+const DeviceSyncSchema = z.object({
+  device_id: z.string().uuid(),
+  total_tokens_original: z.number().int().min(0),
+  total_tokens_compressed: z.number().int().min(0),
+  total_tokens_saved: z.number().int().min(0),
+  total_commands: z.number().int().min(0),
+  total_sessions: z.number().int().min(0),
+  daily_breakdown: z
+    .array(
+      z.object({
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        tokens_saved: z.number().int().min(0),
+        commands: z.number().int().min(0),
+      }),
+    )
+    .max(30),
+});
+
+/* ── HMAC device auth ───────────────────────────────────────────────
+ * Device endpoints use HMAC-SHA256 signing instead of JWT.
+ * If DEVICE_HMAC_SECRET is not set, allows through with a warning
+ * for backward compatibility with existing CLI users.
+ */
+function verifyDeviceHmac(deviceId: string, req: Request): boolean {
+  const secret = process.env['DEVICE_HMAC_SECRET'];
+  if (!secret) {
+    logger.warn('DEVICE_HMAC_SECRET not set — device endpoint is unauthenticated');
+    return true;
+  }
+  const sig = req.headers['x-device-signature'];
+  const ts = req.headers['x-timestamp'];
+  if (typeof sig !== 'string' || typeof ts !== 'string') return false;
+  const tsMs = Number(ts) * 1000;
+  if (isNaN(tsMs) || Math.abs(Date.now() - tsMs) > 5 * 60 * 1000) return false;
+  const expected = createHmac('sha256', secret)
+    .update(`${deviceId}:${ts}`)
+    .digest('hex');
+  const providedBuf = Buffer.from(sig, 'hex');
+  const expectedBuf = Buffer.from(expected, 'hex');
+  if (providedBuf.length !== expectedBuf.length) return false;
+  return timingSafeEqual(providedBuf, expectedBuf);
+}
+
 /* ── POST /session ──────────────────────────────────────────────────
  * Called by extension:
  *   - On session start (minimal payload)
@@ -62,7 +119,7 @@ router.post('/session', requireAuth, async (req: AuthRequest, res: Response): Pr
         time_wasted_ms: d.timeWastedMs,
         tokens_saved: d.tokensSaved,
         file_types: d.fileTypes,
-        extension_version: d.extensionVersion ?? '2.8.2',
+        extension_version: d.extensionVersion ?? 'unknown',
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'session_id' },
@@ -71,7 +128,7 @@ router.post('/session', requireAuth, async (req: AuthRequest, res: Response): Pr
     .single();
 
   if (error !== null) {
-    console.error('[metrics/session] Supabase error:', error.message);
+    logger.error({ err: error.message }, '[metrics/session] Supabase error');
     res.status(500).json({ error: 'Failed to save session' });
     return;
   }
@@ -81,6 +138,7 @@ router.post('/session', requireAuth, async (req: AuthRequest, res: Response): Pr
 
 /* ── POST /loop ─────────────────────────────────────────────────────
  * Called whenever a loop is detected or its status changes.
+ * Upserts on (session_id, error_hash) to prevent duplicates on retry.
  */
 router.post('/loop', requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
   const parsed = LoopSchema.safeParse(req.body);
@@ -92,25 +150,28 @@ router.post('/loop', requireAuth, async (req: AuthRequest, res: Response): Promi
   const d = parsed.data;
   const { data: row, error } = await supabase
     .from('loops')
-    .insert({
-      user_id: req.userId,
-      session_id: d.sessionId,
-      error_hash: d.errorHash,
-      occurrences: d.occurrences,
-      time_wasted_ms: d.timeWastedMs,
-      file_type: d.fileType,
-      status: d.status,
-      detected_at: new Date(d.detectedAt).toISOString(),
-      resolved_at:
-        d.resolvedAt !== undefined && d.resolvedAt !== null
-          ? new Date(d.resolvedAt).toISOString()
-          : null,
-    })
+    .upsert(
+      {
+        user_id: req.userId,
+        session_id: d.sessionId,
+        error_hash: d.errorHash,
+        occurrences: d.occurrences,
+        time_wasted_ms: d.timeWastedMs,
+        file_type: d.fileType,
+        status: d.status,
+        detected_at: new Date(d.detectedAt).toISOString(),
+        resolved_at:
+          d.resolvedAt !== undefined && d.resolvedAt !== null
+            ? new Date(d.resolvedAt).toISOString()
+            : null,
+      },
+      { onConflict: 'session_id,error_hash' },
+    )
     .select('id')
     .single();
 
   if (error !== null) {
-    console.error('[metrics/loop] Supabase error:', error.message);
+    logger.error({ err: error.message }, '[metrics/loop] Supabase error');
     res.status(500).json({ error: 'Failed to save loop' });
     return;
   }
@@ -127,33 +188,41 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
   const todayStart = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
 
-  const [sessionsResult, loopsResult, todayResult, allTimeResult] = await Promise.all([
-    supabase
-      .from('sessions')
-      .select('loops_detected, time_wasted_ms, tokens_saved, started_at')
-      .eq('user_id', req.userId)
-      .gte('started_at', since)
-      .order('started_at', { ascending: true }),
+  const [sessionsResult, loopsResult, todayResult, allTimeResult, topHashesResult] =
+    await Promise.all([
+      supabase
+        .from('sessions')
+        .select('loops_detected, time_wasted_ms, tokens_saved, started_at')
+        .eq('user_id', req.userId)
+        .gte('started_at', since)
+        .order('started_at', { ascending: true }),
 
-    supabase
-      .from('loops')
-      .select('id, error_hash, occurrences, time_wasted_ms, file_type, status, detected_at')
-      .eq('user_id', req.userId)
-      .gte('detected_at', since)
-      .order('detected_at', { ascending: false })
-      .limit(50),
+      supabase
+        .from('loops')
+        .select('id, error_hash, occurrences, time_wasted_ms, file_type, status, detected_at')
+        .eq('user_id', req.userId)
+        .gte('detected_at', since)
+        .order('detected_at', { ascending: false })
+        .limit(50),
 
-    supabase
-      .from('sessions')
-      .select('loops_detected, time_wasted_ms, tokens_saved')
-      .eq('user_id', req.userId)
-      .gte('started_at', todayStart),
+      supabase
+        .from('sessions')
+        .select('loops_detected, time_wasted_ms, tokens_saved')
+        .eq('user_id', req.userId)
+        .gte('started_at', todayStart),
 
-    supabase
-      .from('sessions')
-      .select('loops_detected, time_wasted_ms, tokens_saved')
-      .eq('user_id', req.userId),
-  ]);
+      supabase
+        .from('sessions')
+        .select('loops_detected, time_wasted_ms, tokens_saved')
+        .eq('user_id', req.userId),
+
+      // Separate lightweight query for top error hashes
+      supabase
+        .from('loops')
+        .select('error_hash')
+        .eq('user_id', req.userId)
+        .gte('detected_at', since),
+    ]);
 
   // Aggregate week totals
   const sessions = sessionsResult.data ?? [];
@@ -199,10 +268,10 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
     };
   }
 
-  // Top error hashes
-  const loops = loopsResult.data ?? [];
+  // Top error hashes — dedicated lightweight query
+  const topHashes = topHashesResult.data ?? [];
   const hashCount: Record<string, number> = {};
-  for (const l of loops) {
+  for (const l of topHashes) {
     hashCount[l.error_hash as string] = (hashCount[l.error_hash as string] ?? 0) + 1;
   }
   const topErrorHashes = Object.entries(hashCount)
@@ -210,8 +279,9 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  const costPerToken = 0.000003; // $3.00 / 1M tokens (claude-sonnet-4-6 input pricing)
+  const costPerToken = 0.000003; // $3.00 / 1M tokens (Sonnet input pricing — varies by model)
 
+  const loops = loopsResult.data ?? [];
   res.json({
     thisWeek: {
       ...thisWeek,
@@ -239,32 +309,46 @@ router.get('/summary', requireAuth, async (req: AuthRequest, res: Response): Pro
   });
 });
 
+/* ── POST /event ────────────────────────────────────────────────────
+ * Funnel event tracking — no auth required (works pre-sign-in).
+ * Tracks: extension_activated, first_loop_detected, context_copied,
+ *         signed_in, dashboard_viewed
+ */
+router.post('/event', async (req: AuthRequest, res: Response): Promise<void> => {
+  const parsed = FunnelEventSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid payload', details: parsed.error.flatten() });
+    return;
+  }
+
+  const { error } = await supabase.from('funnel_events').insert({
+    event_name: parsed.data.eventName,
+    user_id: req.userId ?? null,
+    device_id: parsed.data.deviceId ?? null,
+    properties: parsed.data.properties ?? {},
+  });
+
+  if (error !== null) {
+    logger.error({ err: error.message }, 'funnel event insert failed');
+    res.status(500).json({ error: 'Failed to track event' });
+    return;
+  }
+
+  res.json({ ok: true });
+});
 
 /* ── POST /device-sync ──────────────────────────────────────────────
  * Called by loopguard-ctx CLI at session end (Stop hook).
- * No auth required — anonymous, identified by device UUID only.
+ * Authenticated via HMAC-SHA256 signature on device_id + timestamp.
  * Privacy: only aggregate token/command counts and daily totals.
- * Service role bypasses RLS for all writes.
  */
-const DeviceSyncSchema = z.object({
-  device_id: z.string().uuid(),
-  total_tokens_original: z.number().int().min(0),
-  total_tokens_compressed: z.number().int().min(0),
-  total_tokens_saved: z.number().int().min(0),
-  total_commands: z.number().int().min(0),
-  total_sessions: z.number().int().min(0),
-  daily_breakdown: z
-    .array(
-      z.object({
-        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-        tokens_saved: z.number().int().min(0),
-        commands: z.number().int().min(0),
-      }),
-    )
-    .max(30),
-});
+router.post('/device-sync', async (req: Request, res: Response): Promise<void> => {
+  const deviceIdRaw = (req.body as { device_id?: string }).device_id ?? '';
+  if (!verifyDeviceHmac(deviceIdRaw, req)) {
+    res.status(401).json({ error: 'Invalid or missing device signature' });
+    return;
+  }
 
-router.post('/device-sync', async (req, res: Response): Promise<void> => {
   const parsed = DeviceSyncSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid payload', details: parsed.error.flatten() });
@@ -287,7 +371,7 @@ router.post('/device-sync', async (req, res: Response): Promise<void> => {
   );
 
   if (error !== null) {
-    console.error('[metrics/device-sync] Supabase error:', error.message);
+    logger.error({ err: error.message }, '[metrics/device-sync] Supabase error');
     res.status(500).json({ error: 'Failed to sync device stats' });
     return;
   }
@@ -296,12 +380,17 @@ router.post('/device-sync', async (req, res: Response): Promise<void> => {
 });
 
 /* ── GET /device-stats ──────────────────────────────────────────────
- * Returns stats for a specific device ID (no auth — UUID is the secret).
- * Used by CLI users who want to view their stats on the web dashboard.
+ * Returns stats for a specific device ID.
+ * Authenticated via HMAC-SHA256 signature on device_id + timestamp.
  */
-router.get('/device-stats', async (req, res: Response): Promise<void> => {
-  const deviceId = req.query['device_id'];
-  if (typeof deviceId !== 'string' || !/^[0-9a-f-]{36}$/.test(deviceId)) {
+router.get('/device-stats', async (req: Request, res: Response): Promise<void> => {
+  const deviceIdRaw = typeof req.query['device_id'] === 'string' ? req.query['device_id'] : '';
+  if (!verifyDeviceHmac(deviceIdRaw, req)) {
+    res.status(401).json({ error: 'Invalid or missing device signature' });
+    return;
+  }
+
+  if (!/^[0-9a-f-]{36}$/.test(deviceIdRaw)) {
     res.status(400).json({ error: 'Invalid device_id', code: 'INVALID_DEVICE_ID' });
     return;
   }
@@ -309,7 +398,7 @@ router.get('/device-stats', async (req, res: Response): Promise<void> => {
   const { data, error } = await supabase
     .from('device_stats')
     .select('*')
-    .eq('device_id', deviceId)
+    .eq('device_id', deviceIdRaw)
     .single();
 
   if (error !== null || data === null) {
@@ -317,7 +406,7 @@ router.get('/device-stats', async (req, res: Response): Promise<void> => {
     return;
   }
 
-  const costPerToken = 0.000003; // $3.00 / 1M tokens (claude-sonnet-4-6 input pricing)
+  const costPerToken = 0.000003;
   res.json({
     deviceId: data['device_id'],
     firstSeen: data['first_seen'],
