@@ -94,10 +94,10 @@ fn similarity(a: &str, b: &str) -> f32 {
 pub fn handle(action: &str, args: &HashMap<String, String>) -> String {
     match action {
         "record" => handle_record(args),
-        "query"  => handle_query(args),
-        "list"   => handle_list(args),
-        "clear"  => handle_clear(),
-        "stats"  => handle_stats(),
+        "query" => handle_query(args),
+        "list" => handle_list(args),
+        "clear" => handle_clear(),
+        "stats" => handle_stats(),
         _ => format!("Unknown action '{action}'. Use: record, query, list, clear, stats"),
     }
 }
@@ -124,9 +124,10 @@ fn handle_record(args: &HashMap<String, String>) -> String {
     let mut store = load();
 
     // Find existing entry with high similarity
-    let existing_idx = store.entries.iter().position(|e| {
-        similarity(&e.error_fingerprint, &fp) > 0.72
-    });
+    let existing_idx = store
+        .entries
+        .iter()
+        .position(|e| similarity(&e.error_fingerprint, &fp) > 0.72);
 
     let now = chrono::Local::now().timestamp_millis();
 
@@ -180,7 +181,8 @@ fn handle_query(args: &HashMap<String, String>) -> String {
         Some(v) => v.clone(),
         None => return "query is required".to_string(),
     };
-    let limit = args.get("limit")
+    let limit = args
+        .get("limit")
         .and_then(|v| v.parse::<usize>().ok())
         .unwrap_or(5);
 
@@ -190,7 +192,9 @@ fn handle_query(args: &HashMap<String, String>) -> String {
     }
 
     let query_fp = fingerprint(&query);
-    let mut scored: Vec<(f32, &MemoryEntry)> = store.entries.iter()
+    let mut scored: Vec<(f32, &MemoryEntry)> = store
+        .entries
+        .iter()
         .map(|e| {
             let score = similarity(&e.error_fingerprint, &query_fp)
                 + similarity(&e.error_text.to_lowercase(), &query.to_lowercase()) * 0.5;
@@ -203,7 +207,10 @@ fn handle_query(args: &HashMap<String, String>) -> String {
     scored.truncate(limit);
 
     if scored.is_empty() {
-        return format!("No matching patterns for: {}", query.chars().take(80).collect::<String>());
+        return format!(
+            "No matching patterns for: {}",
+            query.chars().take(80).collect::<String>()
+        );
     }
 
     let mut out = vec![format!(
@@ -228,7 +235,10 @@ fn handle_query(args: &HashMap<String, String>) -> String {
             line_str,
         ));
         if !entry.fix_description.is_empty() {
-            out.push(format!("           {}", entry.fix_description.chars().take(100).collect::<String>()));
+            out.push(format!(
+                "           {}",
+                entry.fix_description.chars().take(100).collect::<String>()
+            ));
         }
     }
 
@@ -236,7 +246,8 @@ fn handle_query(args: &HashMap<String, String>) -> String {
 }
 
 fn handle_list(args: &HashMap<String, String>) -> String {
-    let limit = args.get("limit")
+    let limit = args
+        .get("limit")
         .and_then(|v| v.parse::<usize>().ok())
         .unwrap_or(20);
     let project_filter = args.get("project").cloned();
@@ -246,13 +257,22 @@ fn handle_list(args: &HashMap<String, String>) -> String {
         return "Memory is empty.".to_string();
     }
 
-    let mut entries: Vec<&MemoryEntry> = store.entries.iter()
-        .filter(|e| project_filter.as_deref().is_none_or(|p| e.project.contains(p)))
+    let mut entries: Vec<&MemoryEntry> = store
+        .entries
+        .iter()
+        .filter(|e| {
+            project_filter
+                .as_deref()
+                .is_none_or(|p| e.project.contains(p))
+        })
         .collect();
     entries.sort_by(|a, b| b.last_seen.cmp(&a.last_seen));
     entries.truncate(limit);
 
-    let mut out = vec![format!("ctx_memory — {} entries (most recent first)", entries.len())];
+    let mut out = vec![format!(
+        "ctx_memory — {} entries (most recent first)",
+        entries.len()
+    )];
     out.push("═".repeat(50));
 
     for entry in entries {
@@ -290,9 +310,17 @@ fn handle_stats() -> String {
     for e in &store.entries {
         *by_project.entry(&e.project).or_insert(0) += 1;
     }
-    let top_seen = store.entries.iter()
+    let top_seen = store
+        .entries
+        .iter()
         .max_by_key(|e| e.seen_count)
-        .map(|e| format!("  Most seen ({} times): {}", e.seen_count, e.error_text.chars().take(72).collect::<String>()))
+        .map(|e| {
+            format!(
+                "  Most seen ({} times): {}",
+                e.seen_count,
+                e.error_text.chars().take(72).collect::<String>()
+            )
+        })
         .unwrap_or_default();
 
     let mut out = vec!["ctx_memory stats".to_string(), "═".repeat(40)];

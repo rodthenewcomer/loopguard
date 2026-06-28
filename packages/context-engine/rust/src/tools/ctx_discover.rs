@@ -103,7 +103,8 @@ pub fn discover_from_history(history: &[String], limit: usize) -> String {
         "Estimated potential: ~{potential} tokens saved (~${potential_usd:.2})"
     ));
     result.push(String::new());
-    result.push("Fix: run 'loopguard-ctx init --global' to auto-compress all commands.".to_string());
+    result
+        .push("Fix: run 'loopguard-ctx init --global' to auto-compress all commands.".to_string());
     result.push("Or:  run 'loopguard-ctx init --agent <tool>' for AI tool hooks.".to_string());
 
     let output = result.join("\n");

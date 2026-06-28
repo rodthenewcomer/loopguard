@@ -147,8 +147,7 @@ esac
     // Fires on every user prompt. Injects the mandatory session protocol on the
     // first prompt only, then injects a ctx_metrics reminder every 10 prompts.
     let session_start_path = hooks_dir.join("loopguard-ctx-session-start.sh");
-    let session_start_script = 
-        r#"#!/usr/bin/env bash
+    let session_start_script = r#"#!/usr/bin/env bash
 # LoopGuard UserPromptSubmit hook
 # - First prompt: inject session restore + proactive tools protocol
 # - Every 10 prompts: inject ctx_metrics + ctx_compress reminder
@@ -339,7 +338,9 @@ date +%s > "$STAMP"
     );
     #[cfg(target_os = "windows")]
     let (rewrite_cmd, enforce_cmd, periodic_cmd, summary_cmd, session_cmd) = {
-        let ps = |p: &std::path::PathBuf| format!(r#"powershell -NoProfile -File "{}""#, p.to_string_lossy());
+        let ps = |p: &std::path::PathBuf| {
+            format!(r#"powershell -NoProfile -File "{}""#, p.to_string_lossy())
+        };
         (
             ps(&hooks_dir.join("loopguard-ctx-rewrite.ps1")),
             ps(&hooks_dir.join("loopguard-ctx-enforce.ps1")),
@@ -443,7 +444,6 @@ date +%s > "$STAMP"
     }
 }
 
-
 /// Install PowerShell hook equivalents for Claude Code on Windows.
 /// Called from `install_claude_hook` only on Windows targets.
 #[cfg(target_os = "windows")]
@@ -454,7 +454,8 @@ fn install_windows_ps1_hooks(
     settings_content: &str,
 ) {
     // PS1 rewrite hook — rewrites known shell commands to loopguard-ctx -c equivalents
-    let rewrite_ps1 = format!(r#"# loopguard-ctx PreToolUse rewrite hook (PowerShell)
+    let rewrite_ps1 = format!(
+        r#"# loopguard-ctx PreToolUse rewrite hook (PowerShell)
 # Rewrites Bash tool commands to loopguard-ctx -c equivalents for compressed output.
 $input_data = $input | ConvertFrom-Json -ErrorAction SilentlyContinue
 if (-not $input_data) {{ exit 0 }}
@@ -473,7 +474,9 @@ if ($matched) {{
     Write-Output ('{{"command":"{{0}} -c {{1}}"}}' -f '{binary}', $escaped)
 }}
 exit 0
-"#, binary = binary);
+"#,
+        binary = binary
+    );
 
     write_file(&hooks_dir.join("loopguard-ctx-rewrite.ps1"), &rewrite_ps1);
 
@@ -500,7 +503,8 @@ switch ($toolName) {
     write_file(&hooks_dir.join("loopguard-ctx-enforce.ps1"), enforce_ps1);
 
     // PS1 periodic hook — session restore hint + periodic notify
-    let periodic_ps1 = format!(r#"# loopguard-ctx PostToolUse hook (PowerShell)
+    let periodic_ps1 = format!(
+        r#"# loopguard-ctx PostToolUse hook (PowerShell)
 $env:LOOPGUARD_BYPASS = "1"
 $dir = "$env:USERPROFILE\.loopguard-ctx"
 New-Item -ItemType Directory -Force -Path $dir | Out-Null
@@ -520,18 +524,23 @@ if (Test-Path $stamp) {{
 }}
 (Get-Date -UFormat %s) | Out-File $stamp -Encoding ascii
 & '{binary}' notify 2>$null
-"#, binary = binary);
+"#,
+        binary = binary
+    );
     write_file(&hooks_dir.join("loopguard-ctx-periodic.ps1"), &periodic_ps1);
 
     // PS1 summary hook — end-of-session cleanup + notify
-    let summary_ps1 = format!(r#"# loopguard-ctx Stop hook (PowerShell)
+    let summary_ps1 = format!(
+        r#"# loopguard-ctx Stop hook (PowerShell)
 $dir = "$env:USERPROFILE\.loopguard-ctx"
 Remove-Item "$dir\.session-restored"         -ErrorAction SilentlyContinue
 Remove-Item "$dir\.session-start-injected"   -ErrorAction SilentlyContinue
 Remove-Item "$dir\.session-prompt-count"     -ErrorAction SilentlyContinue
 & '{binary}' notify 2>$null
 Start-Process -FilePath '{binary}' -ArgumentList 'sync' -WindowStyle Hidden
-"#, binary = binary);
+"#,
+        binary = binary
+    );
     write_file(&hooks_dir.join("loopguard-ctx-summary.ps1"), &summary_ps1);
 
     // PS1 session-start hook — protocol reminder on first prompt
@@ -563,9 +572,15 @@ if ($n % $interval -eq 0) {
     Write-Output "Run ctx_metrics now to verify token savings."
 }
 "#;
-    write_file(&hooks_dir.join("loopguard-ctx-session-start.ps1"), &session_ps1);
+    write_file(
+        &hooks_dir.join("loopguard-ctx-session-start.ps1"),
+        &session_ps1,
+    );
 
-    println!("Installed Windows PowerShell hooks in {}", hooks_dir.display());
+    println!(
+        "Installed Windows PowerShell hooks in {}",
+        hooks_dir.display()
+    );
     let _ = settings_path; // referenced above for cfg-gated call
     let _ = settings_content;
 }
@@ -647,7 +662,9 @@ date +%s > "$STAMP"
         String::new()
     };
 
-    if content.contains("loopguard-ctx-rewrite") && content.contains("loopguard-ctx-cursor-periodic") {
+    if content.contains("loopguard-ctx-rewrite")
+        && content.contains("loopguard-ctx-cursor-periodic")
+    {
         println!("Cursor hook already configured.");
     } else {
         write_file(
@@ -806,9 +823,7 @@ This keeps Codex focused on the useful parts of the repo instead of full-file du
 
     if agents_path.exists() {
         let content = std::fs::read_to_string(&agents_path).unwrap_or_default();
-        if content.contains("loopguard-ctx")
-            || content.contains("LOOPGUARD-CTX")
-        {
+        if content.contains("loopguard-ctx") || content.contains("LOOPGUARD-CTX") {
             println!("Codex AGENTS.md already configured.");
             return;
         }

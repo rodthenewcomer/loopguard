@@ -62,14 +62,12 @@ fn save(store: &KnowledgeStore) -> bool {
 
 pub fn handle(action: &str, args: &HashMap<String, String>) -> String {
     match action {
-        "set"    => handle_set(args),
-        "get"    => handle_get(args),
-        "list"   => handle_list(args),
+        "set" => handle_set(args),
+        "get" => handle_get(args),
+        "list" => handle_list(args),
         "delete" => handle_delete(args),
-        "clear"  => handle_clear(args),
-        _ => format!(
-            "Unknown action '{action}'. Use: set, get, list, delete, clear"
-        ),
+        "clear" => handle_clear(args),
+        _ => format!("Unknown action '{action}'. Use: set, get, list, delete, clear"),
     }
 }
 
@@ -116,7 +114,9 @@ fn handle_set(args: &HashMap<String, String>) -> String {
         });
         // Cap at 2000 entries per project
         if store.entries.len() > 2000 {
-            store.entries.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+            store
+                .entries
+                .sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
             store.entries.truncate(2000);
         }
         save(&store);
@@ -141,10 +141,7 @@ fn handle_get(args: &HashMap<String, String>) -> String {
         .iter()
         .find(|e| e.key == key && e.project == project)
     {
-        return format!(
-            "[{}] {}\n{}",
-            entry.category, entry.key, entry.value
-        );
+        return format!("[{}] {}\n{}", entry.category, entry.key, entry.value);
     }
 
     // Fuzzy: key contains query or query contains key
@@ -198,18 +195,14 @@ fn handle_list(args: &HashMap<String, String>) -> String {
                     .is_none_or(|cat| e.category == cat)
         })
         .collect();
-    entries.sort_by(|a, b| {
-        a.category.cmp(&b.category).then(a.key.cmp(&b.key))
-    });
+    entries.sort_by(|a, b| a.category.cmp(&b.category).then(a.key.cmp(&b.key)));
 
     if entries.is_empty() {
         let cat_hint = category_filter
             .as_deref()
             .map(|c| format!(" in category '{c}'"))
             .unwrap_or_default();
-        return format!(
-            "No knowledge entries{cat_hint} for project '{project}'."
-        );
+        return format!("No knowledge entries{cat_hint} for project '{project}'.");
     }
 
     // Group by category
@@ -247,7 +240,9 @@ fn handle_delete(args: &HashMap<String, String>) -> String {
     let project = args.get("project").cloned().unwrap_or_else(current_project);
     let mut store = load();
     let before = store.entries.len();
-    store.entries.retain(|e| !(e.key == key && e.project == project));
+    store
+        .entries
+        .retain(|e| !(e.key == key && e.project == project));
     let removed = before - store.entries.len();
     if removed == 0 {
         return format!("No entry found for key '{key}' in project '{project}'.");

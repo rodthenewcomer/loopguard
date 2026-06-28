@@ -8,31 +8,36 @@ use std::collections::HashSet;
 use std::path::Path;
 
 const STOP_WORDS: &[&str] = &[
-    "a", "an", "the", "in", "on", "at", "to", "for", "of", "and", "or",
-    "but", "is", "it", "this", "that", "with", "from", "by", "as", "be",
-    "are", "was", "were", "will", "would", "should", "could", "have",
-    "has", "had", "do", "does", "did", "not", "no", "i", "we", "you",
-    "they", "he", "she", "my", "our", "your", "their", "its",
+    "a", "an", "the", "in", "on", "at", "to", "for", "of", "and", "or", "but", "is", "it", "this",
+    "that", "with", "from", "by", "as", "be", "are", "was", "were", "will", "would", "should",
+    "could", "have", "has", "had", "do", "does", "did", "not", "no", "i", "we", "you", "they",
+    "he", "she", "my", "our", "your", "their", "its",
 ];
 
 const SKIP_DIRS: &[&str] = &[
-    ".git", "node_modules", "target", "dist", "build", ".next",
-    "__pycache__", ".cache", "coverage", ".nyc_output",
+    ".git",
+    "node_modules",
+    "target",
+    "dist",
+    "build",
+    ".next",
+    "__pycache__",
+    ".cache",
+    "coverage",
+    ".nyc_output",
 ];
 
 const SKIP_EXTS: &[&str] = &[
-    "png", "jpg", "jpeg", "gif", "svg", "ico", "woff", "woff2", "ttf",
-    "eot", "otf", "mp4", "mp3", "pdf", "zip", "tar", "gz", "lock",
+    "png", "jpg", "jpeg", "gif", "svg", "ico", "woff", "woff2", "ttf", "eot", "otf", "mp4", "mp3",
+    "pdf", "zip", "tar", "gz", "lock",
 ];
 
 const CODE_EXTS: &[&str] = &[
-    "ts", "tsx", "js", "jsx", "rs", "py", "go", "java", "c", "cpp",
-    "h", "cs", "rb", "swift", "kt", "scala", "php", "vue", "svelte",
+    "ts", "tsx", "js", "jsx", "rs", "py", "go", "java", "c", "cpp", "h", "cs", "rb", "swift", "kt",
+    "scala", "php", "vue", "svelte",
 ];
 
-const CONFIG_EXTS: &[&str] = &[
-    "json", "toml", "yaml", "yml", "env", "md",
-];
+const CONFIG_EXTS: &[&str] = &["json", "toml", "yaml", "yml", "env", "md"];
 
 #[derive(Debug)]
 struct ScoredFile {
@@ -56,12 +61,17 @@ pub fn handle(task: &str, root: &str, limit: usize, session_files: &[String]) ->
         return format!("No source files found under: {root}");
     }
 
-    let mut scored: Vec<ScoredFile> = files.into_iter()
+    let mut scored: Vec<ScoredFile> = files
+        .into_iter()
         .map(|(path, size)| score_file(&path, size, &keywords, &session_set))
         .filter(|f| f.score > 0.0)
         .collect();
 
-    scored.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    scored.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     let total_candidates = scored.len();
     scored.truncate(limit);
 
@@ -73,13 +83,25 @@ pub fn handle(task: &str, root: &str, limit: usize, session_files: &[String]) ->
     }
 
     let mut out = Vec::new();
-    out.push(format!("ctx_predict — {}", task.chars().take(72).collect::<String>()));
+    out.push(format!(
+        "ctx_predict — {}",
+        task.chars().take(72).collect::<String>()
+    ));
     out.push("═".repeat(56));
     out.push(format!(
         "Keywords: {}",
-        keywords.iter().take(10).cloned().collect::<Vec<_>>().join(", ")
+        keywords
+            .iter()
+            .take(10)
+            .cloned()
+            .collect::<Vec<_>>()
+            .join(", ")
     ));
-    out.push(format!("Scanned: {} files  →  {} matched", total_candidates, scored.len()));
+    out.push(format!(
+        "Scanned: {} files  →  {} matched",
+        total_candidates,
+        scored.len()
+    ));
     out.push(String::new());
     out.push("Predicted relevant files (ranked by score)".to_string());
     out.push("─".repeat(50));
@@ -109,7 +131,8 @@ pub fn handle(task: &str, root: &str, limit: usize, session_files: &[String]) ->
     let top_paths: Vec<&str> = scored.iter().take(3).map(|f| f.path.as_str()).collect();
     out.push(format!(
         "  ctx_multi_read(paths=[{}], mode='signatures')",
-        top_paths.iter()
+        top_paths
+            .iter()
             .map(|p| format!("\"{}\"", crate::core::protocol::shorten_path(p)))
             .collect::<Vec<_>>()
             .join(", ")
@@ -145,26 +168,34 @@ fn collect_recursive(
     if depth > max_depth {
         return;
     }
-    let Ok(entries) = std::fs::read_dir(dir) else { return };
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
 
     for entry in entries.flatten() {
         let path = entry.path();
-        let name = path.file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or("");
+        let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
         if name.starts_with('.') && depth == 0 {
             // Allow .env, .github etc at root but skip .git
-            if SKIP_DIRS.contains(&name) { continue; }
+            if SKIP_DIRS.contains(&name) {
+                continue;
+            }
         }
-        if SKIP_DIRS.contains(&name) { continue; }
+        if SKIP_DIRS.contains(&name) {
+            continue;
+        }
 
         if path.is_dir() {
             collect_recursive(_root, &path, max_depth, depth + 1, out);
         } else if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-            if SKIP_EXTS.contains(&ext) { continue; }
+            if SKIP_EXTS.contains(&ext) {
+                continue;
+            }
             let size = std::fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
-            if size == 0 || size > 500_000 { continue; } // skip empty and huge
+            if size == 0 || size > 500_000 {
+                continue;
+            } // skip empty and huge
             if let Some(s) = path.to_str() {
                 out.push((s.to_string(), size));
             }
@@ -193,7 +224,8 @@ fn score_file(
     let mut reasons = Vec::new();
 
     // Keyword match in filename (high weight)
-    let filename_hits: Vec<&str> = keywords.iter()
+    let filename_hits: Vec<&str> = keywords
+        .iter()
         .filter(|kw| filename.contains(kw.as_str()))
         .map(String::as_str)
         .collect();
@@ -204,7 +236,8 @@ fn score_file(
     }
 
     // Keyword match in path segments (medium weight)
-    let path_hits: usize = keywords.iter()
+    let path_hits: usize = keywords
+        .iter()
         .filter(|kw| path_lower.contains(kw.as_str()) && !filename.contains(kw.as_str()))
         .count();
     if path_hits > 0 {
@@ -236,5 +269,10 @@ fn score_file(
         score *= 0.85;
     }
 
-    ScoredFile { path: path.to_string(), score, reasons, size_bytes }
+    ScoredFile {
+        path: path.to_string(),
+        score,
+        reasons,
+        size_bytes,
+    }
 }

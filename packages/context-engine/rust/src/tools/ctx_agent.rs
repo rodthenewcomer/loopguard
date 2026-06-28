@@ -69,27 +69,23 @@ fn save(pad: &Scratchpad) -> bool {
 
 fn purge_expired(pad: &mut Scratchpad) {
     let now = now_ms();
-    pad.notes.retain(|n| {
-        match n.ttl_hours {
-            None => true,
-            Some(h) => {
-                let expires = n.created_at + (h as i64 * 3_600_000);
-                now < expires
-            }
+    pad.notes.retain(|n| match n.ttl_hours {
+        None => true,
+        Some(h) => {
+            let expires = n.created_at + (h as i64 * 3_600_000);
+            now < expires
         }
     });
 }
 
 pub fn handle(action: &str, args: &HashMap<String, String>) -> String {
     match action {
-        "write"  => handle_write(args),
-        "read"   => handle_read(args),
-        "list"   => handle_list(args),
+        "write" => handle_write(args),
+        "read" => handle_read(args),
+        "list" => handle_list(args),
         "delete" => handle_delete(args),
-        "clear"  => handle_clear(args),
-        _ => format!(
-            "Unknown action '{action}'. Use: write, read, list, delete, clear"
-        ),
+        "clear" => handle_clear(args),
+        _ => format!("Unknown action '{action}'. Use: write, read, list, delete, clear"),
     }
 }
 
@@ -190,9 +186,7 @@ fn handle_read(args: &HashMap<String, String>) -> String {
     let mut matches: Vec<&AgentNote> = pad
         .notes
         .iter()
-        .filter(|n| {
-            n.project == project && n.label.to_lowercase().contains(&label_lower)
-        })
+        .filter(|n| n.project == project && n.label.to_lowercase().contains(&label_lower))
         .collect();
     matches.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
 
@@ -230,12 +224,7 @@ fn handle_list(args: &HashMap<String, String>) -> String {
     let mut notes: Vec<&AgentNote> = pad
         .notes
         .iter()
-        .filter(|n| {
-            n.project == project
-                && agent_filter
-                    .as_deref()
-                    .is_none_or(|a| n.agent == a)
-        })
+        .filter(|n| n.project == project && agent_filter.as_deref().is_none_or(|a| n.agent == a))
         .collect();
     notes.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
 
@@ -281,7 +270,8 @@ fn handle_delete(args: &HashMap<String, String>) -> String {
     let project = args.get("project").cloned().unwrap_or_else(current_project);
     let mut pad = load();
     let before = pad.notes.len();
-    pad.notes.retain(|n| !(n.label == label && n.project == project));
+    pad.notes
+        .retain(|n| !(n.label == label && n.project == project));
     let removed = before - pad.notes.len();
     if removed == 0 {
         return format!("No note found for label '{label}' in project '{project}'.");

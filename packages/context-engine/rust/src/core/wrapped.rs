@@ -105,25 +105,30 @@ impl WrappedReport {
         };
 
         // ANSI colours
-        let rst   = "\x1b[0m";
-        let bold  = "\x1b[1m";
-        let dim   = "\x1b[2m";
+        let rst = "\x1b[0m";
+        let bold = "\x1b[1m";
+        let dim = "\x1b[2m";
         let green = "\x1b[32m";
-        let cyan  = "\x1b[36m";
-        let yel   = "\x1b[33m";
-        let mag   = "\x1b[35m";
+        let cyan = "\x1b[36m";
+        let yel = "\x1b[33m";
+        let mag = "\x1b[35m";
         let white = "\x1b[97m";
 
         let w = 56usize;
-        let top_border    = format!("  \u{256D}{}{}\u{256E}", "\u{2500}".repeat(w), rst);
-        let bot_border    = format!("  \u{2570}{}{}\u{256F}", "\u{2500}".repeat(w), rst);
-        let mid_div       = format!("  \u{251C}{}{}\u{2524}", "\u{2500}".repeat(w), rst);
-        let blank_row     = format!("  \u{2502}{}{}\u{2502}", " ".repeat(w), rst);
+        let top_border = format!("  \u{256D}{}{}\u{256E}", "\u{2500}".repeat(w), rst);
+        let bot_border = format!("  \u{2570}{}{}\u{256F}", "\u{2500}".repeat(w), rst);
+        let mid_div = format!("  \u{251C}{}{}\u{2524}", "\u{2500}".repeat(w), rst);
+        let blank_row = format!("  \u{2502}{}{}\u{2502}", " ".repeat(w), rst);
 
         let pad = |s: &str| {
             let visible = strip_ansi(s);
             let padding = w.saturating_sub(visible.len());
-            format!("  \u{2502} {}{}{} \u{2502}", s, " ".repeat(padding.saturating_sub(2)), rst)
+            format!(
+                "  \u{2502} {}{}{} \u{2502}",
+                s,
+                " ".repeat(padding.saturating_sub(2)),
+                rst
+            )
         };
 
         let title = format!("{bold}{white}◆ LOOPGUARD CTX WRAPPED{rst}  {dim}{period_label}{rst}");
@@ -137,10 +142,13 @@ impl WrappedReport {
             format!("{} cmds", self.total_commands),
             format!("{} sessions", self.sessions_count),
         );
-        let row_top    = format!("{dim}Top:{rst} {white}{}{rst}", top_str);
-        let row_cache  = format!("{dim}Cache efficiency:{rst} {green}{bold}{:.1}%{rst}", self.cache_hit_rate);
-        let row_quote  = format!("{dim}\"Your AI saw only what mattered.\"{rst}");
-        let row_url    = format!("{dim}loopguard.vercel.app{rst}");
+        let row_top = format!("{dim}Top:{rst} {white}{}{rst}", top_str);
+        let row_cache = format!(
+            "{dim}Cache efficiency:{rst} {green}{bold}{:.1}%{rst}",
+            self.cache_hit_rate
+        );
+        let row_quote = format!("{dim}\"Your AI saw only what mattered.\"{rst}");
+        let row_url = format!("{dim}loopguard.vercel.app{rst}");
 
         let mut lines = vec![
             String::new(),
@@ -168,12 +176,8 @@ impl WrappedReport {
         ];
 
         // Append plain-text share hint (no ANSI, copy-paste friendly)
-        lines.push(format!(
-            "  {dim}Share-friendly copy:{rst}"
-        ));
-        lines.push(format!(
-            "  {dim}loopguard-ctx wrapped --plain{rst}"
-        ));
+        lines.push(format!("  {dim}Share-friendly copy:{rst}"));
+        lines.push(format!("  {dim}loopguard-ctx wrapped --plain{rst}"));
         lines.push(String::new());
 
         lines.join("\n")

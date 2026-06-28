@@ -191,12 +191,13 @@ pub fn analyze(error_text: &str) -> Option<Hint> {
         }
     }
 
-    best.filter(|(_, score)| *score >= 0.5).map(|(p, confidence)| Hint {
-        pattern: p.name,
-        diagnosis: p.diagnosis,
-        suggestion: p.suggestion,
-        confidence,
-    })
+    best.filter(|(_, score)| *score >= 0.5)
+        .map(|(p, confidence)| Hint {
+            pattern: p.name,
+            diagnosis: p.diagnosis,
+            suggestion: p.suggestion,
+            confidence,
+        })
 }
 
 pub fn handle(error_text: &str, crp_mode: crate::tools::CrpMode) -> String {

@@ -15,7 +15,10 @@ impl ServerHandler for LoopguardCtxServer {
         let instructions = build_instructions(self.crp_mode);
 
         InitializeResult::new(capabilities)
-            .with_server_info(Implementation::new("loopguard-ctx", "2.6.0"))
+            .with_server_info(Implementation::new(
+                "loopguard-ctx",
+                env!("CARGO_PKG_VERSION"),
+            ))
             .with_instructions(instructions)
     }
 
@@ -24,8 +27,7 @@ impl ServerHandler for LoopguardCtxServer {
         _request: Option<PaginatedRequestParams>,
         _context: RequestContext<RoleServer>,
     ) -> Result<ListToolsResult, ErrorData> {
-        Ok(ListToolsResult {
-                tools: vec![
+        let mut tools = vec![
                     tool_def(
                         "ctx_read",
                         "REPLACES built-in Read tool — ALWAYS use this instead of Read. \
@@ -485,9 +487,13 @@ impl ServerHandler for LoopguardCtxServer {
                             }
                         }),
                     ),
-                ],
-                ..Default::default()
-            })
+                ];
+        tools.extend(crate::tools::expansion::tool_defs());
+
+        Ok(ListToolsResult {
+            tools,
+            ..Default::default()
+        })
     }
 
     async fn call_tool(
@@ -871,14 +877,23 @@ impl ServerHandler for LoopguardCtxServer {
                 let files = get_str_array(args, "files").unwrap_or_default();
                 let model = get_str(args, "model");
                 let result = crate::tools::ctx_forecast::handle(&task, &files, model.as_deref());
-                self.record_call("ctx_forecast", 0, 0, Some("forecast".to_string())).await;
+                self.record_call("ctx_forecast", 0, 0, Some("forecast".to_string()))
+                    .await;
                 result
             }
             "ctx_memory" => {
                 let action = get_str(args, "action")
                     .ok_or_else(|| ErrorData::invalid_params("action is required", None))?;
                 let mut map = std::collections::HashMap::new();
-                for key in &["error_text","fix_file","fix_line","fix_description","project","query","limit"] {
+                for key in &[
+                    "error_text",
+                    "fix_file",
+                    "fix_line",
+                    "fix_description",
+                    "project",
+                    "query",
+                    "limit",
+                ] {
                     if let Some(v) = get_str(args, key) {
                         map.insert(key.to_string(), v);
                     } else if let Some(v) = get_int(args, key) {
@@ -925,19 +940,23 @@ impl ServerHandler for LoopguardCtxServer {
                 let root = get_str(args, "path").unwrap_or_else(|| ".".to_string());
                 let limit = get_int(args, "limit").unwrap_or(10) as usize;
                 let session = self.session.read().await;
-                let session_files: Vec<String> = session.files_touched.iter()
+                let session_files: Vec<String> = session
+                    .files_touched
+                    .iter()
                     .map(|f| f.path.clone())
                     .collect();
                 drop(session);
                 let result = crate::tools::ctx_predict::handle(&task, &root, limit, &session_files);
-                self.record_call("ctx_predict", 0, 0, Some("predict".to_string())).await;
+                self.record_call("ctx_predict", 0, 0, Some("predict".to_string()))
+                    .await;
                 result
             }
             "ctx_loop_hint" => {
                 let error_text = get_str(args, "error_text")
                     .ok_or_else(|| ErrorData::invalid_params("error_text is required", None))?;
                 let result = crate::tools::ctx_loop_hint::handle(&error_text, self.crp_mode);
-                self.record_call("ctx_loop_hint", 0, 0, Some("hint".to_string())).await;
+                self.record_call("ctx_loop_hint", 0, 0, Some("hint".to_string()))
+                    .await;
                 result
             }
             "ctx_wrapped" => {
@@ -947,10 +966,24 @@ impl ServerHandler for LoopguardCtxServer {
                 result
             }
             _ => {
-                return Err(ErrorData::invalid_params(
-                    format!("Unknown tool: {name}"),
-                    None,
-                ));
+                let cache = self.cache.read().await;
+                let maybe_result =
+                    crate::tools::expansion::handle_tool(name.as_ref(), args, &cache);
+                drop(cache);
+
+                match maybe_result? {
+                    Some(result) => {
+                        self.record_call(name.as_ref(), 0, 0, Some("expansion".to_string()))
+                            .await;
+                        result
+                    }
+                    None => {
+                        return Err(ErrorData::invalid_params(
+                            format!("Unknown tool: {name}"),
+                            None,
+                        ));
+                    }
+                }
             }
         };
 

@@ -4,7 +4,7 @@
 
 It does three practical jobs:
 
-1. It gives agents a smaller, more focused way to read code through MCP tools such as `ctx_read`, `ctx_search`, `ctx_tree`, and `ctx_shell`.
+1. It gives agents a smaller, more focused way to read code through an 80-tool MCP surface, including `ctx_read`, `ctx_search`, `ctx_tree`, and `ctx_shell`.
 2. It trims noisy terminal output before you paste it into an AI chat or route it through an agent.
 3. It can restore lightweight session notes when you want continuity across longer agent workflows.
 

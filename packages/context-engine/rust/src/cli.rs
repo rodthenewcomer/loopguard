@@ -13,7 +13,9 @@ use crate::hooks::to_bash_compatible_path;
 
 pub fn cmd_read(args: &[String]) {
     if args.is_empty() {
-        eprintln!("Usage: loopguard-ctx read <file> [--mode full|map|signatures|aggressive|entropy]");
+        eprintln!(
+            "Usage: loopguard-ctx read <file> [--mode full|map|signatures|aggressive|entropy]"
+        );
         std::process::exit(1);
     }
 
@@ -759,7 +761,10 @@ if (-not $env:LOOPGUARD_CTX_ACTIVE) {{
             let cleaned = remove_loopguard_ctx_block_ps(&existing);
             match std::fs::write(&profile_path, format!("{cleaned}{functions}")) {
                 Ok(()) => {
-                    println!("Updated loopguard-ctx functions in {}", profile_path.display());
+                    println!(
+                        "Updated loopguard-ctx functions in {}",
+                        profile_path.display()
+                    );
                     println!("  Binary: {binary}");
                     return;
                 }
@@ -779,7 +784,10 @@ if (-not $env:LOOPGUARD_CTX_ACTIVE) {{
         Ok(mut f) => {
             use std::io::Write;
             let _ = f.write_all(functions.as_bytes());
-            println!("Added loopguard-ctx functions to {}", profile_path.display());
+            println!(
+                "Added loopguard-ctx functions to {}",
+                profile_path.display()
+            );
             println!("  Binary: {binary}");
         }
         Err(e) => eprintln!("Error writing {}: {e}", profile_path.display()),
@@ -1164,8 +1172,14 @@ fi
 export EDITOR=vim
 "#;
         let result = remove_loopguard_ctx_block(input);
-        assert!(!result.contains("loopguard-ctx-on"), "block should be removed");
-        assert!(!result.contains("loopguard-ctx shell hook"), "marker removed");
+        assert!(
+            !result.contains("loopguard-ctx-on"),
+            "block should be removed"
+        );
+        assert!(
+            !result.contains("loopguard-ctx shell hook"),
+            "marker removed"
+        );
         assert!(result.contains("export PATH"), "other content preserved");
         assert!(
             result.contains("export EDITOR"),

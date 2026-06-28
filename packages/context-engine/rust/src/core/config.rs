@@ -3,19 +3,19 @@ use std::path::PathBuf;
 
 /// (model_name, input_price_per_million, output_price_per_million)
 pub const MODEL_PRICING: &[(&str, f64, f64)] = &[
-    ("claude-opus-4-6",          15.00, 75.00),
-    ("claude-sonnet-4-6",         3.00, 15.00),
-    ("claude-haiku-4-5",          0.80,  4.00),
-    ("claude-haiku-4-5-20251001", 0.80,  4.00),
-    ("gpt-4o",                    2.50, 10.00),
-    ("gpt-4o-mini",               0.15,  0.60),
-    ("o1",                       15.00, 60.00),
-    ("o1-mini",                   1.10,  4.40),
-    ("o3",                       10.00, 40.00),
-    ("o3-mini",                   1.10,  4.40),
-    ("gemini-1.5-pro",            1.25,  5.00),
-    ("gemini-1.5-flash",          0.075, 0.30),
-    ("gemini-2.0-flash",          0.10,  0.40),
+    ("claude-opus-4-6", 15.00, 75.00),
+    ("claude-sonnet-4-6", 3.00, 15.00),
+    ("claude-haiku-4-5", 0.80, 4.00),
+    ("claude-haiku-4-5-20251001", 0.80, 4.00),
+    ("gpt-4o", 2.50, 10.00),
+    ("gpt-4o-mini", 0.15, 0.60),
+    ("o1", 15.00, 60.00),
+    ("o1-mini", 1.10, 4.40),
+    ("o3", 10.00, 40.00),
+    ("o3-mini", 1.10, 4.40),
+    ("gemini-1.5-pro", 1.25, 5.00),
+    ("gemini-1.5-flash", 0.075, 0.30),
+    ("gemini-2.0-flash", 0.10, 0.40),
 ];
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

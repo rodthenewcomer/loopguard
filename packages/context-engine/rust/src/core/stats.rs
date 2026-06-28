@@ -246,12 +246,16 @@ pub fn format_notify_line() -> Option<String> {
     let session_saved = load_session_saved();
     let today = chrono::Local::now().format("%Y-%m-%d").to_string();
 
-    let today_saved = store.daily.last()
+    let today_saved = store
+        .daily
+        .last()
         .filter(|d| d.date == today)
         .map(|d| d.input_tokens.saturating_sub(d.output_tokens))
         .unwrap_or(0);
 
-    let all_time = store.total_input_tokens.saturating_sub(store.total_output_tokens);
+    let all_time = store
+        .total_input_tokens
+        .saturating_sub(store.total_output_tokens);
 
     let mut parts: Vec<String> = Vec::new();
 
@@ -259,7 +263,10 @@ pub fn format_notify_line() -> Option<String> {
         if sess > 0 {
             parts.push(format!(
                 "{}session: {} (≈{}){}",
-                GREEN, format_big(sess), usd_estimate(sess), RST
+                GREEN,
+                format_big(sess),
+                usd_estimate(sess),
+                RST
             ));
         }
     }
@@ -267,14 +274,20 @@ pub fn format_notify_line() -> Option<String> {
     if today_saved > 0 {
         parts.push(format!(
             "{}today: {} (≈{}){}",
-            CYAN, format_big(today_saved), usd_estimate(today_saved), RST
+            CYAN,
+            format_big(today_saved),
+            usd_estimate(today_saved),
+            RST
         ));
     }
 
     if all_time > 0 {
         parts.push(format!(
             "{}all-time: {} (≈{}){}",
-            MAGENTA, format_big(all_time), usd_estimate(all_time), RST
+            MAGENTA,
+            format_big(all_time),
+            usd_estimate(all_time),
+            RST
         ));
     }
 

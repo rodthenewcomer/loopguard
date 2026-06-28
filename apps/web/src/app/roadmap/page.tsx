@@ -71,7 +71,7 @@ const VERSIONS = [
       {
         heading: 'loopguard-ctx binary — all platforms',
         items: [
-          '20+ MCP tools: ctx_read, ctx_shell, ctx_search, ctx_tree, ctx_session, ctx_wrapped, ctx_compress, ctx_metrics and more',
+          '80 MCP tools: focused reads, shell cleanup, git helpers, package lookups, graph helpers, local archives, budgets, and agent handoffs',
           'Homebrew tap: brew tap rodthenewcomer/loopguard && brew install loopguard-ctx',
           'curl installer for environments without Homebrew',
           'GitHub release binaries: macOS (x64/ARM64), Linux (x64/ARM64 gnu), Windows (x64)',

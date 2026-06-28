@@ -34,7 +34,8 @@ fn path_in_path_env() -> bool {
                 return true;
             }
             if cfg!(windows)
-                && (dir.join("loopguard-ctx.exe").is_file() || dir.join("loopguard-ctx.cmd").is_file())
+                && (dir.join("loopguard-ctx.exe").is_file()
+                    || dir.join("loopguard-ctx.cmd").is_file())
             {
                 return true;
             }
@@ -402,7 +403,10 @@ pub fn run() {
         passed += 1;
     }
     let bin_line = if let Some(p) = path_bin {
-        format!("{BOLD}loopguard-ctx in PATH{RST}  {WHITE}{}{RST}", p.display())
+        format!(
+            "{BOLD}loopguard-ctx in PATH{RST}  {WHITE}{}{RST}",
+            p.display()
+        )
     } else if also_in_path_dirs {
         format!(
             "{BOLD}loopguard-ctx in PATH{RST}  {YELLOW}found via PATH walk (not resolved by `command -v`){RST}"
@@ -421,7 +425,9 @@ pub fn run() {
     } else {
         Outcome {
             ok: false,
-            line: format!("{BOLD}loopguard-ctx version{RST}  {RED}skipped (binary not in PATH){RST}"),
+            line: format!(
+                "{BOLD}loopguard-ctx version{RST}  {RED}skipped (binary not in PATH){RST}"
+            ),
         }
     };
     if ver.ok {
@@ -451,7 +457,9 @@ pub fn run() {
         },
         None => Outcome {
             ok: false,
-            line: format!("{BOLD}~/.loopguard-ctx/{RST}  {RED}could not resolve home directory{RST}"),
+            line: format!(
+                "{BOLD}~/.loopguard-ctx/{RST}  {RED}could not resolve home directory{RST}"
+            ),
         },
     };
     print_check(&dir_outcome);
@@ -560,9 +568,13 @@ pub fn run() {
     let claude_home = dirs::home_dir().map(|h| h.join(".claude"));
 
     // 9) Bash rewrite hook
-    let rewrite_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-rewrite.sh"));
+    let rewrite_hook = claude_home
+        .as_ref()
+        .map(|d| d.join("hooks").join("loopguard-ctx-rewrite.sh"));
     let rewrite_ok = rewrite_hook.as_ref().is_some_and(|p| p.is_file());
-    if rewrite_ok { passed += 1; }
+    if rewrite_ok {
+        passed += 1;
+    }
     print_check(&Outcome {
         ok: rewrite_ok,
         line: if rewrite_ok {
@@ -573,9 +585,13 @@ pub fn run() {
     });
 
     // 10) Read/Grep enforcement hook
-    let enforce_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-enforce.sh"));
+    let enforce_hook = claude_home
+        .as_ref()
+        .map(|d| d.join("hooks").join("loopguard-ctx-enforce.sh"));
     let enforce_ok = enforce_hook.as_ref().is_some_and(|p| p.is_file());
-    if enforce_ok { passed += 1; }
+    if enforce_ok {
+        passed += 1;
+    }
     print_check(&Outcome {
         ok: enforce_ok,
         line: if enforce_ok {
@@ -587,12 +603,15 @@ pub fn run() {
 
     // 11) settings.json has Read|Grep matcher
     let settings_path = claude_home.as_ref().map(|d| d.join("settings.json"));
-    let settings_content = settings_path.as_ref()
+    let settings_content = settings_path
+        .as_ref()
         .and_then(|p| std::fs::read_to_string(p).ok())
         .unwrap_or_default();
     let settings_ok = settings_content.contains("loopguard-ctx-enforce")
         && settings_content.contains("Read|Grep");
-    if settings_ok { passed += 1; }
+    if settings_ok {
+        passed += 1;
+    }
     print_check(&Outcome {
         ok: settings_ok,
         line: if settings_ok {
@@ -604,9 +623,12 @@ pub fn run() {
 
     // 12) Global ~/.claude/CLAUDE.md
     let global_claude_md = claude_home.as_ref().map(|d| d.join("CLAUDE.md"));
-    let global_md_ok = global_claude_md.as_ref()
+    let global_md_ok = global_claude_md
+        .as_ref()
         .is_some_and(|p| p.is_file() && rc_contains_loopguard_ctx(p));
-    if global_md_ok { passed += 1; }
+    if global_md_ok {
+        passed += 1;
+    }
     print_check(&Outcome {
         ok: global_md_ok,
         line: if global_md_ok {
@@ -617,11 +639,17 @@ pub fn run() {
     });
 
     // 13) Stop + PostToolUse hooks (summary + periodic)
-    let summary_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-summary.sh"));
-    let periodic_hook = claude_home.as_ref().map(|d| d.join("hooks").join("loopguard-ctx-periodic.sh"));
+    let summary_hook = claude_home
+        .as_ref()
+        .map(|d| d.join("hooks").join("loopguard-ctx-summary.sh"));
+    let periodic_hook = claude_home
+        .as_ref()
+        .map(|d| d.join("hooks").join("loopguard-ctx-periodic.sh"));
     let session_hooks_ok = summary_hook.as_ref().is_some_and(|p| p.is_file())
         && periodic_hook.as_ref().is_some_and(|p| p.is_file());
-    if session_hooks_ok { passed += 1; }
+    if session_hooks_ok {
+        passed += 1;
+    }
     print_check(&Outcome {
         ok: session_hooks_ok,
         line: if session_hooks_ok {
@@ -636,9 +664,13 @@ pub fn run() {
     println!("  {BOLD}{WHITE}Agent rules files{RST}  {DIM}(project-local — run doctor from your project root){RST}");
 
     // 14) Cursor .mdc rule (project-local)
-    let cursor_mdc = PathBuf::from(".cursor").join("rules").join("loopguard-ctx.mdc");
+    let cursor_mdc = PathBuf::from(".cursor")
+        .join("rules")
+        .join("loopguard-ctx.mdc");
     let cursor_mdc_ok = cursor_mdc.is_file();
-    if cursor_mdc_ok { passed += 1; }
+    if cursor_mdc_ok {
+        passed += 1;
+    }
     print_check(&Outcome {
         ok: cursor_mdc_ok,
         line: if cursor_mdc_ok {
@@ -654,7 +686,9 @@ pub fn run() {
         && std::fs::read_to_string(&windsurf_rules)
             .unwrap_or_default()
             .contains("loopguard-ctx");
-    if windsurf_ok { passed += 1; }
+    if windsurf_ok {
+        passed += 1;
+    }
     print_check(&Outcome {
         ok: windsurf_ok,
         line: if windsurf_ok {

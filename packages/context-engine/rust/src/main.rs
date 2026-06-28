@@ -149,24 +149,51 @@ fn main() {
                 return;
             }
             "forecast" => {
-                let task = rest.iter().filter(|a| !a.starts_with("--")).cloned().collect::<Vec<_>>().join(" ");
+                let task = rest
+                    .iter()
+                    .filter(|a| !a.starts_with("--"))
+                    .cloned()
+                    .collect::<Vec<_>>()
+                    .join(" ");
                 let files: Vec<String> = vec![];
                 println!("{}", tools::ctx_forecast::handle(&task, &files, None));
                 return;
             }
             "predict" => {
-                let task = rest.iter().filter(|a| !a.starts_with("--")).cloned().collect::<Vec<_>>().join(" ");
-                let path = rest.iter().find(|a| a.starts_with("--path=")).map(|a| a[7..].to_string()).unwrap_or_else(|| ".".to_string());
-                let limit = rest.iter().find(|a| a.starts_with("--limit=")).and_then(|a| a[8..].parse::<usize>().ok()).unwrap_or(10);
+                let task = rest
+                    .iter()
+                    .filter(|a| !a.starts_with("--"))
+                    .cloned()
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                let path = rest
+                    .iter()
+                    .find(|a| a.starts_with("--path="))
+                    .map(|a| a[7..].to_string())
+                    .unwrap_or_else(|| ".".to_string());
+                let limit = rest
+                    .iter()
+                    .find(|a| a.starts_with("--limit="))
+                    .and_then(|a| a[8..].parse::<usize>().ok())
+                    .unwrap_or(10);
                 println!("{}", tools::ctx_predict::handle(&task, &path, limit, &[]));
                 return;
             }
             "memory" => {
-                let action = rest.first().map(|s| s.as_str()).unwrap_or("list").to_string();
+                let action = rest
+                    .first()
+                    .map(|s| s.as_str())
+                    .unwrap_or("list")
+                    .to_string();
                 let mut map = std::collections::HashMap::<String, String>::new();
                 map.insert("action".to_string(), action.clone());
                 if action == "query" || action == "record" {
-                    let text = rest[1..].iter().filter(|a| !a.starts_with("--")).cloned().collect::<Vec<_>>().join(" ");
+                    let text = rest[1..]
+                        .iter()
+                        .filter(|a| !a.starts_with("--"))
+                        .cloned()
+                        .collect::<Vec<_>>()
+                        .join(" ");
                     if !text.is_empty() {
                         map.insert("error_text".to_string(), text);
                     }
@@ -227,7 +254,10 @@ fn run_mcp_server() -> Result<()> {
             .with_writer(std::io::stderr)
             .init();
 
-        tracing::info!("loopguard-ctx v{} MCP server starting", env!("CARGO_PKG_VERSION"));
+        tracing::info!(
+            "loopguard-ctx v{} MCP server starting",
+            env!("CARGO_PKG_VERSION")
+        );
 
         let server = tools::create_server();
         let transport = rmcp::transport::io::stdio();
@@ -261,7 +291,7 @@ fn print_help() {
     println!(
         "loopguard-ctx {} — Local helper for focused reads and smaller shell output
 
-90+ shell patterns | 23 MCP tools | optional session restore
+90+ shell patterns | 80 MCP tools | optional session restore
 
 USAGE:
     loopguard-ctx                       Start MCP server (stdio)

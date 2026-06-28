@@ -28,7 +28,7 @@ const RELEASES: Release[] = [
     date: 'April 2026',
     tag: 'Latest',
     tagColor: '#22C55E',
-    summary: 'Cleans up first-run onboarding: one public site domain, clearer setup/docs flows, corrected Gemini/Windsurf/Codex guidance, and dashboard/account totals that are easier to trust.',
+    summary: 'Expands loopguard-ctx to an 80-tool MCP surface and cleans up first-run onboarding: clearer setup/docs flows, corrected Gemini/Windsurf/Codex guidance, and dashboard/account totals that are easier to trust.',
     sections: [
       {
         label: 'New-user onboarding',
@@ -55,6 +55,15 @@ const RELEASES: Release[] = [
           'LoopGuard helper help text and install surfaces now report the current 2.8.2 version line',
           'Windsurf and Gemini-family setup paths no longer get skipped during helper setup',
           'Project-level agent guidance files are ready to commit for Cursor and Windsurf users',
+        ],
+      },
+      {
+        label: 'MCP expansion',
+        color: '#22C55E',
+        items: [
+          'loopguard-ctx now advertises 80 MCP tools through tools/list',
+          'Added early-access tool families for web research, code intelligence, PR review, reversible context, multi-agent handoff, archive search, budget tracking, and graph workflows',
+          'MCP server metadata now reports the package version instead of a stale hardcoded version',
         ],
       },
     ],

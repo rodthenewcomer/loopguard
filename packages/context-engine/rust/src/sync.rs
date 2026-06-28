@@ -76,7 +76,9 @@ fn load_or_create_device_id() -> Option<String> {
     }
 
     let uuid = generate_uuid_v4();
-    let identity = DeviceIdentity { device_id: uuid.clone() };
+    let identity = DeviceIdentity {
+        device_id: uuid.clone(),
+    };
     if let Ok(json) = serde_json::to_string(&identity) {
         if let Some(dir) = path.parent() {
             let _ = std::fs::create_dir_all(dir);
