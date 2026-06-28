@@ -2,6 +2,9 @@ import * as vscode from 'vscode';
 import type { AlertAction, LoopEvent, SessionMetrics } from '@loopguard/types';
 import { formatDuration } from '@loopguard/utils';
 
+const ISSUES_URL = 'https://github.com/rodthenewcomer/loopguard/issues/new';
+const DOCS_URL = 'https://loopguard.vercel.app/docs';
+
 /**
  * Manages alert notifications for loop detection events.
  *
@@ -67,20 +70,28 @@ export class AlertPanel {
 
   /**
    * First-time welcome notification — shown once on fresh install.
-   * Gives the user two actionable paths rather than just dismissing.
+   * Provides four actionable paths for new users.
    */
   showWelcome(): void {
-    void vscode.window.showInformationMessage(
-      'LoopGuard is active. Loop detection is running. Sign in to sync your dashboard, or paste context directly into any AI.',
-      'Sign In',
-      'Copy Context',
-    ).then((action) => {
-      if (action === 'Sign In') {
-        void vscode.commands.executeCommand('loopguard.signIn');
-      } else if (action === 'Copy Context') {
-        void vscode.commands.executeCommand('loopguard.copyContext');
-      }
-    });
+    void vscode.window
+      .showInformationMessage(
+        "LoopGuard is active — loop detection is running. Start coding and LoopGuard will alert you when you're stuck.",
+        'Sign In',
+        'Copy Context',
+        'View Docs',
+        'Report Issue',
+      )
+      .then((action) => {
+        if (action === 'Sign In') {
+          void vscode.commands.executeCommand('loopguard.signIn');
+        } else if (action === 'Copy Context') {
+          void vscode.commands.executeCommand('loopguard.copyContext');
+        } else if (action === 'View Docs') {
+          void vscode.env.openExternal(vscode.Uri.parse(DOCS_URL));
+        } else if (action === 'Report Issue') {
+          void vscode.env.openExternal(vscode.Uri.parse(ISSUES_URL));
+        }
+      });
   }
 
   private async showNewApproachTips(): Promise<void> {
@@ -90,6 +101,7 @@ export class AlertPanel {
       'Check your inputs/assumptions, not just the output',
       'Search for the exact error message online',
       'Take a 5-minute break — seriously',
+      'Open a GitHub issue if this keeps happening',
     ];
 
     const tip = tips[Math.floor(Math.random() * tips.length)];

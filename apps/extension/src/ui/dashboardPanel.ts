@@ -5,6 +5,9 @@ import type { LoopEvent, SessionMetrics } from '@loopguard/types';
 import { formatDuration } from '@loopguard/utils';
 import type { DashboardSummary } from '../services/apiClient';
 
+const ISSUES_URL = 'https://github.com/rodthenewcomer/loopguard/issues/new';
+const DOCS_URL = 'https://loopguard.vercel.app/docs';
+
 export class DashboardPanel {
   private static _instance: DashboardPanel | undefined;
   private static _engineTier: 'rust' | 'ts' = 'ts';
@@ -120,8 +123,8 @@ function buildHtml(
   const loopRows = activeLoops.length === 0
     ? `<div class="empty-state">
         <div class="empty-check">✓</div>
-        <div class="empty-title">No loops detected</div>
-        <div class="empty-sub">Next alert will appear here automatically.</div>
+        <div class="empty-title">No loops detected yet</div>
+        <div class="empty-sub">Keep coding — LoopGuard will alert you the moment you hit a repeated error.</div>
        </div>`
     : activeLoops.slice(0, 8).map((loop) => {
         const fileName = loop.fileUri.split('/').pop() ?? '';
@@ -365,7 +368,9 @@ a { color: inherit; text-decoration: none; }
 }
 .session-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--dim); }
 /* ── footer ── */
-.footer { padding: 16px 20px; font-size: 11px; color: var(--dim); text-align: center; }
+.footer { padding: 12px 20px 16px; font-size: 11px; color: var(--dim); text-align: center; display: flex; align-items: center; justify-content: center; gap: 14px; }
+.footer a { color: var(--dim); }
+.footer a:hover { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -413,7 +418,7 @@ a { color: inherit; text-decoration: none; }
     ${loopRows}
   </section>
 
-  <!-- Engine status -->
+  <!-- Engine status + actions -->
   <section class="card">
     <div class="engine-row">
       <span class="engine-label">Context engine</span>
@@ -432,7 +437,11 @@ a { color: inherit; text-decoration: none; }
   ${memorySection}
 
 </div>
-<div class="footer">Your code never leaves this machine.</div>
+<div class="footer">
+  <span>Your code never leaves this machine.</span>
+  <a href="${DOCS_URL}">Docs</a>
+  <a href="${ISSUES_URL}">Report an Issue</a>
+</div>
 </body>
 </html>`;
 }
